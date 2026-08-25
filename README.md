@@ -7,7 +7,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Offline](https://img.shields.io/badge/works-offline-success?style=flat-square)](#requirements)
 
-> A feature-rich, browser-based chess game with support for player vs. player, player vs. computer, configurable timers, move history, and PGN/FEN export.
+A feature-rich, browser-based chess game with support for player vs. player, player vs. computer, configurable timers, move history, and PGN/FEN export.
 
 Modern Chess is a self-contained chess application that runs entirely in the browser. It provides a complete chess-playing experience with an elegant glass-morphism interface, standard chess rules, and a built-in computer opponent with configurable difficulty levels.
 
