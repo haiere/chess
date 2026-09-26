@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ========== SVG PIECES (Inline data URIs) ==========
+    // ========== SVG PIECES ==========
     const SVG_WHITE_KING = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45"><g fill="none" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.5 11.63V6" stroke-linecap="round"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#fff"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 6 10.5 6 10.5v7" fill="#fff"/><path d="M20 8h5" stroke-linecap="round"/><circle cx="22.5" cy="33.5" r="1.5" fill="#000"/><circle cx="20.5" cy="30.5" r="1.5" fill="#000"/><circle cx="24.5" cy="30.5" r="1.5" fill="#000"/></g></svg>');
     const SVG_WHITE_QUEEN = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45"><g fill="none" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0zm16.5-4.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0zm13 4.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0z" fill="#fff"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 12l-3.5 6.5-5.5-7-5.5 7L13 12l-7.5 1.5L9 26z" fill="#fff"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 2-1 .5-2.5 0 0 0-1.5-1.5-2.5-.5-2.5.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" fill="#fff"/><circle cx="6" cy="12" r="1.5" fill="#000"/><circle cx="20.5" cy="7" r="1.5" fill="#000"/><circle cx="35" cy="12" r="1.5" fill="#000"/></g></svg>');
     const SVG_WHITE_ROOK = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45"><g fill="none" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 39h27v-3H9v3zm3.5-7h18V10h-18v22zm3-17.5h12" fill="#fff"/><path d="M15 10V3h15v7M15 10h-4.5v6.5M30 10h4.5v6.5" fill="#fff"/></g></svg>');
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========== SOUND ENGINE ==========
     let audioCtx = null;
     let soundEnabled = true;
-    let soundVolume = 0.5;
+    const soundVolume = 0.5;
 
     function getAudioCtx() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -48,12 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function playSound(type) {
         switch (type) {
-            case 'move': playTone(600, 0.08, 'sine', 0.2); break;
-            case 'capture': playTone(200, 0.15, 'triangle', 0.35); playTone(150, 0.1, 'sawtooth', 0.2); break;
-            case 'check': playTone(800, 0.15, 'square', 0.4); setTimeout(() => playTone(1000, 0.2, 'square', 0.4), 150); break;
-            case 'castle': playTone(500, 0.1, 'sine', 0.25); setTimeout(() => playTone(700, 0.1, 'sine', 0.25), 100); break;
+            case 'move':      playTone(600, 0.08, 'sine', 0.2); break;
+            case 'capture':   playTone(200, 0.15, 'triangle', 0.35); playTone(150, 0.1, 'sawtooth', 0.2); break;
+            case 'check':     playTone(800, 0.15, 'square', 0.4); setTimeout(() => playTone(1000, 0.2, 'square', 0.4), 150); break;
+            case 'castle':    playTone(500, 0.1, 'sine', 0.25); setTimeout(() => playTone(700, 0.1, 'sine', 0.25), 100); break;
             case 'game-over': playTone(400, 0.3, 'triangle', 0.4); setTimeout(() => playTone(300, 0.3, 'triangle', 0.4), 300); setTimeout(() => playTone(200, 0.5, 'triangle', 0.4), 600); break;
-            case 'promote': playTone(900, 0.2, 'sine', 0.3); break;
+            case 'promote':   playTone(900, 0.2, 'sine', 0.3); break;
         }
     }
 
@@ -61,26 +61,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
     let gameState = {
-        board: [],
-        currentPlayer: 'white',
-        selectedSquare: null,
-        legalMoves: [],
-        moveHistory: [],
-        capturedPieces: { white: [], black: [] },
+        board: [], currentPlayer: 'white', selectedSquare: null, legalMoves: [],
+        moveHistory: [], capturedPieces: { white: [], black: [] },
         castlingRights: { whiteKingSide: true, whiteQueenSide: true, blackKingSide: true, blackQueenSide: true },
-        enPassantTarget: null,
-        halfmoveClock: 0,
-        fullmoveNumber: 1,
-        lastMove: null,
-        isCheck: false,
-        isCheckmate: false,
-        isStalemate: false,
-        gameOver: false,
-        gameResult: null,
+        enPassantTarget: null, halfmoveClock: 0, fullmoveNumber: 1,
+        lastMove: null, isCheck: false, isCheckmate: false, isStalemate: false,
+        gameOver: false, gameResult: null,
     };
 
     let boardOrientation = 'white';
-    let currentViewMoveIndex = -1;
     let redoStack = [];
     let gameMode = 'pvp';
     let playerColor = 'white';
@@ -88,11 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerMode = { initial: 600, increment: 0 };
     let timers = { white: 600, black: 600 };
     let timerInterval = null;
-    let timerRunning = false;
     let showCoordinates = true;
     let aiThinking = false;
 
-    // ========== INITIALIZATION & FEN ==========
+    const boardEl = document.getElementById('board');
+
+    // ========== FEN ==========
     function parseFEN(fen) {
         const parts = fen.trim().split(/\s+/);
         const boardPart = parts[0];
@@ -112,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     for (let i = 0; i < parseInt(ch); i++) row.push(null);
                 } else {
                     const color = ch === ch.toUpperCase() ? 'white' : 'black';
-                    const pieceMap = { 'k': 'king', 'q': 'queen', 'r': 'rook', 'b': 'bishop', 'n': 'knight', 'p': 'pawn' };
+                    const pieceMap = { k: 'king', q: 'queen', r: 'rook', b: 'bishop', n: 'knight', p: 'pawn' };
                     row.push({ type: pieceMap[ch.toLowerCase()], color });
                 }
             }
@@ -180,20 +170,17 @@ document.addEventListener('DOMContentLoaded', () => {
         gameState.gameOver = false;
         gameState.gameResult = null;
         redoStack = [];
-        currentViewMoveIndex = -1;
         updateCheckStatus();
         updateGameStatus();
         renderBoard();
         updateMoveHistoryUI();
         updateCapturedUI();
         updatePlayerStatusUI();
-        resetTimers();
     }
 
     function resetGame() {
         loadFromFEN(INITIAL_FEN);
         resetTimers();
-        stopTimer();
         if (gameMode === 'pvc' && playerColor === 'black') {
             setTimeout(() => makeComputerMove(), 400);
         }
@@ -202,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========== TIMERS ==========
     function startTimer() {
         if (timerInterval || timerMode.initial === 0) return;
-        timerRunning = true;
         timerInterval = setInterval(() => {
             if (gameState.gameOver) { stopTimer(); return; }
             const active = gameState.currentPlayer;
@@ -223,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopTimer() {
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = null;
-        timerRunning = false;
     }
 
     function resetTimers() {
@@ -235,17 +220,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatTime(seconds) {
-        if (seconds <= 0) return "00:00";
+        if (seconds <= 0) return '00:00';
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
-        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
     function updateTimerUI() {
         const wTimer = document.getElementById('whiteTimer');
         const bTimer = document.getElementById('blackTimer');
-        if (wTimer) wTimer.textContent = formatTime(timers.white);
-        if (bTimer) bTimer.textContent = formatTime(timers.black);
+        if (wTimer) {
+            wTimer.textContent = formatTime(timers.white);
+            wTimer.classList.toggle('low-time', timerMode.initial > 0 && timers.white <= 30 && timers.white > 0);
+        }
+        if (bTimer) {
+            bTimer.textContent = formatTime(timers.black);
+            bTimer.classList.toggle('low-time', timerMode.initial > 0 && timers.black <= 30 && timers.black > 0);
+        }
     }
 
     // ========== MOVE GENERATION ==========
@@ -352,9 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const startRow = color === 'white' ? 6 : 1;
                 if (!board[row + dir]?.[col]) {
                     addMove(row + dir, col);
-                    if (row === startRow && !board[row + 2 * dir]?.[col]) {
-                        addMove(row + 2 * dir, col, 'double-push');
-                    }
+                    if (row === startRow && !board[row + 2 * dir]?.[col]) addMove(row + 2 * dir, col, 'double-push');
                 }
                 for (const dc of [-1, 1]) {
                     const tr = row + dir, tc = col + dc;
@@ -387,18 +376,26 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'king':
                 for (const [dr, dc] of [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]) addMove(row + dr, col + dc);
                 if (color === 'white' && row === 7 && col === 4) {
-                    if (castlingRights.whiteKingSide && !board[7][5] && !board[7][6] && !isSquareAttackedBy(board, 7, 4, enemy) && !isSquareAttackedBy(board, 7, 5, enemy) && !isSquareAttackedBy(board, 7, 6, enemy) && board[7][7]?.type === 'rook' && board[7][7]?.color === 'white') {
+                    if (castlingRights.whiteKingSide && !board[7][5] && !board[7][6] &&
+                        !isSquareAttackedBy(board, 7, 4, enemy) && !isSquareAttackedBy(board, 7, 5, enemy) && !isSquareAttackedBy(board, 7, 6, enemy) &&
+                        board[7][7]?.type === 'rook' && board[7][7]?.color === 'white') {
                         moves.push({ fromRow: 7, fromCol: 4, toRow: 7, toCol: 6, piece, captured: null, special: 'kingside-castle' });
                     }
-                    if (castlingRights.whiteQueenSide && !board[7][1] && !board[7][2] && !board[7][3] && !isSquareAttackedBy(board, 7, 4, enemy) && !isSquareAttackedBy(board, 7, 3, enemy) && !isSquareAttackedBy(board, 7, 2, enemy) && board[7][0]?.type === 'rook' && board[7][0]?.color === 'white') {
+                    if (castlingRights.whiteQueenSide && !board[7][1] && !board[7][2] && !board[7][3] &&
+                        !isSquareAttackedBy(board, 7, 4, enemy) && !isSquareAttackedBy(board, 7, 3, enemy) && !isSquareAttackedBy(board, 7, 2, enemy) &&
+                        board[7][0]?.type === 'rook' && board[7][0]?.color === 'white') {
                         moves.push({ fromRow: 7, fromCol: 4, toRow: 7, toCol: 2, piece, captured: null, special: 'queenside-castle' });
                     }
                 }
                 if (color === 'black' && row === 0 && col === 4) {
-                    if (castlingRights.blackKingSide && !board[0][5] && !board[0][6] && !isSquareAttackedBy(board, 0, 4, enemy) && !isSquareAttackedBy(board, 0, 5, enemy) && !isSquareAttackedBy(board, 0, 6, enemy) && board[0][7]?.type === 'rook' && board[0][7]?.color === 'black') {
+                    if (castlingRights.blackKingSide && !board[0][5] && !board[0][6] &&
+                        !isSquareAttackedBy(board, 0, 4, enemy) && !isSquareAttackedBy(board, 0, 5, enemy) && !isSquareAttackedBy(board, 0, 6, enemy) &&
+                        board[0][7]?.type === 'rook' && board[0][7]?.color === 'black') {
                         moves.push({ fromRow: 0, fromCol: 4, toRow: 0, toCol: 6, piece, captured: null, special: 'kingside-castle' });
                     }
-                    if (castlingRights.blackQueenSide && !board[0][1] && !board[0][2] && !board[0][3] && !isSquareAttackedBy(board, 0, 4, enemy) && !isSquareAttackedBy(board, 0, 3, enemy) && !isSquareAttackedBy(board, 0, 2, enemy) && board[0][0]?.type === 'rook' && board[0][0]?.color === 'black') {
+                    if (castlingRights.blackQueenSide && !board[0][1] && !board[0][2] && !board[0][3] &&
+                        !isSquareAttackedBy(board, 0, 4, enemy) && !isSquareAttackedBy(board, 0, 3, enemy) && !isSquareAttackedBy(board, 0, 2, enemy) &&
+                        board[0][0]?.type === 'rook' && board[0][0]?.color === 'black') {
                         moves.push({ fromRow: 0, fromCol: 4, toRow: 0, toCol: 2, piece, captured: null, special: 'queenside-castle' });
                     }
                 }
@@ -428,9 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 newBoard[move.toRow][3] = newBoard[move.toRow][0];
                 newBoard[move.toRow][0] = null;
             }
-            if (!isKingInCheckOnBoard(newBoard, piece.color)) {
-                legal.push(move);
-            }
+            if (!isKingInCheckOnBoard(newBoard, piece.color)) legal.push(move);
         }
         return legal;
     }
@@ -440,9 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 const p = board[r][c];
-                if (p && p.color === color) {
-                    allMoves.push(...getLegalMoves(board, r, c, castlingRights, enPassantTarget));
-                }
+                if (p && p.color === color) allMoves.push(...getLegalMoves(board, r, c, castlingRights, enPassantTarget));
             }
         }
         return allMoves;
@@ -482,11 +475,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let notation = '';
         if (piece.type === 'pawn') {
-            if (move.captured || move.special === 'en-passant') {
-                notation = fromFile + 'x' + toFile + toRank;
-            } else {
-                notation = toFile + toRank;
-            }
+            if (move.captured || move.special === 'en-passant') notation = fromFile + 'x' + toFile + toRank;
+            else notation = toFile + toRank;
         } else {
             const pieceMap = { king: 'K', queen: 'Q', rook: 'R', bishop: 'B', knight: 'N' };
             notation = pieceMap[piece.type];
@@ -555,9 +545,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (record) {
             const notation = algebraicNotation(move);
-            gameState.moveHistory.push({ ...move, notation, fenBefore: exportFEN() });
+            gameState.moveHistory.push({ ...move, notation });
             redoStack = [];
-            currentViewMoveIndex = -1;
         }
 
         if (piece.type === 'pawn' && (move.toRow === 0 || move.toRow === 7)) {
@@ -578,14 +567,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleMove(move) {
         const result = executeMove(move);
-        if (result.needsPromotion) {
-            showPromotionModal(result.move);
-            return;
-        }
+        if (result.needsPromotion) { showPromotionModal(result.move); return; }
         finalizeMove();
     }
 
     function finalizeMove() {
+        // Award increment to the mover (the player who just moved)
+        const mover = gameState.currentPlayer === 'white' ? 'black' : 'white';
+        if (timerMode.increment > 0 && !gameState.gameOver) {
+            timers[mover] += timerMode.increment;
+        }
+
         renderBoard();
         updateMoveHistoryUI();
         updateCapturedUI();
@@ -595,24 +587,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameState.gameOver) {
             stopTimer();
             handleGameOver();
-        } else if (gameState.isCheck) {
-            playSound('check');
-        } else if (gameState.lastMove && gameState.moveHistory.length > 0) {
+            return;
+        }
+
+        if (gameState.isCheck) playSound('check');
+        else if (gameState.moveHistory.length > 0) {
             const lastMove = gameState.moveHistory[gameState.moveHistory.length - 1];
             if (lastMove.special === 'kingside-castle' || lastMove.special === 'queenside-castle') playSound('castle');
             else if (lastMove.captured || lastMove.special === 'en-passant') playSound('capture');
             else playSound('move');
         }
 
-        if (!gameState.gameOver && gameMode === 'pvc' && gameState.currentPlayer !== playerColor) {
+        if (gameMode === 'pvc' && gameState.currentPlayer !== playerColor) {
             aiThinking = true;
             updatePlayerStatusUI();
             renderBoard();
-            setTimeout(() => makeComputerMove(), 300);
+            setTimeout(() => makeComputerMove(), 320);
         }
     }
 
     function handleGameOver() {
+        stopTimer();
         playSound('game-over');
         const result = gameState.gameResult;
         let title, message;
@@ -740,7 +735,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ========== RENDER BOARD ==========
     function renderBoard() {
-        const boardEl = document.getElementById('board');
         if (!boardEl) return;
         boardEl.innerHTML = '';
         const flipped = boardOrientation === 'black';
@@ -756,7 +750,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 square.dataset.col = actualCol;
                 square.setAttribute('role', 'gridcell');
 
-                if (gameState.selectedSquare && gameState.selectedSquare.row === actualRow && gameState.selectedSquare.col === actualCol) {
+                if (gameState.selectedSquare &&
+                    gameState.selectedSquare.row === actualRow &&
+                    gameState.selectedSquare.col === actualCol) {
                     square.classList.add('selected');
                 }
                 if (gameState.lastMove && !gameState.gameOver) {
@@ -773,6 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (move.toRow === actualRow && move.toCol === actualCol) {
                         if (move.captured || move.special === 'en-passant') square.classList.add('capture-move');
                         else square.classList.add('legal-move');
+                        break;
                     }
                 }
 
@@ -797,14 +794,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     img.className = 'piece-img';
                     img.src = PIECE_ASSETS[piece.color][piece.type];
                     img.alt = `${piece.color} ${piece.type}`;
-                    img.draggable = true;
+                    img.draggable = !gameState.gameOver && !aiThinking;
                     img.dataset.row = actualRow;
                     img.dataset.col = actualCol;
                     img.addEventListener('dragstart', handleDragStart);
                     img.addEventListener('dragend', handleDragEnd);
-                    img.addEventListener('touchstart', handleTouchStart, { passive: false });
-                    img.addEventListener('touchmove', handleTouchMove, { passive: false });
-                    img.addEventListener('touchend', handleTouchEnd);
                     square.appendChild(img);
                 }
 
@@ -822,28 +816,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (gameState.selectedSquare && !gameState.gameOver && !aiThinking) {
-            gameState.legalMoves = getLegalMoves(gameState.board, gameState.selectedSquare.row, gameState.selectedSquare.col, gameState.castlingRights, gameState.enPassantTarget);
+            gameState.legalMoves = getLegalMoves(
+                gameState.board,
+                gameState.selectedSquare.row,
+                gameState.selectedSquare.col,
+                gameState.castlingRights,
+                gameState.enPassantTarget
+            );
         }
         updatePlayerStatusUI();
     }
 
-    // ========== INTERACTION & DRAG-DROP ==========
+    function refreshHighlights() {
+        if (!boardEl) return;
+        const sel = gameState.selectedSquare;
+        const last = gameState.lastMove;
+        const showLast = last && !gameState.gameOver;
+        const king = gameState.isCheck ? findKing(gameState.board, gameState.currentPlayer) : null;
+
+        boardEl.querySelectorAll('.square').forEach(sq => {
+            const r = +sq.dataset.row, c = +sq.dataset.col;
+            sq.classList.toggle('selected', !!sel && sel.row === r && sel.col === c);
+            sq.classList.toggle('last-move', !!showLast &&
+                ((last.fromRow === r && last.fromCol === c) || (last.toRow === r && last.toCol === c)));
+            sq.classList.toggle('in-check', !!king && king.row === r && king.col === c);
+
+            let match = null;
+            for (const m of gameState.legalMoves) {
+                if (m.toRow === r && m.toCol === c) { match = m; break; }
+            }
+            sq.classList.toggle('legal-move', !!match && !match.captured && match.special !== 'en-passant');
+            sq.classList.toggle('capture-move', !!match && (!!match.captured || match.special === 'en-passant'));
+        });
+    }
+
+    // ========== INTERACTION ==========
     let dragData = null;
-    let touchStartData = null;
-    let touchMoved = false;
 
     function handleSquareClick(row, col) {
         if (gameState.gameOver || aiThinking) return;
         const piece = gameState.board[row][col];
+
         if (gameState.selectedSquare) {
             const sel = gameState.selectedSquare;
             const legalMoves = getLegalMoves(gameState.board, sel.row, sel.col, gameState.castlingRights, gameState.enPassantTarget);
             const targetMove = legalMoves.find(m => m.toRow === row && m.toCol === col);
             if (targetMove) {
-                handleMove(targetMove);
                 gameState.selectedSquare = null;
                 gameState.legalMoves = [];
-                renderBoard();
+                handleMove(targetMove);
                 return;
             }
             if (piece && piece.color === gameState.currentPlayer) {
@@ -870,94 +891,144 @@ document.addEventListener('DOMContentLoaded', () => {
         const col = parseInt(e.target.dataset.col);
         const piece = gameState.board[row][col];
         if (!piece || piece.color !== gameState.currentPlayer) { e.preventDefault(); return; }
+
         dragData = { row, col, piece };
         e.target.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', `${row},${col}`); } catch (_) {}
+
         gameState.selectedSquare = { row, col };
         gameState.legalMoves = getLegalMoves(gameState.board, row, col, gameState.castlingRights, gameState.enPassantTarget);
-        renderBoard();
+        refreshHighlights(); // Do NOT re-render – it would cancel the drag
     }
 
     function handleDragEnd(e) {
-        e.target.classList.remove('dragging');
+        if (e.target) e.target.classList.remove('dragging');
         dragData = null;
         document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        if (!gameState.gameOver && gameState.selectedSquare) {
+            gameState.selectedSquare = null;
+            gameState.legalMoves = [];
+            refreshHighlights();
+        }
     }
 
     function handleDrop(toRow, toCol) {
         if (!dragData) return;
         const legalMoves = getLegalMoves(gameState.board, dragData.row, dragData.col, gameState.castlingRights, gameState.enPassantTarget);
         const targetMove = legalMoves.find(m => m.toRow === toRow && m.toCol === toCol);
-        if (targetMove) handleMove(targetMove);
-        gameState.selectedSquare = null;
-        gameState.legalMoves = [];
         dragData = null;
-        renderBoard();
+        if (targetMove) {
+            gameState.selectedSquare = null;
+            gameState.legalMoves = [];
+            handleMove(targetMove);
+        } else {
+            gameState.selectedSquare = null;
+            gameState.legalMoves = [];
+            refreshHighlights();
+        }
     }
 
-    function handleTouchStart(e) {
+    // -------- Touch (delegated on board) --------
+    let touchState = null;
+
+    function onBoardTouchStart(e) {
         if (gameState.gameOver || aiThinking) return;
         const img = e.target.closest('.piece-img');
         if (!img) return;
-        const row = parseInt(img.dataset.row);
-        const col = parseInt(img.dataset.col);
+        const row = +img.dataset.row;
+        const col = +img.dataset.col;
         const piece = gameState.board[row][col];
         if (!piece || piece.color !== gameState.currentPlayer) return;
-        touchStartData = { row, col, piece, startX: e.touches[0].clientX, startY: e.touches[0].clientY, img };
-        touchMoved = false;
-        gameState.selectedSquare = { row, col };
-        gameState.legalMoves = getLegalMoves(gameState.board, row, col, gameState.castlingRights, gameState.enPassantTarget);
+        const t = e.touches[0];
+        touchState = { row, col, startX: t.clientX, startY: t.clientY, moved: false };
+    }
+
+    function onBoardTouchMove(e) {
+        if (!touchState) return;
+        const t = e.touches[0];
+        const dx = t.clientX - touchState.startX;
+        const dy = t.clientY - touchState.startY;
+
+        if (!touchState.moved && Math.hypot(dx, dy) > 8) {
+            touchState.moved = true;
+            gameState.selectedSquare = { row: touchState.row, col: touchState.col };
+            gameState.legalMoves = getLegalMoves(gameState.board, touchState.row, touchState.col, gameState.castlingRights, gameState.enPassantTarget);
+            renderBoard();
+        }
+
+        if (touchState.moved) {
+            e.preventDefault();
+            const el = document.elementFromPoint(t.clientX, t.clientY);
+            const sq = el?.closest('.square');
+            document.querySelectorAll('.square.drag-over').forEach(s => s.classList.remove('drag-over'));
+            if (sq && sq !== boardEl) sq.classList.add('drag-over');
+        }
+    }
+
+    function onBoardTouchEnd(e) {
+        if (!touchState) return;
+        const state = touchState;
+        touchState = null;
+        document.querySelectorAll('.square.drag-over').forEach(s => s.classList.remove('drag-over'));
+
+        if (!state.moved) return; // Let the click handler process taps
+
+        const t = e.changedTouches[0];
+        const el = document.elementFromPoint(t.clientX, t.clientY);
+        const sq = el?.closest('.square');
+        if (sq) {
+            const toRow = +sq.dataset.row;
+            const toCol = +sq.dataset.col;
+            const legalMoves = getLegalMoves(gameState.board, state.row, state.col, gameState.castlingRights, gameState.enPassantTarget);
+            const move = legalMoves.find(m => m.toRow === toRow && m.toCol === toCol);
+            if (move) {
+                gameState.selectedSquare = null;
+                gameState.legalMoves = [];
+                handleMove(move);
+                return;
+            }
+        }
+        gameState.selectedSquare = null;
+        gameState.legalMoves = [];
         renderBoard();
     }
 
-    function handleTouchMove(e) {
-        if (!touchStartData) return;
-        touchMoved = true;
-        e.preventDefault();
+    if (boardEl) {
+        boardEl.addEventListener('touchstart', onBoardTouchStart, { passive: true });
+        boardEl.addEventListener('touchmove', onBoardTouchMove, { passive: false });
+        boardEl.addEventListener('touchend', onBoardTouchEnd);
+        boardEl.addEventListener('touchcancel', () => {
+            touchState = null;
+            document.querySelectorAll('.square.drag-over').forEach(s => s.classList.remove('drag-over'));
+        });
     }
 
-    function handleTouchEnd(e) {
-        if (!touchStartData) return;
-        if (!touchMoved) {
-            handleSquareClick(touchStartData.row, touchStartData.col);
-        } else {
-            const touch = e.changedTouches[0];
-            const el = document.elementFromPoint(touch.clientX, touch.clientY);
-            const square = el?.closest('.square');
-            if (square) {
-                const toRow = parseInt(square.dataset.row);
-                const toCol = parseInt(square.dataset.col);
-                const legalMoves = getLegalMoves(gameState.board, touchStartData.row, touchStartData.col, gameState.castlingRights, gameState.enPassantTarget);
-                const targetMove = legalMoves.find(m => m.toRow === toRow && m.toCol === toCol);
-                if (targetMove) handleMove(targetMove);
-            }
-            gameState.selectedSquare = null;
-            gameState.legalMoves = [];
-            renderBoard();
-        }
-        touchStartData = null;
-    }
-
-    // ========== MODALS & UI HELPERS ==========
+    // ========== MODALS ==========
     function showPromotionModal(move) {
         const modal = document.getElementById('promotionModal');
         const optionsContainer = document.getElementById('promotionOptions');
+        if (!modal || !optionsContainer) return;
         optionsContainer.innerHTML = '';
         const color = move.piece.color;
         const pieces = ['queen', 'rook', 'bishop', 'knight'];
         for (const type of pieces) {
             const btn = document.createElement('div');
             btn.className = 'promotion-btn';
+            btn.setAttribute('role', 'button');
+            btn.setAttribute('tabindex', '0');
             btn.setAttribute('aria-label', `Promosi ke ${type}`);
             const img = document.createElement('img');
             img.src = PIECE_ASSETS[color][type];
             img.alt = type;
             btn.appendChild(img);
-            btn.addEventListener('click', () => {
+            const choose = () => {
                 promotePawn(move, type);
                 hideModal('promotionModal');
                 finalizeMove();
-            });
+            };
+            btn.addEventListener('click', choose);
+            btn.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); choose(); } });
             optionsContainer.appendChild(btn);
         }
         modal.classList.remove('hidden');
@@ -966,6 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showGameOverModal(title, message) {
         const modal = document.getElementById('gameOverModal');
         const content = document.getElementById('gameOverContent');
+        if (!modal || !content) return;
         content.innerHTML = `
             <h2>${title}</h2>
             <p>${message}</p>
@@ -999,21 +1071,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function undoMove() {
         if (gameState.gameOver) return;
         if (gameState.moveHistory.length === 0) { showToast('Tidak ada langkah untuk di-undo', 'error'); return; }
-        if (gameMode === 'pvc' && gameState.moveHistory.length >= 2) {
-            redoStack.push(gameState.moveHistory.pop());
-            redoStack.push(gameState.moveHistory.pop());
-            loadFromFEN(INITIAL_FEN);
-            for (const m of gameState.moveHistory) {
-                const move = { fromRow: m.fromRow, fromCol: m.fromCol, toRow: m.toRow, toCol: m.toCol, piece: m.piece, captured: m.captured, special: m.special };
-                executeMove(move, false);
-            }
-        } else {
-            redoStack.push(gameState.moveHistory.pop());
-            loadFromFEN(INITIAL_FEN);
-            for (const m of gameState.moveHistory) {
-                const move = { fromRow: m.fromRow, fromCol: m.fromCol, toRow: m.toRow, toCol: m.toCol, piece: m.piece, captured: m.captured, special: m.special };
-                executeMove(move, false);
-            }
+
+        const stepsToUndo = (gameMode === 'pvc' && gameState.moveHistory.length >= 2) ? 2 : 1;
+        for (let i = 0; i < stepsToUndo; i++) {
+            if (gameState.moveHistory.length > 0) redoStack.push(gameState.moveHistory.pop());
+        }
+
+        loadFromFEN(INITIAL_FEN);
+        const historyCopy = [...gameState.moveHistory];
+        gameState.moveHistory = [];
+
+        for (const m of historyCopy) {
+            // Replay by re-fetching piece from board
+            const pieceAt = gameState.board[m.fromRow][m.fromCol];
+            if (!pieceAt) continue;
+            const move = {
+                fromRow: m.fromRow, fromCol: m.fromCol,
+                toRow: m.toRow, toCol: m.toCol,
+                piece: pieceAt, captured: m.captured, special: m.special
+            };
+            executeMove(move, true);
         }
         updateCheckStatus();
         updateGameStatus();
@@ -1027,13 +1104,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function redoMove() {
         if (redoStack.length === 0) { showToast('Tidak ada langkah untuk di-redo', 'error'); return; }
         const moveData = redoStack.pop();
-        executeMove(moveData, true);
-        updateCheckStatus();
-        updateGameStatus();
-        renderBoard();
-        updateMoveHistoryUI();
-        updateCapturedUI();
-        updatePlayerStatusUI();
+        const pieceAt = gameState.board[moveData.fromRow][moveData.fromCol];
+        if (!pieceAt) { showToast('Tidak bisa redo', 'error'); return; }
+        const move = {
+            fromRow: moveData.fromRow, fromCol: moveData.fromCol,
+            toRow: moveData.toRow, toCol: moveData.toCol,
+            piece: pieceAt, captured: moveData.captured, special: moveData.special
+        };
+        const result = executeMove(move, true);
+        if (result.needsPromotion) promotePawn(result.move, 'queen');
+        finalizeMove();
         showToast('Redo berhasil', 'success');
     }
 
@@ -1085,17 +1165,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!wCap || !bCap) return;
         wCap.innerHTML = '';
         bCap.innerHTML = '';
-
         gameState.capturedPieces.white.forEach(p => {
             const img = document.createElement('img');
             img.className = 'captured-piece';
             img.src = PIECE_ASSETS[p.color][p.type];
+            img.alt = p.type;
             wCap.appendChild(img);
         });
         gameState.capturedPieces.black.forEach(p => {
             const img = document.createElement('img');
             img.className = 'captured-piece';
             img.src = PIECE_ASSETS[p.color][p.type];
+            img.alt = p.type;
             bCap.appendChild(img);
         });
     }
@@ -1133,18 +1214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         historyEl.scrollTop = historyEl.scrollHeight;
     }
 
-    function copyPGN() {
-        let pgn = '';
-        for (let i = 0; i < gameState.moveHistory.length; i += 2) {
-            const num = Math.floor(i / 2) + 1;
-            const w = gameState.moveHistory[i]?.notation || '';
-            const b = gameState.moveHistory[i + 1]?.notation || '';
-            pgn += `${num}. ${w} ${b} `.trim() + ' ';
-        }
-        navigator.clipboard.writeText(pgn.trim()).then(() => showToast('PGN disalin ke clipboard!', 'success'));
-    }
-
-    function downloadPGN() {
+    function buildPGN() {
         let pgn = '';
         for (let i = 0; i < gameState.moveHistory.length; i += 2) {
             const num = Math.floor(i / 2) + 1;
@@ -1152,6 +1222,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const b = gameState.moveHistory[i + 1]?.notation || '';
             pgn += `${num}. ${w} ${b} `.trim() + '\n';
         }
+        return pgn.trim();
+    }
+
+    function copyPGN() {
+        const pgn = buildPGN();
+        navigator.clipboard.writeText(pgn)
+            .then(() => showToast('PGN disalin ke clipboard!', 'success'))
+            .catch(() => showToast('Gagal menyalin PGN', 'error'));
+    }
+
+    function downloadPGN() {
+        const pgn = buildPGN();
         const blob = new Blob([pgn], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1172,6 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btnResign')?.addEventListener('click', () => {
         if (gameState.gameOver) return;
+        if (!confirm('Yakin ingin menyerah?')) return;
         gameState.gameOver = true;
         gameState.gameResult = gameState.currentPlayer === 'white' ? 'black' : 'white';
         handleGameOver();
@@ -1190,9 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('newGameModal')?.classList.remove('hidden');
     });
 
-    document.getElementById('btnCancelNewGame')?.addEventListener('click', () => {
-        hideModal('newGameModal');
-    });
+    document.getElementById('btnCancelNewGame')?.addEventListener('click', () => hideModal('newGameModal'));
 
     document.getElementById('btnStartGame')?.addEventListener('click', () => {
         gameMode = document.getElementById('ngMode')?.value || 'pvp';
@@ -1215,13 +1296,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnDownloadPGN')?.addEventListener('click', downloadPGN);
 
     document.getElementById('btnTheme')?.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', nextTheme);
+        const current = document.documentElement.getAttribute('data-theme');
+        document.documentElement.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
     });
 
-    document.getElementById('btnSoundToggle')?.addEventListener('click', () => {
+    document.getElementById('btnSoundToggle')?.addEventListener('click', (e) => {
         soundEnabled = !soundEnabled;
+        e.currentTarget.classList.toggle('active', soundEnabled);
         showToast(soundEnabled ? 'Suara Diaktifkan' : 'Suara Dimatikan', 'info');
     });
 
@@ -1229,7 +1310,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fen = prompt('Masukkan FEN string:');
         if (fen) {
             try {
-                loadFromFEN(fen);
+                loadFromFEN(fen.trim());
+                resetTimers();
                 showToast('FEN berhasil di-load', 'success');
             } catch (e) {
                 showToast('Format FEN tidak valid', 'error');
@@ -1239,7 +1321,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btnExportFEN')?.addEventListener('click', () => {
         const fen = exportFEN();
-        navigator.clipboard.writeText(fen).then(() => showToast('FEN disalin ke clipboard!', 'success'));
+        navigator.clipboard.writeText(fen)
+            .then(() => showToast('FEN disalin ke clipboard!', 'success'))
+            .catch(() => showToast('Gagal menyalin FEN', 'error'));
+    });
+
+    document.getElementById('btnSettings')?.addEventListener('click', () => {
+        document.getElementById('newGameModal')?.classList.remove('hidden');
+    });
+
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay && overlay.id !== 'promotionModal' && overlay.id !== 'gameOverModal') {
+                overlay.classList.add('hidden');
+            }
+        });
+    });
+
+    // ESC to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.getElementById('newGameModal')?.classList.add('hidden');
+            document.getElementById('gameOverModal')?.classList.add('hidden');
+        }
     });
 
     // Start default game
