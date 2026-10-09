@@ -555,7 +555,7 @@ Contributions, bug reports, and suggestions are welcome.
 2. Create a feature branch:
 
    ```bash
-   git checkout -b feature/your-feature-name
+   git checkout -b feature/chess
    ```
 
 3. Make your changes.
@@ -563,7 +563,7 @@ Contributions, bug reports, and suggestions are welcome.
 5. Commit your changes:
 
    ```bash
-   git commit -m "Add: your feature description"
+   git commit -m "modern chess"
    ```
 
 6. Push the branch:
@@ -624,7 +624,7 @@ Developed by **Haiere** and **Hajir Studio**
 <a href="https://hajir.is-a.dev/chess">
   <img src="https://img.shields.io/badge/Live_Demo-hajir.is--a.dev%2Fchess-4C8BF5?style=flat-square&logo=google-chrome&logoColor=white" alt="Live Demo">
 </a>
-<a href="https://github.com/haiere/modern-chess">
+<a href="https://github.com/haiere/chess ">
   <img src="https://img.shields.io/badge/Repository-github.com%2Fhaiere%2Fmodern--chess-181717?style=flat-square&logo=github&logoColor=white" alt="Repository">
 </a>
 <a href="https://buymeacoffee.com/hajirstudio">
