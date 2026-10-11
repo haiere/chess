@@ -1565,24 +1565,53 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btnCloseGameOver')?.addEventListener('click', () => hideModal('gameOverModal'));
         setTimeout(() => document.getElementById('btnRematch')?.focus(), 50);
     }
+    
+function getScrollbarWidth() {
+    return window.innerWidth - document.documentElement.clientWidth;
+}
 
-    function showModal(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.classList.remove('hidden');
-        el.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-    }
+function showModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
 
-    function hideModal(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.classList.add('hidden');
-        el.setAttribute('aria-hidden', 'true');
-        // Restore scroll if no modals left open
-        const anyOpen = document.querySelector('.modal-overlay:not(.hidden)');
-        if (!anyOpen) document.body.style.overflow = '';
+    // Hitung lebar scrollbar sebelum mengunci
+    const sbw = getScrollbarWidth();
+
+    el.classList.remove('hidden');
+    el.setAttribute('aria-hidden', 'false');
+
+    document.documentElement.style.setProperty('--scrollbar-width', sbw + 'px');
+    document.body.classList.add('modal-open');
+
+    // Simpan elemen yang punya fokus agar bisa dikembalikan nanti
+    el._previousFocus = document.activeElement;
+
+    // Fokus ke elemen pertama yang bisa difokus
+    const focusable = el.querySelector(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable) setTimeout(() => focusable.focus(), 50);
+}
+
+function hideModal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.classList.add('hidden');
+    el.setAttribute('aria-hidden', 'true');
+
+    // Cek apakah masih ada modal lain yang terbuka
+    const stillOpen = document.querySelector('.modal-overlay:not(.hidden)');
+    if (!stillOpen) {
+        document.body.classList.remove('modal-open');
+        document.documentElement.style.removeProperty('--scrollbar-width');
+
+        // Kembalikan fokus
+        if (el._previousFocus && typeof el._previousFocus.focus === 'function') {
+            try { el._previousFocus.focus(); } catch { /* noop */ }
+        }
     }
+}
 
     /* ======================================================================
        20. TOAST
@@ -1775,11 +1804,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ESC to close
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                ['newGameModal', 'settingsModal'].forEach(id => hideModal(id));
-            }
-        });
+    if (e.key === 'Escape') {
+        ['newGameModal', 'settingsModal', 'gameOverModal'].forEach(id => hideModal(id));
+        // Pastikan body benar-benar unlock
+        if (!document.querySelector('.modal-overlay:not(.hidden)')) {
+            document.body.classList.remove('modal-open');
+        }
     }
+});
 
     /* ======================================================================
        22. CLEANUP
@@ -1793,6 +1825,13 @@ document.addEventListener('DOMContentLoaded', () => {
        23. BOOTSTRAP
        ====================================================================== */
     function boot() {
+    // Pastikan tidak ada modal yang tertinggal terbuka
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+        m.classList.add('hidden');
+        m.setAttribute('aria-hidden', 'true');
+    });
+    document.body.classList.remove('modal-open');
+    
         initTheme();
 
         // Restore sound button state
