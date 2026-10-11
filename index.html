@@ -3,54 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
     <title>Online Chess Game - Free Modern Chess Board | Hajir Studio</title>
-
-    <meta name="description"
-        content="Play a free online chess game with a modern interface, move history, timers, board themes, FEN import and export, and PGN download.">
-    <meta name="keywords"
-        content="online chess game, free chess game, chess board, play chess online, chess PGN, chess FEN, Hajir Studio">
+    <meta name="description" content="Play a free online chess game with a modern interface, move history, timers, board themes, FEN import and export, and PGN download.">
+    <meta name="keywords" content="online chess game, free chess game, chess board, play chess online, chess PGN, chess FEN, Hajir Studio">
     <meta name="author" content="Hajir Studio">
     <meta name="robots" content="index, follow, max-image-preview:large">
-    <meta name="theme-color" content="#0f1117" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
-
+    <meta name="theme-color" content="#0f1117">
     <link rel="canonical" href="https://hajir.is-a.dev/chess">
     <link rel="icon" href="/favicon.ico">
-
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://hajir.is-a.dev/chess">
     <meta property="og:title" content="Online Chess Game - Hajir Studio">
-    <meta property="og:description"
-        content="Play chess online with timers, move history, board themes, FEN tools, and PGN export.">
+    <meta property="og:description" content="Play chess online with timers, move history, board themes, FEN tools, and PGN export.">
     <meta property="og:site_name" content="Hajir Studio">
-
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Online Chess Game - Hajir Studio">
-    <meta name="twitter:description"
-        content="A free modern online chess game with useful tools for casual and competitive play.">
-
+    <meta name="twitter:description" content="A free modern online chess game with useful tools for casual and competitive play.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "Online Chess Game",
-        "url": "https://hajir.is-a.dev/chess",
-        "description": "A free online chess game with timers, move history, board themes, FEN tools, and PGN export.",
-        "applicationCategory": "GameApplication",
-        "operatingSystem": "Any",
-        "browserRequirements": "Requires JavaScript",
-        "author": { "@type": "Person", "name": "Hajir Studio" },
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-    }
+    {"@context":"https://schema.org","@type":"WebApplication","name":"Online Chess Game","url":"https://hajir.is-a.dev/chess","applicationCategory":"GameApplication","operatingSystem":"Any","author":{"@type":"Person","name":"Hajir Studio"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
     </script>
 </head>
-
 <body>
     <a href="#board" class="skip-link">Langsung ke papan catur</a>
 
@@ -64,43 +40,26 @@
 
             <nav class="board-controls" aria-label="Kontrol permainan">
                 <button class="btn icon-btn" id="btnFlip" type="button" aria-label="Putar papan" title="Putar papan">
-                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M12 5a7 7 0 0 1 7 7h2l-3 3-3-3h2a5 5 0 1 0-5 5v2a7 7 0 0 1 0-14Zm0 14a7 7 0 0 1-7-7H3l3-3 3 3H7a5 5 0 1 0 5-5V5a7 7 0 0 1 0 14Z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 0 1 7 7h2l-3 3-3-3h2a5 5 0 1 0-5 5v2a7 7 0 0 1 0-14Zm0 14a7 7 0 0 1-7-7H3l3-3 3 3H7a5 5 0 1 0 5-5V5a7 7 0 0 1 0 14Z"/></svg>
                 </button>
-
-                <button class="btn" id="btnUndo" type="button" aria-label="Urungkan langkah terakhir" title="Undo">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M12.5 5C9.46 5 6.73 6.2 4.75 8.15L2 5.4V13h7.6L6.6 10A8 8 0 1 1 4 16h2.2a6 6 0 1 0 6.3-11Z"/>
-                    </svg>
+                <button class="btn" id="btnUndo" type="button" aria-label="Urungkan langkah terakhir">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.5 5C9.46 5 6.73 6.2 4.75 8.15L2 5.4V13h7.6L6.6 10A8 8 0 1 1 4 16h2.2a6 6 0 1 0 6.3-11Z"/></svg>
                     <span>Undo</span>
                 </button>
-
-                <button class="btn" id="btnRedo" type="button" aria-label="Ulangi langkah" title="Redo">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M11.5 5A8 8 0 1 1 18 16h2v2h-4.2A8 8 0 0 1 11.5 5Zm0 2a6 6 0 1 0 5.9 7h2.1l-2.75 3L16 14h2a6 6 0 0 0-6.5-7Z"/>
-                    </svg>
+                <button class="btn" id="btnRedo" type="button" aria-label="Ulangi langkah">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M11.5 5A8 8 0 1 1 18 16h2v2h-4.2A8 8 0 0 1 11.5 5Zm0 2a6 6 0 1 0 5.9 7h2.1l-2.75 3L16 14h2a6 6 0 0 0-6.5-7Z"/></svg>
                     <span>Redo</span>
                 </button>
-
-                <button class="btn danger" id="btnResign" type="button" aria-label="Menyerah" title="Menyerah">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M5 3h10l4 4v14H5V3Zm10 1.5V8h3.5L15 4.5ZM8 12h8v2H8v-2Zm0 4h8v2H8v-2Z"/>
-                    </svg>
+                <button class="btn danger" id="btnResign" type="button" aria-label="Menyerah">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M5 3h10l4 4v14H5V3Zm10 1.5V8h3.5L15 4.5ZM8 12h8v2H8v-2Zm0 4h8v2H8v-2Z"/></svg>
                     <span>Resign</span>
                 </button>
-
-                <button class="btn" id="btnDraw" type="button" aria-label="Tawarkan remis" title="Remis">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M12 21s-7-4.35-7-10a4.5 4.5 0 0 1 8-2.85A4.5 4.5 0 0 1 19 11c0 5.65-7 10-7 10Z"/>
-                    </svg>
+                <button class="btn" id="btnDraw" type="button" aria-label="Tawarkan remis">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 21s-7-4.35-7-10a4.5 4.5 0 0 1 8-2.85A4.5 4.5 0 0 1 19 11c0 5.65-7 10-7 10Z"/></svg>
                     <span>Draw</span>
                 </button>
-
                 <button class="btn accent" id="btnNewGame" type="button" aria-label="Mulai permainan baru">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/></svg>
                     <span>New Game</span>
                 </button>
             </nav>
@@ -114,7 +73,7 @@
                         <div class="player-name">White</div>
                         <div class="player-status active" id="whiteStatus">Giliran Anda</div>
                     </div>
-                    <time class="player-timer" id="whiteTimer" aria-live="off">10:00</time>
+                    <time class="player-timer" id="whiteTimer">10:00</time>
                 </div>
                 <div class="captured-row" id="whiteCaptured" aria-label="Bidak yang ditangkap putih"></div>
             </section>
@@ -131,7 +90,7 @@
                         <div class="player-name">Black</div>
                         <div class="player-status" id="blackStatus">Menunggu</div>
                     </div>
-                    <time class="player-timer" id="blackTimer" aria-live="off">10:00</time>
+                    <time class="player-timer" id="blackTimer">10:00</time>
                 </div>
                 <div class="captured-row" id="blackCaptured" aria-label="Bidak yang ditangkap hitam"></div>
             </section>
@@ -141,14 +100,10 @@
                     <strong>Riwayat Langkah</strong>
                     <div class="flex-gap-4">
                         <button class="btn small icon-btn" id="btnCopyPGN" type="button" aria-label="Salin PGN" title="Salin PGN">
-                            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-                                <path fill="currentColor" d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/></svg>
                         </button>
                         <button class="btn small icon-btn" id="btnDownloadPGN" type="button" aria-label="Unduh PGN" title="Unduh PGN">
-                            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-                                <path fill="currentColor" d="M12 3v10.17l3.59-3.58L17 11l-5 5-5-5 1.41-1.41L11 13.17V3h1Zm-7 16h14v2H5v-2Z"/>
-                            </svg>
+                            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M12 3v10.17l3.59-3.58L17 11l-5 5-5-5 1.41-1.41L11 13.17V3h1Zm-7 16h14v2H5v-2Z"/></svg>
                         </button>
                     </div>
                 </div>
@@ -157,52 +112,33 @@
 
             <section class="panel-card panel-actions" aria-label="Alat permainan">
                 <button class="btn small" id="btnSettings" type="button" aria-label="Buka pengaturan">
-                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 1h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 7.48a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.62-.05.94s.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.8a.5.5 0 0 0 .49-.42l.36-2.54c.58-.23 1.12-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 1h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 7.48a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.62-.05.94s.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.8a.5.5 0 0 0 .49-.42l.36-2.54c.58-.23 1.12-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
                     <span>Pengaturan</span>
                 </button>
-
                 <button class="btn small" id="btnTheme" type="button" aria-label="Ganti tema">
-                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v1.1A7 7 0 1 1 8.9 6H8a1 1 0 1 1 0-2h1.1A1 1 0 0 1 12 3Zm0 4a5 5 0 1 0 5 5 1 1 0 0 1 1.7-.7l1.3 1.3V10a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-2.6a7 7 0 0 1-7.4 7.4V20a1 1 0 1 1-2 0v-1.1A7 7 0 0 1 12 7Z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v1.1A7 7 0 1 1 8.9 6H8a1 1 0 1 1 0-2h1.1A1 1 0 0 1 12 3Zm0 4a5 5 0 1 0 5 5 1 1 0 0 1 1.7-.7l1.3 1.3V10a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-2.6a7 7 0 0 1-7.4 7.4V20a1 1 0 1 1-2 0v-1.1A7 7 0 0 1 12 7Z"/></svg>
                     <span>Tema</span>
                 </button>
-
                 <button class="btn small" id="btnImportFEN" type="button" aria-label="Impor FEN">
-                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M5 3h10l4 4v14H5V3Zm10 1.5V8h3.5L15 4.5ZM12 11v5m0 0-2-2m2 2 2-2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M5 3h10l4 4v14H5V3Zm10 1.5V8h3.5L15 4.5ZM12 11v5m0 0-2-2m2 2 2-2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span>Impor FEN</span>
                 </button>
-
                 <button class="btn small" id="btnExportFEN" type="button" aria-label="Ekspor FEN">
-                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M5 3h10l4 4v14H5V3Zm10 1.5V8h3.5L15 4.5ZM12 13v-5m0 0-2 2m2-2 2 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M5 3h10l4 4v14H5V3Zm10 1.5V8h3.5L15 4.5ZM12 13v-5m0 0-2 2m2-2 2 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span>Ekspor FEN</span>
                 </button>
-
                 <button class="btn small active" id="btnSoundToggle" type="button" aria-label="Aktifkan atau matikan suara" aria-pressed="true">
-                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M4 10v4h4l5 4V6L8 10H4Zm13.5 2a3.5 3.5 0 0 0-1.5-2.9v5.8a3.5 3.5 0 0 0 1.5-2.9Zm2.5 0a6 6 0 0 1-3 5.2v-2.1a4 4 0 0 0 0-6.2V6.8A6 6 0 0 1 20 12Z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M4 10v4h4l5 4V6L8 10H4Zm13.5 2a3.5 3.5 0 0 0-1.5-2.9v5.8a3.5 3.5 0 0 0 1.5-2.9Zm2.5 0a6 6 0 0 1-3 5.2v-2.1a4 4 0 0 0 0-6.2V6.8A6 6 0 0 1 20 12Z"/></svg>
                     <span>Suara</span>
                 </button>
-
-                <a class="btn small accent" href="https://buymeacoffee.com/hajirstudio" target="_blank"
-                    rel="noopener noreferrer" aria-label="Dukung Hajir Studio di Buy Me a Coffee">
-                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M20 3H4v10a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V3Zm-2 10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5h12v8Zm2 4H4v2h16v-2Z"/>
-                    </svg>
+                <a class="btn small accent" href="https://buymeacoffee.com/hajirstudio" target="_blank" rel="noopener noreferrer" aria-label="Dukung Hajir Studio">
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M20 3H4v10a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V3Zm-2 10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5h12v8Zm2 4H4v2h16v-2Z"/></svg>
                     <span>Support</span>
                 </a>
             </section>
         </aside>
     </main>
 
-    <!-- ========== PROMOTION MODAL ========== -->
     <div class="modal-overlay hidden" id="promotionModal" role="dialog" aria-modal="true" aria-labelledby="promotionTitle" aria-hidden="true">
         <div class="modal">
             <h2 id="promotionTitle">Pilih Promosi</h2>
@@ -210,39 +146,32 @@
         </div>
     </div>
 
-    <!-- ========== NEW GAME MODAL ========== -->
     <div class="modal-overlay hidden" id="newGameModal" role="dialog" aria-modal="true" aria-labelledby="newGameTitle" aria-hidden="true">
         <div class="modal max-w-500">
             <header class="modal-header">
                 <h2 id="newGameTitle">Permainan Baru</h2>
-                <button class="btn icon-btn modal-close" data-close="newGameModal" aria-label="Tutup">
-                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3 1.4 1.4Z"/>
-                    </svg>
+                <button class="btn icon-btn" data-close="newGameModal" aria-label="Tutup">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3 1.4 1.4Z"/></svg>
                 </button>
             </header>
-
             <div class="settings-grid">
                 <label for="ngMode">Mode Permainan</label>
                 <select id="ngMode">
                     <option value="pvp">Pemain vs Pemain</option>
                     <option value="pvc">Pemain vs Komputer</option>
                 </select>
-
                 <label for="ngColor">Warna Pemain</label>
                 <select id="ngColor">
                     <option value="white">Putih</option>
                     <option value="black">Hitam</option>
                     <option value="random">Acak</option>
                 </select>
-
                 <label for="ngDifficulty">Kesulitan AI</label>
                 <select id="ngDifficulty">
                     <option value="easy">Mudah</option>
                     <option value="medium">Menengah</option>
                     <option value="hard">Sulit</option>
                 </select>
-
                 <label for="ngTimer">Kontrol Waktu</label>
                 <select id="ngTimer">
                     <option value="10|0">10|0 Rapid</option>
@@ -251,7 +180,6 @@
                     <option value="1|0">1|0 Bullet</option>
                     <option value="0|0">Tanpa Timer</option>
                 </select>
-
                 <label for="ngBoardTheme">Tema Papan</label>
                 <select id="ngBoardTheme">
                     <option value="classic">Classic Brown</option>
@@ -262,12 +190,9 @@
                     <option value="neon">Neon Cyberpunk</option>
                 </select>
             </div>
-
             <div class="modal-buttons">
-                <button class="btn accent" id="btnStartGame" type="button" aria-label="Mulai permainan">
-                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M8 5v14l11-7L8 5Z"/>
-                    </svg>
+                <button class="btn accent" id="btnStartGame" type="button">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7L8 5Z"/></svg>
                     <span>Mulai</span>
                 </button>
                 <button class="btn" id="btnCancelNewGame" type="button">Batal</button>
@@ -275,7 +200,6 @@
         </div>
     </div>
 
-    <!-- ========== GAME OVER MODAL ========== -->
     <div class="modal-overlay hidden" id="gameOverModal" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle" aria-hidden="true">
         <div class="modal">
             <h2 id="gameOverTitle" class="visually-hidden">Permainan Selesai</h2>
@@ -283,18 +207,14 @@
         </div>
     </div>
 
-    <!-- ========== SETTINGS MODAL ========== -->
     <div class="modal-overlay hidden" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-hidden="true">
         <div class="modal max-w-500">
             <header class="modal-header">
                 <h2 id="settingsTitle">Pengaturan</h2>
-                <button class="btn icon-btn modal-close" data-close="settingsModal" aria-label="Tutup">
-                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                        <path fill="currentColor" d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3 1.4 1.4Z"/>
-                    </svg>
+                <button class="btn icon-btn" data-close="settingsModal" aria-label="Tutup">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3 1.4 1.4Z"/></svg>
                 </button>
             </header>
-
             <div class="settings-grid">
                 <label for="setTheme">Tema Aplikasi</label>
                 <select id="setTheme">
@@ -302,7 +222,6 @@
                     <option value="light">Terang</option>
                     <option value="system">Ikuti Sistem</option>
                 </select>
-
                 <label for="setBoardTheme">Tema Papan</label>
                 <select id="setBoardTheme">
                     <option value="classic">Classic Brown</option>
@@ -312,20 +231,17 @@
                     <option value="bw">Black and White</option>
                     <option value="neon">Neon Cyberpunk</option>
                 </select>
-
                 <label for="setSound">Efek Suara</label>
                 <select id="setSound">
                     <option value="on">Aktif</option>
                     <option value="off">Nonaktif</option>
                 </select>
-
                 <label for="setCoords">Koordinat Papan</label>
                 <select id="setCoords">
                     <option value="on">Tampilkan</option>
                     <option value="off">Sembunyikan</option>
                 </select>
             </div>
-
             <div class="modal-buttons">
                 <button class="btn danger" id="btnResetProgress" type="button">Reset Preferensi</button>
                 <button class="btn accent" id="btnCloseSettings" type="button">Selesai</button>
