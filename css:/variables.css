@@ -1,0 +1,96 @@
+:root {
+  /* Warna dark (default) */
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-2: #222633;
+  --text: #e8edf5;
+  --text-muted: #8892a8;
+  --border: #2a2f3d;
+  --accent: #5b9cf5;
+  --accent-hover: #4a8ae0;
+  --danger: #f06a6a;
+  --success: #4ecb71;
+  --warning: #f0b860;
+
+  /* Board */
+  --board-light: #f0d9b5;
+  --board-dark: #b58863;
+  --board-light-hover: #e8cfa0;
+  --board-dark-hover: #a0754a;
+  --board-selected: rgba(255, 215, 0, 0.55);
+  --board-legal: rgba(0, 0, 0, 0.18);
+  --board-capture: rgba(255, 60, 60, 0.55);
+  --board-lastmove: rgba(255, 215, 0, 0.38);
+  --board-check: rgba(255, 30, 30, 0.65);
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* Typography */
+  --font: 'Inter', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', monospace;
+
+  /* Transitions */
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Safe areas */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+[data-theme="light"] {
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-2: #f0f2f6;
+  --text: #1a1d27;
+  --text-muted: #5a6478;
+  --border: #e0e4ec;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --board-legal: rgba(0, 0, 0, 0.12);
+}
+
+[data-board-theme="emerald"] {
+  --board-light: #e0f0e0;
+  --board-dark: #5a8a6a;
+  --board-light-hover: #c8e8c8;
+  --board-dark-hover: #4a7a5a;
+}
+[data-board-theme="midnight"] {
+  --board-light: #d0d8e8;
+  --board-dark: #2c3e6b;
+  --board-light-hover: #bcc8e0;
+  --board-dark-hover: #1e3055;
+}
+[data-board-theme="rose"] {
+  --board-light: #f8e8e0;
+  --board-dark: #c0887a;
+  --board-light-hover: #f0d8d0;
+  --board-dark-hover: #a87060;
+}
+[data-board-theme="bw"] {
+  --board-light: #e8e8e8;
+  --board-dark: #555555;
+  --board-light-hover: #d8d8d8;
+  --board-dark-hover: #444444;
+}
+[data-board-theme="neon"] {
+  --board-light: #1a1a2e;
+  --board-dark: #0f0f1a;
+  --board-light-hover: #222240;
+  --board-dark-hover: #1a1a30;
+}
