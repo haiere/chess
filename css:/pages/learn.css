@@ -1,0 +1,94 @@
+/* Puzzle */
+.puzzle-toolbar {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.puzzle-toolbar select {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+.puzzle-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.puzzle-feedback {
+  min-height: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color var(--transition);
+}
+.puzzle-feedback.success { color: var(--success); }
+.puzzle-feedback.error   { color: var(--danger); }
+.puzzle-feedback.info    { color: var(--accent); }
+.puzzle-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+}
+
+/* Learn */
+.learn-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+@media (min-width: 700px) {
+  .learn-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .learn-sidebar {
+    flex: 0 0 240px;
+    position: sticky;
+    top: var(--space-5);
+  }
+}
+.learn-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.learn-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition);
+  min-height: 44px;
+}
+.learn-item:hover { border-color: var(--accent); }
+.learn-item.done { border-color: var(--success); }
+.learn-item-title { flex: 1; font-size: 0.85rem; font-weight: 500; }
+.learn-item-level { font-size: 0.7rem; color: var(--text-muted); }
+.learn-content {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+.learn-body { line-height: 1.7; margin-bottom: var(--space-4); }
+.learn-body p { margin-bottom: var(--space-3); }
+.learn-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.learn-step { font-size: 0.8rem; color: var(--text-muted); }
