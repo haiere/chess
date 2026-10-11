@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark" data-board-theme="classic">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Online Chess Game - Free Modern Chess Board | Hajir Studio</title>
+
+    <meta name="description"
+        content="Play a free online chess game with a modern interface, move history, timers, board themes, FEN import and export, PGN download, puzzle mode, and interactive lessons.">
+    <meta name="keywords"
+        content="online chess game, free chess game, chess board, play chess online, chess PGN, chess FEN, chess puzzle, belajar catur, Hajir Studio">
+    <meta name="author" content="Hajir Studio">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#0f1117" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f5f7fa" media="(prefers-color-scheme: light)">
+
+    <link rel="canonical" href="https://hajir.is-a.dev/chess">
+    <link rel="icon" href="/favicon.ico">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hajir.is-a.dev/chess">
+    <meta property="og:title" content="Online Chess Game - Hajir Studio">
+    <meta property="og:description"
+        content="Play chess online with timers, move history, board themes, FEN tools, PGN export, puzzles, and interactive lessons.">
+    <meta property="og:site_name" content="Hajir Studio">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Online Chess Game - Hajir Studio">
+    <meta name="twitter:description"
+        content="A free modern online chess game with puzzles, lessons, and useful tools for casual and competitive play.">
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles: dimuat berurutan untuk memastikan token tersedia lebih dulu -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages/game.css">
+    <link rel="stylesheet" href="css/pages/puzzle.css">
+    <link rel="stylesheet" href="css/pages/learn.css">
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Online Chess Game",
+        "url": "https://hajir.is-a.dev/chess",
+        "description": "A free online chess game with timers, move history, board themes, FEN tools, PGN export, puzzles, and interactive lessons.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "author": { "@type": "Person", "name": "Hajir Studio" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+</head>
+
+<body>
+    <!-- Skip link untuk aksesibilitas keyboard -->
+    <a href="#app" class="skip-link">Langsung ke konten utama</a>
+
+    <!--
+        #app adalah root tempat setiap halaman (Game/Puzzle/Learn) dirender.
+        Router di js/main.js akan mengganti isi elemen ini sesuai hash URL.
+    -->
+    <main id="app" class="app" role="main" aria-label="Aplikasi catur">
+        <!--
+            Konten dimuat oleh JavaScript.
+            Fallback untuk pengguna tanpa JS atau saat JS gagal dimuat.
+        -->
+        <noscript>
+            <div class="noscript-fallback">
+                <h1>Online Chess Game</h1>
+                <p>Aplikasi ini memerlukan JavaScript untuk berjalan. Silakan aktifkan JavaScript di browser Anda.</p>
+            </div>
+        </noscript>
+
+        <div class="app-loading" id="appLoading" aria-live="polite">
+            <div class="spinner" aria-hidden="true"></div>
+            <p>Memuat permainan…</p>
+        </div>
+    </main>
+
+    <!--
+        Modal global — dipakai oleh semua halaman (promotion, game over, settings).
+        Komponen Modal di js/components/Modal.js akan mengontrol visibilitas.
+    -->
+    <div class="modal-overlay hidden" id="promotionModal" role="dialog" aria-modal="true"
+        aria-labelledby="promotionTitle" aria-hidden="true">
+        <div class="modal">
+            <h2 id="promotionTitle">Pilih Promosi</h2>
+            <div class="promotion-options" id="promotionOptions"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="newGameModal" role="dialog" aria-modal="true"
+        aria-labelledby="newGameTitle" aria-hidden="true">
+        <div class="modal max-w-500">
+            <header class="modal-header">
+                <h2 id="newGameTitle">Permainan Baru</h2>
+                <button class="btn icon-btn modal-close" data-close="newGameModal" aria-label="Tutup">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                        <path fill="currentColor"
+                            d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3 1.4 1.4Z" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="settings-grid">
+                <label for="ngMode">Mode Permainan</label>
+                <select id="ngMode">
+                    <option value="pvp">Pemain vs Pemain</option>
+                    <option value="pvc">Pemain vs Komputer</option>
+                </select>
+
+                <label for="ngColor">Warna Pemain</label>
+                <select id="ngColor">
+                    <option value="white">Putih</option>
+                    <option value="black">Hitam</option>
+                    <option value="random">Acak</option>
+                </select>
+
+                <label for="ngDifficulty">Tingkat Kesulitan AI</label>
+                <select id="ngDifficulty">
+                    <option value="easy">Mudah</option>
+                    <option value="medium">Menengah</option>
+                    <option value="hard">Sulit</option>
+                </select>
+
+                <label for="ngTimer">Kontrol Waktu</label>
+                <select id="ngTimer">
+                    <option value="10|0">10|0 Rapid</option>
+                    <option value="5|3">5|3 Blitz</option>
+                    <option value="3|2">3|2 Blitz</option>
+                    <option value="1|0">1|0 Bullet</option>
+                    <option value="0|0">Tanpa Timer</option>
+                </select>
+
+                <label for="ngBoardTheme">Tema Papan</label>
+                <select id="ngBoardTheme">
+                    <option value="classic">Classic Brown</option>
+                    <option value="emerald">Emerald</option>
+                    <option value="midnight">Midnight Blue</option>
+                    <option value="rose">Rose</option>
+                    <option value="bw">Black and White</option>
+                    <option value="neon">Neon Cyberpunk</option>
+                </select>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn accent" id="btnStartGame" type="button" aria-label="Mulai permainan">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                        <path fill="currentColor" d="M8 5v14l11-7L8 5Z" />
+                    </svg>
+                    <span>Mulai</span>
+                </button>
+                <button class="btn" id="btnCancelNewGame" type="button">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="gameOverModal" role="dialog" aria-modal="true"
+        aria-labelledby="gameOverTitle" aria-hidden="true">
+        <div class="modal">
+            <h2 id="gameOverTitle" class="visually-hidden">Permainan Selesai</h2>
+            <div id="gameOverContent"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="settingsModal" role="dialog" aria-modal="true"
+        aria-labelledby="settingsTitle" aria-hidden="true">
+        <div class="modal max-w-500">
+            <header class="modal-header">
+                <h2 id="settingsTitle">Pengaturan</h2>
+                <button class="btn icon-btn modal-close" data-close="settingsModal" aria-label="Tutup">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                        <path fill="currentColor"
+                            d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3 1.4 1.4Z" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="settings-grid">
+                <label for="setTheme">Tema Aplikasi</label>
+                <select id="setTheme">
+                    <option value="dark">Gelap</option>
+                    <option value="light">Terang</option>
+                    <option value="system">Ikuti Sistem</option>
+                </select>
+
+                <label for="setBoardTheme">Tema Papan</label>
+                <select id="setBoardTheme">
+                    <option value="classic">Classic Brown</option>
+                    <option value="emerald">Emerald</option>
+                    <option value="midnight">Midnight Blue</option>
+                    <option value="rose">Rose</option>
+                    <option value="bw">Black and White</option>
+                    <option value="neon">Neon Cyberpunk</option>
+                </select>
+
+                <label for="setSound">Efek Suara</label>
+                <select id="setSound">
+                    <option value="on">Aktif</option>
+                    <option value="off">Nonaktif</option>
+                </select>
+
+                <label for="setCoords">Koordinat Papan</label>
+                <select id="setCoords">
+                    <option value="on">Tampilkan</option>
+                    <option value="off">Sembunyikan</option>
+                </select>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn danger" id="btnResetProgress" type="button">Reset Progres</button>
+                <button class="btn accent" id="btnCloseSettings" type="button">Selesai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container toast global, dipakai lintas halaman -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <!--
+        Entry point.
+        Menggunakan type="module" agar bisa memakai ESM import/export antar file.
+        Semua modul JS diasumsikan berada di folder js/.
+    -->
+    <script type="module" src="js/main.js"></script>
+
+    <!--
+        Fallback: jika ESM tidak didukung (browser sangat lama),
+        tampilkan pesan yang ramah.
+    -->
+    <script nomodule>
+        document.getElementById('app').innerHTML =
+            '<div class="noscript-fallback">' +
+                '<h1>Browser Tidak Didukung</h1>' +
+                '<p>Silakan gunakan browser modern seperti Chrome, Firefox, Safari, atau Edge versi terbaru.</p>' +
+            '</div>';
+    </script>
+</body>
+      </html> 
