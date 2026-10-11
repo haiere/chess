@@ -1,0 +1,17 @@
+{
+  "name": "hajir-chess",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "lint": "eslint js/ --ext .js",
+    "format": "prettier --write 'js/**/*.js' 'css/**/*.css'"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0"
+  }
+} 
