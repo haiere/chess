@@ -213,6 +213,44 @@ No installation or build step is required.
 6. Copy or download the game as PGN.
 7. Export the current position as FEN when needed.
 
+## Android App (Capacitor)
+
+The website is wrapped as a native Android app with Capacitor.
+No external URLs are used as sources — all assets are embedded from dist/.
+
+Prerequisites
+
+· Node.js ≥ 18, JDK 17, Android Studio (SDK + automatic Gradle wrapper).
+
+Commands
+
+```bash
+npm install              # install dependencies
+npm run build            # copy web app to dist/ + vendor Capacitor plugins
+npx cap add android      # once only — generate android/ folder
+npm run build:android    # build + cap sync android
+npx cap open android     # open in Android Studio
+```
+
+Shortcuts: npm run sync:android (sync only) and npm run open:android.
+
+Building APK / AAB
+
+· Debug APK: in Android Studio: Build → Build APK(s), or cd android && ./gradlew assembleDebug
+  → android/app/build/outputs/apk/debug/app-debug.apk
+· Release APK (signed): Build → Generate Signed Bundle / APK → APK
+  → android/app/build/outputs/apk/release/app-release.apk
+· AAB (Google Play): same dialog, select Android App Bundle
+  → android/app/build/outputs/bundle/release/app-release.aab
+
+Configuration
+
+· capacitor.config.json — appId: dev.isahajir.chess, appName: Hajir Chess, webDir: dist.
+· Status bar (colors & light/dark icons) is controlled at runtime by js/native-bridge.js
+  through @capacitor/status-bar; plugins are vendored into dist/vendor/ by scripts/build.mjs.
+· The Android back button navigates pages first before exiting the app.
+· Offline bilingual: inline locales in js/locales.js are included in the APK. 
+
 ## Interaction
 
 | Method | Usage |
