@@ -1,5 +1,5 @@
-/* App shell — hash router, navigation (top bar on desktop, bottom bar
-   on mobile), Settings page, About page, and module bootstrapping. */
+/* App shell — hash router, navigation (top bar desktop / bottom bar
+   mobile), Settings page bindings, module bootstrapping. */
 (function () {
     'use strict';
     const S = window.AppStorage;
@@ -58,4 +58,3 @@
         route();
     });
 })();
- 
