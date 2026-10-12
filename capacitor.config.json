@@ -1,0 +1,10 @@
+{
+  "appId": "dev.isahajir.chess",
+  "appName": "Hajir Chess",
+  "webDir": "dist",
+  "backgroundColor": "#0f1117",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  }
+}
