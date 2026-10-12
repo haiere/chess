@@ -12,11 +12,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.ext.css">
 </head>
 <body>
     <a href="#page-main" class="skip-link">Langsung ke konten</a>
 
-    <!-- ======= Top navigation (desktop) ======= -->
     <header class="app-nav" role="banner">
         <a class="brand" href="#main">
             <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M12 2a2 2 0 0 1 2 2v1.07A7 7 0 0 1 19 12v1h1a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h1v-1a7 7 0 0 1 5-6.93V4a2 2 0 0 1 2-2ZM6 14v4h12v-4H6Z"/></svg>
@@ -32,7 +32,6 @@
     </header>
 
     <main>
-        <!-- ================= MAIN / GAME ================= -->
         <section id="page-main" class="page">
             <div class="app-container">
                 <section class="board-section" aria-labelledby="gameTitle">
@@ -79,12 +78,10 @@
                         </div>
                         <div class="captured-row" id="whiteCaptured" aria-label="Bidak yang ditangkap putih"></div>
                     </section>
-
                     <section class="panel-card text-center" aria-live="polite">
                         <div id="gameStatusText" class="text-bold">White to move</div>
                         <div class="text-sub" id="gameSubStatus"></div>
                     </section>
-
                     <section class="panel-card">
                         <div class="player-header">
                             <div class="player-avatar black" aria-hidden="true">B</div>
@@ -96,7 +93,6 @@
                         </div>
                         <div class="captured-row" id="blackCaptured" aria-label="Bidak yang ditangkap hitam"></div>
                     </section>
-
                     <section class="panel-card panel-history">
                         <div class="history-header">
                             <strong>Riwayat Langkah</strong>
@@ -111,10 +107,9 @@
                         </div>
                         <div class="move-history" id="moveHistory" role="log" aria-label="Riwayat langkah"></div>
                     </section>
-
                     <section class="panel-card panel-actions" aria-label="Alat permainan">
                         <button class="btn small" id="btnSettings" type="button" aria-label="Buka pengaturan" onclick="location.hash='settings'">
-                            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.49-.42h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 7.48a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.62-.05.94s.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.8a.5.5 0 0 0 .49-.42l.36-2.54c.58-.23 1.12-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
+                            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.49-.42h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 7.48a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.62-.05.94s.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.8a.5.5 0 0 0 .49-.42l.36-2.54c.58.23 1.12.55 1.63.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
                             <span>Pengaturan</span>
                         </button>
                         <button class="btn small" id="btnTheme" type="button" aria-label="Ganti tema">
@@ -138,7 +133,6 @@
             </div>
         </section>
 
-        <!-- ================= PUZZLE ================= -->
         <section id="page-puzzle" class="page hidden">
             <div class="app-container">
                 <section class="board-section">
@@ -169,13 +163,13 @@
                         <div class="text-sub" id="pzInfo"></div>
                     </section>
                     <section class="panel-card panel-actions">
-                        <button class="btn small" id="btnPzHint" type="button">
+                        <button class="btn small" id="btnPzHint" type="button" aria-label="Petunjuk langkah">
                             <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M9 21h6v-1H9v1Zm3-19a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2Z"/></svg>
                             <span>Hint</span>
                         </button>
-                        <button class="btn small" id="btnPzSolution" type="button">Lihat Solusi</button>
-                        <button class="btn small" id="btnPzRetry" type="button">Coba Lagi</button>
-                        <button class="btn small danger" id="btnPzReset" type="button">Reset Progres</button>
+                        <button class="btn small" id="btnPzSolution" type="button" aria-label="Lihat solusi puzzle">Lihat Solusi</button>
+                        <button class="btn small" id="btnPzRetry" type="button" aria-label="Coba lagi puzzle">Coba Lagi</button>
+                        <button class="btn small danger" id="btnPzReset" type="button" aria-label="Reset progres puzzle">Reset Progres</button>
                     </section>
                     <section class="panel-card">
                         <strong>Statistik Puzzle</strong>
@@ -185,7 +179,6 @@
             </div>
         </section>
 
-        <!-- ================= LEARN ================= -->
         <section id="page-learn" class="page hidden">
             <div class="learn-container">
                 <div class="learn-header">
@@ -221,7 +214,6 @@
             </div>
         </section>
 
-        <!-- ================= SETTINGS ================= -->
         <section id="page-settings" class="page hidden">
             <div class="settings-page">
                 <h1>Pengaturan</h1>
@@ -260,7 +252,6 @@
             </div>
         </section>
 
-        <!-- ================= ABOUT ================= -->
         <section id="page-about" class="page hidden">
             <div class="settings-page">
                 <h1>Tentang</h1>
@@ -282,7 +273,6 @@
         </section>
     </main>
 
-    <!-- ======= Bottom navigation (mobile) ======= -->
     <nav class="bottom-nav" aria-label="Navigasi utama">
         <a href="#main" data-nav="main">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a2 2 0 0 1 2 2v1.07A7 7 0 0 1 19 12v1h1a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h1v-1a7 7 0 0 1 5-6.93V4a2 2 0 0 1 2-2Zm-6 12v4h12v-4H6Z"/></svg>
@@ -297,12 +287,11 @@
             <span>Belajar</span>
         </a>
         <a href="#settings" data-nav="settings">
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Zm7.4-2.56.05.94-.05.94 2.03 1.58a.5.5 0 0 1 .12.64l-1.92 3.32a.5.5 0 0 1-.6.22l-2.39-.96a7.2 7.2 0 0 1-1.63.94l-.36 2.54a.5.5 0 0 1-.49.42h-3.8a.5.5 0 0 1-.49-.42l-.36-2.54a7.2 7.2 0 0 1-1.63-.94l-2.39.96a.5.5 0 0 1-.6-.22L2.71 16.1a.5.5 0 0 1 .12-.64l2.03-1.58a7.43 7.43 0 0 1 0-1.88L2.71 9.42a.5.5 0 0 1 .12-.64l1.92-3.32a.5.5 0 0 1 .6-.22l2.39.96c.51-.39 1.05-.71 1.63-.94l.36-2.54A.5.5 0 0 1 12.22 2h3.8c.24 0 .45.17.49.42l.36 2.54c.58.23 1.12.55 1.63.94l2.39-.96a.5.5 0 0 1 .6.22l1.92 3.32a.5.5 0 0 1-.12.64l-2.03 1.58c.03.31.05.62.05.94Z"/></svg>
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Zm7.4-2.56.05.94-.05.94 2.03 1.58a.5.5 0 0 1 .12.64l-1.92 3.32a.5.5 0 0 1-.6.22l-2.39-.96a7.2 7.2 0 0 1-1.63.94l-.36 2.54a.5.5 0 0 1-.49.42h-3.8a.5.5 0 0 1-.49-.42l-.36-2.54a7.2 7.2 0 0 1-1.63-.94l-2.39.96a.5.5 0 0 1-.6-.22L2.71 16.1a.5.5 0 0 1 .12-.64l2.03-1.58a7.43 7.43 0 0 1 0-1.88L2.71 9.42a.5.5 0 0 1 .12-.64l1.92-3.32a.5.5 0 0 1 .6-.22l2.39.96c.51-.39 1.05.71 1.63.94l.36-2.54A.5.5 0 0 1 12.22 2h3.8c.24 0 .45.17.49.42l.36 2.54c.58.23 1.12.55 1.63.94l2.39-.96a.5.5 0 0 1 .6.22l1.92 3.32a.5.5 0 0 1-.12.64l-2.03 1.58c.03.31.05.62.05.94Z"/></svg>
             <span>Pengaturan</span>
         </a>
     </nav>
 
-    <!-- ================= MODALS (shared with game) ================= -->
     <div class="modal-overlay hidden" id="promotionModal" role="dialog" aria-modal="true" aria-labelledby="promotionTitle" aria-hidden="true">
         <div class="modal">
             <h2 id="promotionTitle">Pilih Promosi</h2>
