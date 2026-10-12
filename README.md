@@ -1,303 +1,282 @@
-Modern Chess
+## Hajir Chess
 
-A modern, responsive, dependency-free chess game for the browser
+A modern, responsive, and dependency-free chess application for the browser.
 
-Player vs Player · Player vs Computer · Time controls · Move history · PGN and FEN tools · Board themes · Preference persistence
+Play against another person, challenge the built-in computer opponent, solve chess puzzles, learn chess fundamentals, and analyze games using PGN and FEN tools.
 
----
+<p align="center">
+  <a href="https://hajir.is-a.dev/chess">
+    <img src="https://img.shields.io/badge/Play%20Online-Hajir%20Chess-7c3aed?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Play Hajir Chess">
+  </a>
+  <a href="https://github.com/haiere/chess">
+    <img src="https://img.shields.io/badge/Source%20Code-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="View source code">
+  </a>
+</p>
 
-Table of Contents
-
-- [Overview](#overview)
-- [Live Demo](#live-demo)
-- [Highlights](#highlights)
-- [Technology](#technology)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Features](#features)
-- [Game Controls](#game-controls)
-- [Interaction Methods](#interaction-methods)
-- [Game Configuration](#game-configuration)
-- [Move History](#move-history)
-- [FEN Support](#fen-support)
-- [PGN Support](#pgn-support)
-- [Keyboard and Accessibility](#keyboard-and-accessibility)
-- [Preference Storage](#preference-storage)
-- [Offline Support](#offline-support)
-- [Privacy](#privacy)
-- [Project Structure](#project-structure)
-- [Troubleshooting](#troubleshooting)
-- [Browser Compatibility](#browser-compatibility)
-- [Deployment](#deployment)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [Support the Project](#support-the-project)
-- [License](#license)
-- [Credits](#credits)
+<p align="center">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5">
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3">
+  <img src="https://img.shields.io/badge/JavaScript-ES2020-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript">
+  <img src="https://img.shields.io/badge/Dependencies-None-22c55e?style=flat-square" alt="No dependencies">
+  <img src="https://img.shields.io/badge/License-See%20LICENSE-blue?style=flat-square" alt="License">
+</p>
 
 ---
 
-Overview
+## Overview
 
-Modern Chess is a self-contained chess application that runs entirely in the browser. It provides a modern, distraction-free interface for playing chess against another person on the same device or against a built-in computer opponent.
+Hajir Chess is a self-contained chess application that runs entirely in the browser.
 
-The application is built without any framework, bundler, or runtime dependency. All chess rules, move generation, and the AI engine are implemented in plain JavaScript.
+It supports:
 
-What It Provides
+- Player vs Player games.
+- Player vs Computer games.
+- Configurable time controls.
+- Chess puzzles with progressive hints.
+- Interactive bilingual lessons.
+- Move history and captured pieces.
+- PGN export and FEN import/export.
+- Custom board and interface themes.
+- Keyboard, mouse, touch, and drag-and-drop interaction.
+- Local preference and progress persistence.
 
-- Complete and accurate chess rules.
-- Responsive, accessible interface.
-- Player-versus-player and player-versus-computer modes.
-- Configurable time controls with Fischer increment.
-- Six board themes and light/dark interface themes.
-- FEN import/export and PGN export.
-- Preference persistence through `localStorage`.
+The application uses plain HTML, CSS, and JavaScript. It requires no framework, bundler, backend, account, or package manager.
 
-What It Does Not Require
+> game calculations, AI processing, and user preferences remain on the device.
 
-- No server or backend.
-- No package manager.
-- No build step.
-- No runtime dependency.
-- No external JavaScript library.
+## Preview
 
----
+<p align="center">
+  <img src="https://api.pikwy.com/web/6acca01f441d6662de5dd3a0.jpg" alt="Hajir Chess preview" width="900">
+</p>
 
-Live Demo
+## Live Demo
 
-Play the latest version online:
+Play Hajir Chess online:
 
-[https://hajir.is-a.dev/chess](https://hajir.is-a.dev/chess)
+**[https://hajir.is-a.dev/chess](https://hajir.is-a.dev/chess)**
 
----
+## Highlights
 
-Highlights
+| Area | Details |
+| --- | --- |
+| Chess rules | Legal moves, check, checkmate, stalemate, castling, en passant, promotion, and draw conditions |
+| Game modes | Player vs Player and Player vs Computer |
+| AI | Minimax with alpha-beta pruning and three difficulty levels |
+| Time controls | Rapid, Blitz, Bullet, unlimited time, and Fischer increment |
+| Puzzles | Four difficulty tiers, hints, statistics, and daily puzzles |
+| Lessons | Beginner-to-intermediate lessons with quizzes |
+| Board themes | Six board themes |
+| Interface themes | Light, dark, and system themes |
+| Languages | Bahasa Indonesia and English |
+| Game tools | Move history, PGN export, FEN import/export, and board flipping |
+| Accessibility | Keyboard navigation, ARIA labels, focus indicators, and reduced-motion support |
+| Storage | Preferences, puzzle statistics, and lesson progress saved locally |
 
-Area	Details	
-Rules	Legal move validation, check, checkmate, stalemate, castling, en passant, promotion, fifty-move clock tracking	
-AI	Minimax with alpha-beta pruning; three difficulty levels	
-Timers	Rapid, Blitz, Bullet, and unlimited time controls with increment	
-Tools	FEN import/export, PGN copy/download, move history, captured pieces	
-UI	Responsive layout, glass-style panels, safe-area support for notched devices	
-Themes	Six board themes, light/dark/system interface themes	
-Accessibility	Keyboard navigation, ARIA labels, focus-visible outlines, reduced-motion support	
-Persistence	Theme, board theme, sound, coordinates, orientation, and game settings saved locally	
+## Features
 
----
+### Gameplay
 
-Technology
+- Player vs Player on the same device.
+- Player vs Computer with Easy, Medium, and Hard difficulty.
+- White, Black, or Random player color.
+- Legal move validation.
+- Check, checkmate, and stalemate detection.
+- Castling, en passant, promotion, and under-promotion.
+- Undo and redo support.
+- Resign and draw controls.
+- Captured-piece tracking.
+- Move history in Standard Algebraic Notation.
 
-Modern Chess uses only standard web technologies.
+### Time Controls
 
-Layer	Technology	
-Markup	HTML5 (semantic, ARIA-annotated)	
-Styling	CSS3 with custom properties, CSS Grid, Flexbox	
-Logic	Vanilla JavaScript (ES2020, strict mode)	
-Audio	Web Audio API (oscillator-based, no audio files)	
-Clipboard	Clipboard API with prompt fallback	
-Storage	`localStorage` with in-memory fallback	
+Available presets:
 
-No frameworks, no bundlers, no third-party JavaScript.
+- `10+0` — Rapid.
+- `5+3` — Blitz.
+- `3+2` — Blitz.
+- `1+0` — Bullet.
+- No timer.
 
----
+Fischer increment is automatically added after each move when configured.
 
-Requirements
+### Puzzle Mode
 
-- A modern web browser with JavaScript enabled.
-- Chrome, Firefox, Edge, or Safari (recent versions).
-- An internet connection only to load the Inter font from Google Fonts.
+- Engine-validated positions and solutions.
+- Easy, Medium, Hard, and Master difficulty tiers.
+- Random, next, previous, and daily puzzle navigation.
+- Progressive hints:
+  1. Highlight the origin square.
+  2. Highlight the destination square.
+  3. Play the correct move.
+- Try Again and Reveal Solution controls.
+- Solved puzzle, mistake, streak, and time statistics.
+- Session-based anti-repeat selection.
 
-No server, no runtime, no build process.
+### Learning Mode
 
----
+Lessons cover:
 
-Installation
+- Board coordinates and piece movement.
+- Piece values.
+- Check and checkmate.
+- Castling, en passant, and promotion.
+- Opening principles.
+- Center control and development.
+- King safety.
+- Forks, pins, skewers, discovered attacks, and back-rank tactics.
+- Basic endgames.
+- Common beginner mistakes.
 
-Run Locally
+Each lesson includes a learning goal, explanatory content, example positions, and interactive quizzes.
 
-1. Clone or download this repository.
-2. Keep `index.html`, `style.css`, and `script.js` in the same directory.
-3. Open `index.html` in a modern browser.
+### Interface
 
-Clone with Git
+- Responsive layout for phones, tablets, laptops, and desktop screens.
+- Six board themes:
+  - Classic Brown.
+  - Emerald.
+  - Midnight Blue.
+  - Rose.
+  - Black and White.
+  - Neon Cyberpunk.
+- Light, dark, and system interface themes.
+- Board orientation switching.
+- Coordinate labels.
+- Sound effects generated with the Web Audio API.
+- Low-time warnings.
+- Mobile bottom navigation.
+- Inline SVG icons without emoji or icon fonts.
+
+## Technology
+
+Hajir Chess is built with standard web technologies:
+
+| Layer | Technology |
+| --- | --- |
+| Markup | HTML5 with semantic elements and ARIA attributes |
+| Styling | CSS3, custom properties, CSS Grid, and Flexbox |
+| Logic | Vanilla JavaScript, ES2020, strict mode |
+| Audio | Web Audio API with oscillator-generated sounds |
+| Clipboard | Clipboard API with fallback support |
+| Storage | `localStorage` with an in-memory fallback |
+
+There are no frameworks, bundlers, runtime dependencies, or third-party JavaScript libraries.
+
+## Requirements
+
+- A modern browser with JavaScript enabled.
+- Recent Chrome, Firefox, Edge, or Safari.
+- Node.js 18 or later for running the test suite.
+- An internet connection is only needed to load the Inter font from Google Fonts.
+
+## Installation
+
+### Clone the Repository
 
 ```bash
-git clone https://github.com/haiere/chess.git
+git clone [https://github.com/haiere/chess.git](https://github.com/haiere/chess.git)
 cd chess
 ```
 
-Then open `index.html` in your browser, or serve the directory with any static server:
+### Run Directly
+
+Open `index.html` in a modern browser.
+
+### Run with a Local Server
 
 ```bash
 python3 -m http.server 8080
-# or
+```
+
+Then open:
+
+```text
+http://localhost:8080
+```
+
+Alternatively:
+
+```bash
 npx serve .
 ```
 
-Self-Hosting
+No installation or build step is required.
 
-Modern Chess can be deployed to any static host:
+## Quick Start
 
-- GitHub Pages
-- Cloudflare Pages
-- Netlify
-- Vercel
-- Firebase Hosting
-- Any standard static web server
+1. Open the [live demo](https://hajir.is-a.dev/chess) or run the project locally.
+2. Select **New Game**.
+3. Choose the game mode, player color, AI difficulty, timer, and board theme.
+4. Select a piece and choose a highlighted destination square.
+5. Review moves using the move history panel.
+6. Copy or download the game as PGN.
+7. Export the current position as FEN when needed.
 
-Upload the files while preserving their relative paths. No build step is required.
+## Interaction
 
----
+| Method | Usage |
+| --- | --- |
+| Click | Select a piece, then select a highlighted destination square |
+| Tap | Tap a piece, then tap a highlighted destination square |
+| Drag and drop | Drag a piece to a legal square on desktop |
+| Touch drag | Drag pieces on supported touch devices |
+| Keyboard | Navigate the board with arrow keys and select with Enter |
 
-Quick Start
+Tap-to-move is recommended on small touchscreens.
 
-1. Open the live version or run the project locally.
-2. Select New Game.
-3. Choose the game mode, player color, AI difficulty, time control, and board theme.
-4. Select one of your pieces, then select a highlighted destination square.
-5. Review the game using the move history panel.
-6. Copy or download the game as PGN, or export the current position as FEN.
+The board prevents duplicate moves caused by rapid taps or touch events that also trigger mouse events.
 
----
+## Game Controls
 
-Features
+| Control | Description |
+| --- | --- |
+| New Game | Opens the game configuration dialog |
+| Undo | Reverts the latest move; in PvC mode, also reverts the AI reply |
+| Redo | Reapplies an undone move |
+| Resign | Ends the game and declares the opponent the winner |
+| Draw | Offers or confirms a draw |
+| Flip Board | Switches the board perspective |
+| Copy PGN | Copies the current game in PGN format |
+| Download PGN | Downloads the game as a `.pgn` file |
+| Settings | Opens application settings |
+| Theme | Changes the interface theme |
+| Sound | Enables or disables sound effects |
+| Import FEN | Loads a position from a FEN string |
+| Export FEN | Copies the current position as FEN |
 
-Gameplay
+## AI Difficulty
 
-- Player versus Player — Two players share the same device.
-- Player versus Computer — Play against the built-in AI.
-- Three AI difficulty levels — Easy (random), Medium (2-ply minimax), Hard (3-ply minimax).
-- Random color option — Let the game choose White or Black for you.
-- Time controls — 10+0 Rapid, 5+3 Blitz, 3+2 Blitz, 1+0 Bullet, or unlimited.
-- Fischer increment — Time is added after each move when an increment is set.
-- Complete rule enforcement — Legal move validation, check, checkmate, stalemate, castling, en passant, and promotion.
-- Undo and redo — Revert or replay moves; in PvC mode Undo also reverts the AI's reply.
-- Resign and draw — End the game with confirmation dialogs to prevent accidental losses.
+| Level | Search | Description |
+| --- | --- | --- |
+| Easy | Random legal move | Suitable for beginners |
+| Medium | 2-ply minimax | Uses alpha-beta pruning and material evaluation |
+| Hard | 3-ply minimax | Stronger play but may require more processing time |
 
-Interface and Tooling
+The AI is intentionally lightweight and runs directly in the browser.
 
-- Move history — Displayed in Standard Algebraic Notation and grouped by move number.
-- Captured pieces — Tracked and displayed for both players.
-- PGN export — Copy the game to the clipboard or download it as a `.pgn` file.
-- FEN import and export — Load or copy the current position with strict validation.
-- Board flip — Switch perspective between White and Black.
-- Six board themes — Classic Brown, Emerald, Midnight Blue, Rose, Black and White, and Neon Cyberpunk.
-- Light, dark, and system themes — Follow the operating system or choose manually.
-- Sound effects — Web Audio API generates distinct tones for move, capture, check, castle, promotion, and game over.
-- Coordinate labels — File and rank labels can be toggled.
-- Responsive layout — Optimized for phones, tablets, laptops, and wide desktop screens.
-- Low-time warnings — Timers below 30 seconds pulse in a distinct color.
+## Move History
 
-Accessibility
+Moves are displayed using Standard Algebraic Notation.
 
-- Full keyboard support — Skip link, focus-visible outlines, Escape to close modals.
-- ARIA annotations — `aria-label`, `aria-live`, `aria-modal`, and `role="grid"` on the board.
-- Reduced-motion respect — Animations are disabled when `prefers-reduced-motion` is set.
-- Screen-reader friendly — All interactive elements carry meaningful accessible names.
-- No emoji icons — Every UI icon is a scalable inline SVG that inherits `currentColor`.
+| Notation | Meaning |
+| --- | --- |
+| `e4` | Pawn move |
+| `Nf3` | Knight move |
+| `O-O` | Kingside castling |
+| `O-O-O` | Queenside castling |
+| `exd5` | Capture |
+| `e.p.` | En passant |
+| `+` | Check |
+| `#` | Checkmate |
 
----
+The history panel automatically scrolls as new moves are played.
 
-Game Controls
+## FEN Support
 
-Control	Description	
-New Game	Opens the game configuration dialog.	
-Undo	Reverts the last move. In PvC mode, also reverts the AI's reply.	
-Redo	Reapplies a previously undone move.	
-Resign	Ends the game and declares the opponent the winner.	
-Draw	Offers or confirms a draw.	
-Flip Board	Changes the board perspective between White and Black.	
-Copy PGN	Copies the current game in PGN format to the clipboard.	
-Download PGN	Downloads the current game as a `.pgn` file.	
-Settings	Opens the settings dialog.	
-Theme	Cycles between light and dark interface themes.	
-Sound	Enables or disables sound effects.	
-Import FEN	Loads a position from a FEN string.	
-Export FEN	Copies the current position as a FEN string.	
+[FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) describes a complete chess position in a single line.
 
----
-
-Interaction Methods
-
-Method	How It Works	
-Click	Select a piece, then click a highlighted destination square.	
-Tap	Tap a piece, then tap a highlighted destination square.	
-Drag and drop	Drag a piece to a valid square on desktop.	
-Touch drag	Drag a piece on supported touch devices and release it over a valid square.	
-
-The board prevents duplicate moves from rapid taps and from touch events that also fire mouse events.
-
----
-
-Game Configuration
-
-Game Modes
-
-Mode	Description	
-Player versus Player	Two players alternate on the same device.	
-Player versus Computer	Play against the built-in AI engine.	
-
-Player Color
-
-Option	Description	
-White	You play as White and move first.	
-Black	You play as Black; the AI moves first.	
-Random	The game chooses a side for you at the start.	
-
-AI Difficulty
-
-Level	Search	Description	
-Easy	Random	Selects any legal move. Suitable for beginners.	
-Medium	2-ply minimax	Alpha-beta pruning with material evaluation.	
-Hard	3-ply minimax	Stronger search; may take longer on slower devices.	
-
-Time Controls
-
-Setting	Description	
-10+0	Ten minutes, no increment.	
-5+3	Five minutes with a three-second increment per move.	
-3+2	Three minutes with a two-second increment per move.	
-1+0	One minute, no increment.	
-No Timer	Unlimited time for both players.	
-
-Board Themes
-
-Theme	Description	
-Classic Brown	Traditional wooden tones.	
-Emerald	Green-toned palette.	
-Midnight Blue	Deep blue color scheme.	
-Rose	Warm pink and rose tones.	
-Black and White	High-contrast monochrome.	
-Neon Cyberpunk	Dark board with neon accents.	
-
----
-
-Move History
-
-Moves are displayed in Standard Algebraic Notation and grouped by move number.
-
-Notation	Meaning	
-`e4`	Pawn move.	
-`Nf3`	Knight move.	
-`O-O`	Kingside castling.	
-`O-O-O`	Queenside castling.	
-`exd5`	Capture.	
-`e.p.`	En passant.	
-`+`	Check.	
-`#`	Checkmate.	
-
-The panel scrolls automatically as new moves are played.
-
----
-
-FEN Support
-
-FEN (Forsyth–Edwards Notation) describes a complete chess position in a single line.
-
-Use Import FEN to load a position or Export FEN to copy the current one.
-
-Starting Position
+Starting position:
 
 ```text
 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
@@ -306,271 +285,446 @@ rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 A complete FEN string contains six fields:
 
 1. Piece placement.
-2. Active color (`w` or `b`).
-3. Castling availability (`KQkq` or `-`).
-4. En passant target square (e.g. `e3`) or `-`.
+2. Active color.
+3. Castling availability.
+4. En passant target square.
 5. Halfmove clock.
 6. Fullmove number.
 
-Imported FEN strings are validated before being applied. Invalid input is rejected with a toast notification and the current position is preserved.
+Imported FEN strings are validated before being applied. Invalid input is rejected while the current position remains unchanged.
 
----
+## PGN Support
 
-PGN Support
+[PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) records a chess game in a portable text format.
 
-PGN (Portable Game Notation) records a full game in a portable text format.
+Hajir Chess supports:
 
-Control	Action	
-Copy PGN	Copies the current game to the clipboard.	
-Download PGN	Downloads the current game as a `.pgn` file.	
+- Copying the current game to the clipboard.
+- Downloading the game as a `.pgn` file.
+- Standard Algebraic Notation.
+- Castling.
+- Captures.
+- Promotion.
+- Check and checkmate.
+- En passant.
 
-The exported PGN uses Standard Algebraic Notation and includes castling, captures, promotion, check, checkmate, and en passant.
+## Internationalization
 
----
+Hajir Chess currently supports:
 
-Keyboard and Accessibility
+- Bahasa Indonesia.
+- English.
 
-Feature	Behavior	
-Skip link	Tab from the top of the page reveals a "Skip to board" link.	
-Modal close	`Escape` closes New Game, Settings, and other dismissible dialogs.	
-Focus outline	`:focus-visible` styling is applied to all interactive elements.	
-Promotion dialog	Pieces are focusable and respond to Enter and Space.	
-Board grid	Squares expose `role="gridcell"` and are labeled for screen readers.	
-Reduced motion	Animations are minimized when `prefers-reduced-motion: reduce` is set.	
+The language system includes:
 
-All UI icons are inline SVG elements that inherit `currentColor` and are marked `aria-hidden="true"` when decorative.
+- Automatic browser-language detection.
+- Live language switching without reloading.
+- Persistent language preference.
+- Translated modals, toasts, game statuses, and ARIA labels.
+- Indonesian fallback when a translation is unavailable.
 
----
+Translation files are located in:
 
-Preference Storage
+```text
+locales/
+├── id.json
+└── en.json
+```
 
-The application stores user preferences in `localStorage` under keys prefixed with `chess:`. No game state is saved between sessions.
+Both locale files must contain identical keys and placeholders.
 
-Key	Purpose	
-`chess:theme`	Interface theme: `dark`, `light`, or `system`.	
-`chess:boardTheme`	Selected board theme.	
-`chess:sound`	Sound enabled state.	
-`chess:coords`	Coordinate label visibility.	
-`chess:orientation`	Board orientation (`white` or `black`).	
-`chess:mode`	Last selected game mode.	
-`chess:playerColor`	Last selected player color.	
-`chess:difficulty`	Last selected AI difficulty.	
-`chess:timerMode`	Last selected time control.	
+### Adding a Translation Key
 
-If `localStorage` is unavailable (for example, in private browsing or when blocked by the browser), the application transparently falls back to an in-memory store and continues to run without errors.
+1. Add the key to both locale files.
+2. Keep the same key path and placeholders.
+3. Run the test suite.
+4. Regenerate the locale bundle.
 
-Preference data can be reset at any time from the Settings dialog.
+```bash
+node tests/run.mjs
+node tests/build-locales.mjs
+```
 
----
+## Accessibility
 
-Offline Support
+Hajir Chess includes:
 
-The core application runs entirely in the browser and does not require an active server connection.
+- Keyboard navigation.
+- Skip link support.
+- Focus-visible outlines.
+- Escape-to-close modal behavior.
+- Arrow-key board navigation.
+- Enter and Space support for promotion choices.
+- ARIA labels and live regions.
+- `role="grid"` and `role="gridcell"` board semantics.
+- Screen-reader-friendly controls.
+- Reduced-motion support through `prefers-reduced-motion`.
 
-Available Offline
+All decorative icons use inline SVG and are marked with `aria-hidden="true"`.
+
+## Preference Storage
+
+Preferences are stored locally using keys prefixed with `chess:`.
+
+Stored data includes:
+
+- Interface theme.
+- Board theme.
+- Sound preference.
+- Coordinate visibility.
+- Board orientation.
+- Last selected game mode.
+- Player color.
+- AI difficulty.
+- Time control.
+- Language.
+- Puzzle statistics.
+- Lesson progress.
+
+No game state is saved between sessions.
+
+If `localStorage` is unavailable, the application falls back to in-memory storage and continues running without errors.
+
+## Offline Support
+
+The core application runs locally in the browser and does not require a backend.
+
+Available offline:
 
 - Board rendering.
 - Chess rules and validation.
 - AI calculations.
 - Timers.
 - Move history.
-- PGN and FEN export.
-- Sound effects after the browser initializes audio.
+- PGN and FEN tools.
+- Sound effects after audio initialization.
+- Puzzle mode.
+- Lesson mode.
 
-> [!NOTE]
-The only external resource is the Google Fonts stylesheet for Inter. Once it is cached, the application can continue to work without an internet connection.
+The only external resource is the Inter font stylesheet from Google Fonts. Once cached, the application can continue working without an internet connection.
 
----
+## Privacy
 
-Privacy
+Hajir Chess is designed to operate locally on the user's device.
 
-Modern Chess is designed to run locally on the user's device.
-
-- No game data is transmitted to any server.
-- No cookies are used by the application.
+- No game data is sent to a server.
+- No account is required.
+- No application cookies are used.
 - No analytics or tracking scripts are included.
-- Only non-identifying preferences are stored in `localStorage`.
-- Chess calculations and AI processing happen entirely in the browser.
-- The optional Buy Me a Coffee link opens an external site only when the user selects it.
+- Only non-identifying preferences are stored locally.
+- Chess calculations and AI processing happen in the browser.
+- The optional Buy Me a Coffee link opens an external website only when selected.
 
----
-
-Project Structure
+## Project Structure
 
 ```text
 chess/
 ├── index.html
 ├── style.css
-├── script.js
+├── style.ext.css
+├── js/
+│   ├── storage.js
+│   ├── locales.js
+│   ├── i18n.js
+│   ├── audio.js
+│   ├── pieces.js
+│   ├── engine.js
+│   ├── board-view.js
+│   ├── game.js
+│   ├── puzzle-data.js
+│   ├── puzzle.js
+│   ├── lessons-data.js
+│   ├── lessons.js
+│   └── app.js
+├── locales/
+│   ├── id.json
+│   └── en.json
+├── tests/
+│   ├── run.mjs
+│   └── build-locales.mjs
 ├── LICENSE
 └── README.md
 ```
 
-File	Description	
-`index.html`	Application markup, controls, dialogs, and semantic structure.	
-`style.css`	Layout, themes, responsive styles, and animations.	
-`script.js`	Chess rules, board rendering, AI, timers, audio, FEN, and PGN logic.	
-`LICENSE`	Project license and usage terms.	
-`README.md`	Project documentation.	
+## Architecture
 
----
+The project follows several design principles:
 
-Troubleshooting
+- **Pure chess engine:** `Chess.applyMove()` returns a new immutable state.
+- **Reusable board component:** `BoardView` handles mouse, touch, drag, and keyboard interaction.
+- **Provider pattern:** puzzle data is accessed through `PuzzleProvider`.
+- **Separated content:** lesson data and translations are independent from UI components.
+- **Zero dependency:** the project works without npm installation or a bundler.
+- **Static-host friendly:** compatible with GitHub Pages and other static hosting providers.
+
+## Testing
+
+The project includes a Node.js test suite.
+
+```bash
+node tests/run.mjs
+```
+
+The test suite validates:
+
+- Move generation.
+- Legal move handling.
+- Checkmate and stalemate.
+- Castling and en passant.
+- Promotion and under-promotion.
+- FEN validation.
+- State immutability.
+- Insufficient material.
+- Puzzle positions and solutions.
+- Lesson structure and example FENs.
+- Translation key parity.
+- HTML translation attributes.
+- JavaScript translation references.
+- DOM element references.
+
+Selected engine tests include:
+
+```text
+perft(3) = 8902
+perft(4) = 197281
+Kiwipete(2) = 2039
+```
+
+## Extending the Project
+
+### Add a Puzzle
+
+Edit `js/puzzle-data.js`:
+
+```js
+{
+  id: 'puzzle-unique-001',
+  difficulty: 'medium',
+  rating: 1000,
+  title: 'Judul Bahasa Indonesia',
+  title_en: 'English Title',
+  fen: '...',
+  solution: ['d5e7', 'g8h8', 'e7c8'],
+  themes: ['fork', 'advantage']
+}
+```
+
+The test suite validates the FEN, solution legality, difficulty, and puzzle themes.
+
+### Add a Lesson
+
+Edit `js/lessons-data.js`:
+
+```js
+{
+  id: 'unique-lesson-id',
+  title: 'Lesson Title',
+  level: 'beginner',
+  description: 'One-sentence summary.',
+  goal: 'What the learner should achieve.',
+  steps: [
+    {
+      title: 'Introduction',
+      text: 'Lesson content.'
+    },
+    {
+      title: 'Example',
+      text: 'Example position.',
+      board: '<example FEN>'
+    },
+    {
+      title: 'Quiz',
+      text: '',
+      quiz: {
+        question: 'Question?',
+        options: ['A', 'B', 'C', 'D'],
+        answer: 1
+      }
+    }
+  ]
+}
+```
+
+## Troubleshooting
+
+### AI Is Not Moving
 
 Check that:
 
-- The game mode is set to Player versus Computer.
+- The selected mode is Player vs Computer.
 - It is currently the computer's turn.
 - The game has not ended.
-- The selected position is valid.
+- The position is valid.
 
-Hard difficulty may require slightly more processing time than Easy or Medium.
+Hard difficulty may take longer on low-end devices.
 
-Select a time control with a positive time limit. Timers run only during the active player's turn and stop automatically when the game ends.
+### Timer Is Not Running
 
-Browsers require user interaction before audio can play.
+Timers only run during an active game with a positive time limit.
 
-1. Click the board or any button.
-2. Confirm that the Sound control is enabled.
-3. Check that the browser tab is not muted.
-4. Check device volume.
+### No Sound
 
-Use tap-to-select and tap-to-move instead. This is the recommended interaction method on small touchscreens.
+Browsers require user interaction before audio playback is allowed.
 
-Make sure the FEN string contains all six fields, uses valid piece symbols, a valid active color, valid castling notation, a valid en passant square, and numeric halfmove and fullmove values.
+Try:
 
-Invalid FEN strings are rejected and the current position is preserved.
+- Clicking the board or a button.
+- Enabling Sound in the controls.
+- Checking the browser tab volume.
+- Checking the device volume.
 
-The application stores preferences in `localStorage`. If `localStorage` is blocked (private browsing, strict privacy settings), preferences fall back to an in-memory store and reset on refresh. Allowing site data for this origin restores persistence.
+### Touch Interaction Is Not Working
 
-1. Refresh the page.
-2. Start a new game.
-3. Clear any invalid FEN input.
-4. Open the browser console and check for JavaScript errors.
+Use tap-to-select and tap-to-move. This is the recommended interaction method on small touchscreens.
 
-The current game is not preserved between sessions.
+### FEN Import Fails
 
----
+Ensure that the FEN contains all six fields and uses valid:
 
-Browser Compatibility
+- Piece symbols.
+- Active color.
+- Castling notation.
+- En passant square.
+- Halfmove clock.
+- Fullmove number.
 
-Modern Chess targets current versions of:
+### Preferences Are Not Saved
 
-Browser	Status	
-Google Chrome	Supported	
-Mozilla Firefox	Supported	
-Microsoft Edge	Supported	
-Apple Safari	Supported	
+Preferences require access to `localStorage`. Private browsing or strict browser privacy settings may cause preferences to reset after refresh.
 
-The application relies on modern browser features:
+## Browser Compatibility
 
-- ES2020 JavaScript (optional chaining, nullish coalescing).
-- CSS Grid, Flexbox, and custom properties.
+Hajir Chess targets current versions of:
+
+- Google Chrome.
+- Mozilla Firefox.
+- Microsoft Edge.
+- Apple Safari.
+
+The application uses:
+
+- ES2020 JavaScript.
+- CSS Grid and Flexbox.
+- CSS custom properties.
 - Web Audio API.
 - Clipboard API with fallback.
 - Pointer, mouse, and touch events.
 
----
+## Deployment
 
-Deployment
+Hajir Chess can be deployed to any static hosting platform.
 
-Modern Chess is compatible with static hosting platforms.
+Supported platforms include:
 
-GitHub Pages
+- GitHub Pages.
+- Cloudflare Pages.
+- Netlify.
+- Vercel.
+- Firebase Hosting.
+- Any standard static web server.
 
-1. Push the project to a GitHub repository.
-2. Open Settings > Pages.
+### GitHub Pages
+
+1. Push the repository to GitHub.
+2. Open **Settings → Pages**.
 3. Select the deployment branch.
 4. Save the configuration.
 5. Open the generated Pages URL.
 
-Cloudflare Pages
+No build command is required.
 
-1. Connect the GitHub repository.
-2. Select the project repository.
-3. Leave the build command empty.
-4. Set the output directory to the project root.
-5. Deploy.
+### Cloudflare Pages
 
-Netlify or Vercel
+Use the following configuration:
+
+```text
+Build command: None
+Output directory: /
+```
+
+### Netlify or Vercel
 
 Import the repository and deploy it as a static site. No build command or environment variables are required.
 
----
+## Roadmap
 
-Roadmap
+Planned improvements:
 
-Planned improvements for future releases:
+- Larger puzzle library.
+- External puzzle dataset adapters.
+- Interactive lesson board challenges.
+- Threefold repetition detection.
+- More complete insufficient-material detection.
+- Web Worker support for AI calculations.
+- Optional Stockfish integration.
+- Progressive Web App support.
+- Additional interface languages.
 
-- Puzzle mode with difficulty levels and progress tracking.
-- Interactive lessons for beginners (piece movement, tactics, endgames).
-- Threefold repetition and insufficient material detection.
-- AI moved to a Web Worker to keep the interface fully responsive.
-- Optional Stockfish integration for stronger play.
-- Progressive Web App (manifest and service worker) for full offline install.
+## Known Limitations
 
----
+- The AI uses 2-ply to 3-ply minimax with simple material evaluation.
+- Hard difficulty may feel slow on low-end phones.
+- AI calculations currently run on the main thread.
+- The built-in puzzle dataset is relatively small.
+- Lessons currently use static example boards and quizzes.
+- Puzzle variations are not supported.
+- Each puzzle currently has one main solution line.
+- Tap-to-move is recommended on iOS Safari.
 
-Contributing
+## Contributing
 
 Contributions, bug reports, and suggestions are welcome.
 
-Development Workflow
+### Development Workflow
 
-1. Fork the repository.
-2. Create a feature branch:
-   
 ```bash
-   git checkout -b feature/your-feature-name
-   ```
+git checkout -b feature/your-feature-name
+```
 
-3. Make your changes.
-4. Test the application across multiple browsers and screen sizes.
-5. Commit your changes:
-   
+Make your changes, then run:
+
 ```bash
-   git commit -m "Describe your change"
-   ```
+node tests/run.mjs
+```
 
-6. Push the branch:
-   
+Commit and push your branch:
+
 ```bash
-   git push origin feature/your-feature-name
-   ```
+git add .
+git commit -m "Describe your change"
+git push origin feature/your-feature-name
+```
 
-7. Open a pull request.
+Finally, open a pull request.
 
-Contribution Guidelines
+### Contribution Guidelines
 
 - Keep the project dependency-free.
-- Preserve existing element IDs referenced by `script.js`.
-- Maintain responsive behavior on phones, tablets, and desktops.
-- Test both mouse and touch interactions.
+- Preserve existing DOM IDs used by JavaScript.
+- Maintain responsive behavior.
+- Test mouse, touch, and keyboard interactions.
 - Do not break PGN or FEN functionality.
-- Keep all UI icons as SVG; do not introduce emoji or icon fonts.
-- Write clear and descriptive commit messages.
-- Update this README when adding major features.
+- Use inline SVG for interface icons.
+- Avoid emoji and icon fonts.
+- Write clear commit messages.
+- Update the README for major changes.
+- Run the complete test suite before submitting a pull request.
 
----
+## Support the Project
 
-Support the Project
-
-If Modern Chess is useful to you, you can support its development through Buy Me a Coffee.
+If Hajir Chess is useful to you, consider supporting its development through Buy Me a Coffee.
 
 Your support helps maintain the project and develop future improvements.
 
----
+## License
 
-License
+This project is open source.
 
-This project is provided as open-source software.
+See the [`LICENSE`](./LICENSE) file for complete license terms.
 
-See [LICENSE](LICENSE) for the complete license terms.
+## Credits
 
----
+Developed by **Haiere** and **Hajir Studio**.
 
-Credits
-
-Developed by Haiere and Hajir Studio
-
----
+- Repository: [github.com/haiere/chess](https://github.com/haiere/chess)
+- Live Demo: [hajir.is-a.dev/chess](https://hajir.is-a.dev/chess)
