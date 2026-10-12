@@ -431,3 +431,7 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 899px) {
     .toast-container { bottom: calc(76px + var(--safe-bottom)); }
 }
+
+.lang-switcher { display: inline-flex; align-items: center; gap: 5px; margin-left: 8px; }
+.lang-switcher select { padding: 6px; border-radius: var(--radius3); border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.78rem; font-weight: 700; min-height: 34px; cursor: pointer; }
+@media (max-width: 899px) { .lang-switcher { display: none; } }
