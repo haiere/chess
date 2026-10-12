@@ -237,6 +237,79 @@ section('DOM static consistency');
     ok(missing.length === 0, 'all $() ids exist in HTML', missing.length + ' missing');
 }
 
+
+/* 16. i18n validation */
+section('i18n');
+{
+    const idJson = JSON.parse(readFileSync(join(root, 'locales', 'id.json'), 'utf8'));
+    const enJson = JSON.parse(readFileSync(join(root, 'locales', 'en.json'), 'utf8'));
+
+    // flatten key sets
+    function flatten(obj, prefix, out) {
+        out = out || new Set();
+        for (const k of Object.keys(obj)) {
+            const v = obj[k];
+            const key = prefix ? prefix + '.' + k : k;
+            if (v && typeof v === 'object') flatten(v, key, out);
+            else out.add(key);
+        }
+        return out;
+    }
+    const idKeys = flatten(idJson);
+    const enKeys = flatten(enJson);
+    ok(idKeys.size > 100, 'id locale has >100 keys', idKeys.size);
+    ok(idKeys.size === enKeys.size, 'same key count id/en', idKeys.size + ' vs ' + enKeys.size);
+    const missingInEn = [...idKeys].filter(k => !enKeys.has(k));
+    const missingInId = [...enKeys].filter(k => !idKeys.has(k));
+    ok(missingInEn.length === 0, 'no keys missing in en', missingInEn.slice(0, 5).join(','));
+    ok(missingInId.length === 0, 'no keys missing in id', missingInId.slice(0, 5).join(','));
+
+    // placeholder parity: every {x} in id must exist in en for same key
+    const idFlat = {};
+    (function walk(o, p) { for (const k in o) { const key = p ? p + '.' + k : k; if (o[k] && typeof o[k] === 'object') walk(o[k], key); else idFlat[key] = o[k]; } })(idJson, '');
+    const enFlat = {};
+    (function walk(o, p) { for (const k in o) { const key = p ? p + '.' + k : k; if (o[k] && typeof o[k] === 'object') walk(o[k], key); else enFlat[key] = o[k]; } })(enJson, '');
+    let placeholderMismatch = [];
+    for (const k of idKeys) {
+        const pi = (idFlat[k].match(/\{(\w+)\}/g) || []).sort().join(',');
+        const pe = ((enFlat[k] || '').match(/\{(\w+)\}/g) || []).sort().join(',');
+        if (pi !== pe) placeholderMismatch.push(k);
+    }
+    ok(placeholderMismatch.length === 0, 'placeholder parity id/en', placeholderMismatch.slice(0, 5).join(','));
+
+    // all data-i18n / data-i18n-aria keys used in index.html must exist
+    const html = readFileSync(join(root, 'index.html'), 'utf8');
+    const usedKeys = new Set();
+    const attrRe = /data-i18n(?:-aria)?="([^"]+)"/g;
+    let mm;
+    while ((mm = attrRe.exec(html)) !== null) usedKeys.add(mm[1]);
+    const missingHtml = [...usedKeys].filter(k => !idKeys.has(k));
+    ok(missingHtml.length === 0, 'all HTML i18n keys exist', missingHtml.slice(0, 5).join(','));
+
+    // all t('...') literals in js must exist
+    const jsFiles = ['game.js', 'puzzle.js', 'lessons.js', 'app.js', 'board-view.js', 'i18n.js'];
+    const tRe = /\bT\('([a-z][\w.]+)'/g;
+    const tRe2 = /I18n\.t\('([a-z][\w.]+)'/g;
+    const usedJs = new Set();
+    for (const f of jsFiles) {
+        if (f === 'i18n.js') continue; // usage examples live in comments
+        let code = readFileSync(join(root, 'js', f), 'utf8');
+        code = code.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+        while ((mm = tRe.exec(code)) !== null) usedJs.add(mm[1]);
+        while ((mm = tRe2.exec(code)) !== null) usedJs.add(mm[1]);
+    }
+    const missingJs = [...usedJs].filter(k => !idKeys.has(k) && !k.endsWith('.'));
+    ok(missingJs.length === 0, 'all JS t() keys exist', missingJs.slice(0, 8).join(','));
+
+    // dynamic keys built via T(colorKey) pattern: verify game.white/black etc exist
+    for (const k of ['game.white','game.black','pieces.white','pieces.black','pieces.king','pieces.queen','pieces.rook','pieces.bishop','pieces.knight','pieces.pawn'])
+        ok(idKeys.has(k), 'dynamic key exists: ' + k);
+
+    // locales.js must be in sync with JSON
+    const gen = readFileSync(join(root, 'js', 'locales.js'), 'utf8');
+    ok(gen.indexOf('"undo"') !== -1 && gen.length > 5000, 'js/locales.js generated and non-trivial');
+}
+
 console.log('\n========================================');
 console.log('PASSED: ' + passed + '  FAILED: ' + failed);
 if (failures.length) {
@@ -245,4 +318,3 @@ if (failures.length) {
     process.exit(1);
 }
 console.log('ALL TESTS PASSED');
- 
