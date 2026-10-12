@@ -1,9 +1,4 @@
-import os
-base = '/mnt/agents/output/chess'
-for d in ['', '/js', '/tests']:
-    os.makedirs(base+d, exist_ok=True)
-
-storage_js = r'''/* ============================================================
+/* ============================================================
    AppStorage — safe localStorage wrapper with in-memory fallback.
    Keys are prefixed with "chess:". Exposed as window.AppStorage.
    ============================================================ */
@@ -82,6 +77,3 @@ storage_js = r'''/* ============================================================
 
     window.AppStorage = AppStorage;
 })();
-'''
-open(base+'/js/storage.js','w').write(storage_js)
-print('storage.js written', len(storage_js)) 

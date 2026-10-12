@@ -1,9 +1,7 @@
 /* Puzzle mode — difficulty selection, random/next/previous/daily puzzle,
-   staged hints, retry on mistakes, solution reveal, session statistics
-   (solved, mistakes, time, streak) persisted via AppStorage.
-   Architecture: PuzzleProvider abstracts the data source so an external
-   dataset (e.g. lichess puzzle DB via adapter) can replace PUZZLE_DATA
-   without touching the UI. */
+   staged hints, retry on mistakes, solution reveal, statistics with streak,
+   all persisted via AppStorage. PuzzleProvider abstracts the data source
+   so an external dataset can replace PUZZLE_DATA without UI changes. */
 (function () {
     'use strict';
 
@@ -11,8 +9,8 @@
     const DIFFICULTIES = ['easy', 'medium', 'hard', 'master'];
     const DIFF_LABEL = { easy: 'Mudah', medium: 'Menengah', hard: 'Sulit', master: 'Master' };
     const HINT_STAGES = 3;
+    const MAX_SEEN = 300;
 
-    /* ---------------- PuzzleProvider ---------------- */
     function validatePuzzle(p) {
         if (!p || typeof p !== 'object') return false;
         if (!Chess.validateFEN(p.fen)) return false;
@@ -44,8 +42,9 @@
             return list[(i + dir + list.length) % list.length];
         }
         random(diff, excludeIds) {
-            const list = this.byDifficulty(diff).filter(p => !excludeIds.has(p.id));
-            const pool = list.length ? list : this.byDifficulty(diff);
+            const all = this.byDifficulty(diff);
+            const fresh = all.filter(p => !excludeIds.has(p.id));
+            const pool = fresh.length ? fresh : all;
             if (!pool.length) return null;
             return pool[Math.floor(Math.random() * pool.length)];
         }
@@ -58,12 +57,11 @@
         }
     }
 
-    /* ---------------- state ---------------- */
     let provider = null;
-    let puzzle = null;          // active puzzle object
-    let state = null;           // engine state at current solution step
-    let stepIndex = 0;          // next expected solution index
-    let beforeWrong = null;     // engine state snapshot for retry
+    let puzzle = null;
+    let state = null;
+    let stepIndex = 0;
+    let beforeWrong = null;
     let board = null;
     let selected = null, legalSel = [];
     let hintStage = 0;
@@ -71,27 +69,35 @@
 
     const defaultStats = () => ({ solved: [], mistakes: 0, bestStreak: 0, streak: 0, seconds: 0 });
     let stats = S.get('puzzleStats', defaultStats());
-    let seen = new Set(S.get('puzzleSeen', []));
+    if (!stats || typeof stats !== 'object' || !Array.isArray(stats.solved)) stats = defaultStats();
+    let seen = new Set(Array.isArray(S.get('puzzleSeen', [])) ? S.get('puzzleSeen', []) : []);
     let sessionStart = Date.now();
 
     const $ = (id) => document.getElementById(id);
-
     function saveStats() { S.set('puzzleStats', stats); S.set('puzzleSeen', Array.from(seen)); }
 
-    /* ---------------- rendering ---------------- */
     function activeColor() { return puzzle ? Chess.parseFEN(puzzle.fen).currentPlayer : 'white'; }
+    function currentDiff() { return $('pzDifficulty').value; }
+
+    function lastMovePlayed() {
+        if (!puzzle || stepIndex === 0) return null;
+        const prev = puzzle.solution[stepIndex - 1];
+        const f = Chess.parseSquare(prev.slice(0, 2)), t = Chess.parseSquare(prev.slice(2, 4));
+        return f && t ? { fromRow: f.row, fromCol: f.col, toRow: t.row, toCol: t.col } : null;
+    }
 
     function render() {
+        if (!state) { updateStatusUI(); updateStatsUI(); updateNavUI(); return; }
         const marks = { selected, legalMoves: legalSel };
         const lm = lastMovePlayed();
         if (lm) marks.lastMove = lm;
         const st = Chess.status(state);
         if (st.check) marks.checkSquare = Chess.findKing(state.board, state.currentPlayer);
-        if (hintStage >= 1) {
+        if (hintStage >= 1 && stepIndex < puzzle.solution.length) {
             const from = Chess.parseSquare(puzzle.solution[stepIndex].slice(0, 2));
             if (from) marks.hintFrom = from;
         }
-        if (hintStage >= 2) {
+        if (hintStage >= 2 && stepIndex < puzzle.solution.length) {
             const to = Chess.parseSquare(puzzle.solution[stepIndex].slice(2, 4));
             if (to) marks.hintTo = to;
         }
@@ -100,17 +106,11 @@
         updateStatsUI();
         updateNavUI();
     }
-    function lastMovePlayed() {
-        if (!puzzle || stepIndex === 0) return null;
-        const prev = puzzle.solution[stepIndex - 1];
-        const f = Chess.parseSquare(prev.slice(0, 2)), t = Chess.parseSquare(prev.slice(2, 4));
-        return f && t ? { fromRow: f.row, fromCol: f.col, toRow: t.row, toCol: t.col } : null;
-    }
 
     function updateStatusUI() {
         const el = $('pzStatus');
         if (!el) return;
-        if (!puzzle) { el.textContent = 'Pilih tingkat kesulitan untuk memulai.'; return; }
+        if (!puzzle) { el.textContent = 'Pilih tingkat kesulitan untuk memulai.'; el.className = 'pz-status'; return; }
         const total = Math.ceil(puzzle.solution.length / 2);
         const done = Math.ceil(stepIndex / 2);
         const who = activeColor() === 'white' ? 'Putih' : 'Hitam';
@@ -121,10 +121,10 @@
             el.textContent = 'Langkah salah. Coba lagi atau lihat petunjuk.';
             el.className = 'pz-status error';
         } else if (hintStage > 0) {
-            el.textContent = `Petunjuk level ${hintStage}/${HINT_STAGES} — ${who} bergerak (${done}/${total})`;
+            el.textContent = 'Petunjuk level ' + hintStage + '/' + HINT_STAGES + ' — ' + who + ' bergerak (' + done + '/' + total + ')';
             el.className = 'pz-status hint';
         } else {
-            el.textContent = `${who} bergerak — temukan langkah terbaik (${done}/${total})`;
+            el.textContent = who + ' bergerak — temukan langkah terbaik (' + done + '/' + total + ')';
             el.className = 'pz-status';
         }
     }
@@ -133,27 +133,30 @@
         const el = $('pzStats');
         if (!el) return;
         const total = Math.floor((Date.now() - sessionStart) / 1000) + (stats.seconds || 0);
-        el.textContent = `Diselesaikan: ${stats.solved.length} · Salah: ${stats.mistakes} · Streak: ${stats.streak} (terbaik ${stats.bestStreak}) · Waktu: ${Math.floor(total / 60)}m${total % 60}s`;
+        el.textContent = 'Diselesaikan: ' + stats.solved.length + ' · Salah: ' + stats.mistakes +
+            ' · Streak: ' + stats.streak + ' (terbaik ' + stats.bestStreak + ') · Waktu: ' +
+            Math.floor(total / 60) + 'm' + (total % 60) + 's';
     }
 
     function updateNavUI() {
-        const diff = $('pzDifficulty').value;
+        if (!provider) return;
+        const diff = currentDiff();
         const n = provider.count(diff);
         const info = $('pzInfo');
         if (info) {
             info.textContent = puzzle
-                ? `${puzzle.title || puzzle.id} · ${DIFF_LABEL[puzzle.difficulty]} · rating ${puzzle.rating || '?'}${puzzle.themes ? ' · ' + puzzle.themes.join(', ') : ''}`
-                : `${n} puzzle tersedia untuk level ${DIFF_LABEL[diff]}`;
+                ? (puzzle.title || puzzle.id) + ' · ' + DIFF_LABEL[puzzle.difficulty] + ' · rating ' +
+                  (puzzle.rating || '?') + (puzzle.themes ? ' · ' + puzzle.themes.join(', ') : '')
+                : n + ' puzzle tersedia untuk level ' + DIFF_LABEL[diff];
         }
         const inProgress = puzzle && stepIndex < puzzle.solution.length && !beforeWrong;
         $('btnPzHint').disabled = !inProgress || hintStage >= HINT_STAGES;
         $('btnPzSolution').disabled = !inProgress;
         $('btnPzRetry').disabled = !beforeWrong;
-        $('btnPzPrev').disabled = !provider || !provider.count(diff);
-        $('btnPzNext').disabled = !provider || !provider.count(diff);
+        $('btnPzPrev').disabled = !n;
+        $('btnPzNext').disabled = !n;
     }
 
-    /* ---------------- flow ---------------- */
     function startPuzzle(p) {
         if (!p) { window.GameMode.toast('Tidak ada puzzle untuk level ini', 'error'); return; }
         puzzle = p;
@@ -164,8 +167,11 @@
         hintStage = 0;
         if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
         seen.add(p.id);
+        if (seen.size > MAX_SEEN) {
+            const keep = new Set(stats.solved);
+            seen = keep.size ? keep : new Set(Array.from(seen).slice(-50));
+        }
         saveStats();
-        // orientation: side to move at bottom
         board.setOrientation(activeColor());
         render();
     }
@@ -182,6 +188,14 @@
         return true;
     }
 
+    function tryUserMove(mv) {
+        const uci = Chess.sqName(mv.fromRow, mv.fromCol) + Chess.sqName(mv.toRow, mv.toCol);
+        const expected = expectedMove();
+        selected = null; legalSel = [];
+        if (uci === expected || uci + 'q' === expected) handleCorrectMove(mv);
+        else handleWrongMove(mv);
+    }
+
     function onSquareClick(row, col) {
         if (!puzzle || stepIndex >= puzzle.solution.length || beforeWrong) return;
         const piece = state.board[row][col];
@@ -190,18 +204,7 @@
                 selected = null; legalSel = []; render(); return;
             }
             const mv = legalSel.find(m => m.toRow === row && m.toCol === col);
-            if (mv) {
-                const uci = Chess.sqName(mv.fromRow, mv.fromCol) + Chess.sqName(mv.toRow, mv.toCol);
-                const expected = expectedMove();
-                // allow any legal promotion piece
-                if (uci === expected || (uci + 'q') === expected) {
-                    selected = null; legalSel = [];
-                    handleCorrectMove(mv, expected);
-                } else {
-                    handleWrongMove(mv);
-                }
-                return;
-            }
+            if (mv) { tryUserMove(mv); return; }
             if (piece) { selected = { row, col }; legalSel = Chess.legalMovesFrom(state, row, col); render(); return; }
             selected = null; legalSel = []; render();
         } else if (piece) {
@@ -211,8 +214,8 @@
         }
     }
 
-    function handleCorrectMove(mv, expected) {
-        state = Chess.applyMove(state, { ...mv, promotion: mv.promotion }).state;
+    function handleCorrectMove(mv) {
+        state = Chess.applyMove(state, mv).state;
         stepIndex++;
         SFX.play(stepIndex >= puzzle.solution.length ? 'success' : 'move');
         if (stepIndex >= puzzle.solution.length) {
@@ -220,7 +223,6 @@
             render();
             return;
         }
-        // auto-play opponent reply
         render();
         setTimeout(() => {
             if (!puzzle || stepIndex >= puzzle.solution.length) return;
@@ -229,19 +231,18 @@
     }
 
     function handleWrongMove(mv) {
-        beforeWrong = state; // snapshot for retry
+        beforeWrong = state;
         state = Chess.applyMove(state, mv).state;
         stats.mistakes++;
         stats.streak = 0;
         saveStats();
         SFX.play('error');
-        const to = Chess.parseSquare(expectedMove().slice(2, 4));
         board.setMarks({ ...board.marks, wrongSquare: { row: mv.toRow, col: mv.toCol } });
         window.GameMode.toast('Langkah salah — coba lagi', 'error');
         updateStatusUI();
         updateStatsUI();
         updateNavUI();
-        if (hintStage === 0) hintStage = 1; // gentle first hint after a mistake
+        if (hintStage === 0) hintStage = 1;
     }
 
     function retry() {
@@ -264,14 +265,14 @@
         updateStatsUI();
     }
 
-    /* ---------------- hints ---------------- */
     function hint() {
         if (!puzzle || stepIndex >= puzzle.solution.length || beforeWrong) return;
         hintStage = Math.min(HINT_STAGES, hintStage + 1);
         if (hintStage >= HINT_STAGES) {
-            // full move revealed: briefly flash, then auto-play it
             render();
+            if (hintTimer) clearTimeout(hintTimer);
             hintTimer = setTimeout(() => {
+                hintTimer = null;
                 hintStage = 0;
                 playSolutionStep(expectedMove());
             }, 900);
@@ -282,13 +283,11 @@
         if (!puzzle || stepIndex >= puzzle.solution.length) return;
         hintStage = 0;
         beforeWrong = null;
-        const rest = [];
-        for (let i = stepIndex; i < puzzle.solution.length; i++) rest.push(puzzle.solution[i]);
-        stepIndex = puzzle.solution.length;
-        for (const uci of rest) {
-            const mv = Chess.findMove(state, uci);
+        for (let i = stepIndex; i < puzzle.solution.length; i++) {
+            const mv = Chess.findMove(state, puzzle.solution[i]);
             if (mv) state = Chess.applyMove(state, mv).state;
         }
+        stepIndex = puzzle.solution.length;
         selected = null; legalSel = [];
         render();
     }
@@ -303,7 +302,6 @@
         window.GameMode.toast('Progres puzzle direset', 'success');
     }
 
-    /* ---------------- boot ---------------- */
     window.PuzzleMode = {
         init() {
             provider = new PuzzleProvider(window.PUZZLE_DATA);
@@ -312,15 +310,9 @@
                 if (!puzzle || stepIndex >= puzzle.solution.length || beforeWrong) return;
                 const mv = Chess.legalMovesFrom(state, fr, fc).find(m => m.toRow === tr && m.toCol === tc);
                 if (!mv) { selected = null; legalSel = []; render(); return; }
-                const uci = Chess.sqName(fr, fc) + Chess.sqName(tr, tc);
-                const expected = expectedMove();
-                selected = null; legalSel = [];
-                if (uci === expected || (uci + 'q') === expected) handleCorrectMove(mv, expected);
-                else handleWrongMove(mv);
+                tryUserMove(mv);
             };
-            $('pzDifficulty').addEventListener('change', () => {
-                startPuzzle(provider.random($('pzDifficulty').value, seen));
-            });
+            $('pzDifficulty').addEventListener('change', () => startPuzzle(provider.random(currentDiff(), seen)));
             $('btnPzRandom').addEventListener('click', () => startPuzzle(provider.random(currentDiff(), seen)));
             $('btnPzNext').addEventListener('click', () => {
                 startPuzzle(provider.nextAfter(puzzle ? puzzle.id : null, currentDiff(), +1) ||
@@ -340,5 +332,4 @@
         },
         refreshCoords() { if (board) board.setCoords(S.get('coords', true)); }
     };
-    function currentDiff() { return $('pzDifficulty').value; }
 })();

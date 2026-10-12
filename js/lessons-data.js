@@ -1,6 +1,4 @@
-/* Lesson content, separated from UI for easy editing.
-   step: { title, text, board?: FEN (rendered statically), quiz?: { question, options[], answer (index) } }
-   level: 'pemula' | 'menengah' */
+/* Lesson content — Bahasa Indonesia. Separated from UI for easy editing. */
 (function () {
     'use strict';
     window.LESSON_DATA = [
@@ -66,7 +64,7 @@
             steps: [
                 { title: 'Aturannya', text: 'Jika pion lawan maju dua kotak dari posisi awal dan mendarat di samping pionmu, kamu boleh menangkapnya seolah hanya maju satu kotak. Hanya bisa dilakukan LANGSUNG setelah langkah itu.', board: 'rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3' },
                 { title: 'Contoh', text: 'Pada papan: pion putih e5, hitam baru memainkan ...f5. Putih dapat exf6 e.p. — pion hitam f5 tertangkap dan pion putih berakhir di f6.' },
-                { title: 'Kuis', text: 'En passant hanya legal kapan?', quiz: { question: 'Kapan tangkapan en passat boleh dilakukan?', options: ['Kapan saja selama pion bersebelahan', 'Hanya langsung setelah pion lawan maju dua kotak', 'Hanya di pembukaan', 'Hanya jika membawa skak'], answer: 1 } }
+                { title: 'Kuis', text: 'En passant hanya legal kapan?', quiz: { question: 'Kapan tangkapan en passant boleh dilakukan?', options: ['Kapan saja selama pion bersebelahan', 'Hanya langsung setelah pion lawan maju dua kotak', 'Hanya di pembukaan', 'Hanya jika membawa skak'], answer: 1 } }
             ]
         },
         {

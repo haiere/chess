@@ -1,5 +1,5 @@
-/* Lessons mode — step-based cards with optional static example boards
-   and optional quizzes. Progress is persisted in AppStorage. */
+/* Lessons mode — step cards with optional static example boards and
+   optional quizzes. Progress persisted in AppStorage. */
 (function () {
     'use strict';
 
@@ -8,15 +8,14 @@
     const PROGRESS_KEY = 'lessonProgress';
 
     let progress = S.get(PROGRESS_KEY, {});
+    if (!progress || typeof progress !== 'object') progress = {};
     let currentLesson = null;
     let stepIndex = 0;
     let exampleBoard = null;
 
     function save() { S.set(PROGRESS_KEY, progress); }
-
     function isDone(id) { return !!progress[id]; }
 
-    /* ---------- list view ---------- */
     function renderList() {
         const list = $('lessonList');
         const detail = $('lessonDetail');
@@ -47,16 +46,14 @@
         }
         const done = window.LESSON_DATA.filter(l => isDone(l.id)).length;
         const p = $('lessonProgressText');
-        if (p) p.textContent = `Progres: ${done}/${window.LESSON_DATA.length} lesson selesai`;
+        if (p) p.textContent = 'Progres: ' + done + '/' + window.LESSON_DATA.length + ' lesson selesai';
     }
 
-    /* ---------- detail view ---------- */
     function openLesson(lesson, step) {
         currentLesson = lesson;
         stepIndex = step || 0;
         $('lessonList').classList.add('hidden');
-        const detail = $('lessonDetail');
-        detail.classList.remove('hidden');
+        $('lessonDetail').classList.remove('hidden');
         renderStep();
     }
 
@@ -65,22 +62,18 @@
         const step = lesson.steps[stepIndex];
         $('lessonTitle').textContent = lesson.title;
         $('lessonGoal').textContent = 'Tujuan: ' + lesson.goal;
-        $('lessonStepCount').textContent = `Langkah ${stepIndex + 1}/${lesson.steps.length}`;
+        $('lessonStepCount').textContent = 'Langkah ' + (stepIndex + 1) + '/' + lesson.steps.length;
         $('lessonStepTitle').textContent = step.title;
         $('lessonStepText').textContent = step.text;
 
-        // example board
         const wrap = $('lessonBoardWrap');
         const boardEl = $('lessonBoard');
         if (step.board && Chess.validateFEN(step.board)) {
             wrap.classList.remove('hidden');
-            if (!exampleBoard) {
-                exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
-            }
+            if (!exampleBoard) exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
             exampleBoard.setState(Chess.parseFEN(step.board), {});
         } else wrap.classList.add('hidden');
 
-        // quiz
         const quizWrap = $('lessonQuiz');
         const quizEl = $('lessonQuizOptions');
         quizWrap.classList.add('hidden');
@@ -132,8 +125,6 @@
     function prev() {
         if (stepIndex > 0) { stepIndex--; renderStep(); }
     }
-    function repeatLesson() { openLesson(currentLesson, 0); }
-
     function resetProgress() {
         if (!confirm('Reset semua progres pembelajaran?')) return;
         progress = {};
@@ -147,7 +138,7 @@
             $('btnLessonBack').addEventListener('click', renderList);
             $('btnLessonPrev').addEventListener('click', prev);
             $('btnLessonNext').addEventListener('click', next);
-            $('btnLessonRepeat').addEventListener('click', repeatLesson);
+            $('btnLessonRepeat').addEventListener('click', () => openLesson(currentLesson, 0));
             $('btnLessonReset').addEventListener('click', resetProgress);
             renderList();
         }

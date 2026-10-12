@@ -1,7 +1,6 @@
 /* Game mode — Player vs Player and Player vs Computer.
-   Faithful feature port of the original script.js onto the new
-   immutable Chess engine and BoardView component. All original
-   element IDs are preserved. */
+   Feature port of the original script.js onto the immutable Chess
+   engine and BoardView component. All original element IDs preserved. */
 (function () {
     'use strict';
 
@@ -12,12 +11,13 @@
     let playerColor = S.get('playerColor', 'white');
     let aiDifficulty = S.get('difficulty', 'medium');
     let timerMode = S.get('timerMode', { initial: 600, increment: 0 });
+    if (typeof timerMode !== 'object' || timerMode === null) timerMode = { initial: 600, increment: 0 };
     let showCoordinates = S.get('coords', true);
     let soundEnabled = S.get('sound', true);
 
-    /* ---------- game session state ---------- */
-    let current = null;                    // current engine state
-    let history = [];                      // [{ state, move, capturedWhite, capturedBlack }]
+    /* ---------- session state ---------- */
+    let current = null;
+    let history = [];
     let future = [];
     let lastMove = null;
     let statusInfo = null;
@@ -28,11 +28,10 @@
     let aiThinking = false;
     let selected = null;
     let legalSel = [];
-
     let board = null;
 
-    /* ---------- helpers ---------- */
     const $ = (id) => document.getElementById(id);
+
     function toast(text, type) {
         const c = $('toastContainer');
         if (!c) return;
@@ -82,26 +81,17 @@
         } catch (e) { /* older browsers */ }
     }
 
-    /* ---------- derived data ---------- */
-    function capturedLists() {
-        const cw = [], cb = [];
-        for (const f of history) {
-            if (f.move.captured) (f.move.captured.color === 'black' ? cw : cb).push(f.move.captured);
-        }
-        return { white: cw, black: cb };
-    }
+    /* ---------- status ---------- */
     function refreshStatus() {
         statusInfo = Chess.status(current);
-        if (statusInfo.over && Chess.insufficientMaterial(current)) statusInfo.result = 'draw';
+        if (statusInfo.over && statusInfo.stalemate && Chess.insufficientMaterial(current)) statusInfo.result = 'draw';
     }
 
     /* ---------- rendering ---------- */
     function render() {
         refreshStatus();
         const checkSquare = statusInfo.check ? Chess.findKing(current.board, current.currentPlayer) : null;
-        board.setState(current, {
-            selected, legalMoves: legalSel, lastMove, checkSquare
-        });
+        board.setState(current, { selected, legalMoves: legalSel, lastMove, checkSquare });
         updateStatusUI();
         updatePlayersUI();
         updateCapturedUI();
@@ -148,19 +138,18 @@
     }
 
     function updateCapturedUI() {
-        const cap = capturedLists();
         const w = $('whiteCaptured'), b = $('blackCaptured');
         if (!w || !b) return;
         w.innerHTML = ''; b.innerHTML = '';
-        for (const p of cap.white) w.appendChild(capturedImg(p));
-        for (const p of cap.black) b.appendChild(capturedImg(p));
-    }
-    function capturedImg(p) {
-        const img = document.createElement('img');
-        img.className = 'captured-piece';
-        img.src = window.ChessPieces[p.color][p.type];
-        img.alt = p.type;
-        return img;
+        for (const f of history) {
+            if (f.move.captured) {
+                const img = document.createElement('img');
+                img.className = 'captured-piece';
+                img.src = window.ChessPieces[f.move.captured.color][f.move.captured.type];
+                img.alt = f.move.captured.type;
+                (f.move.captured.color === 'black' ? w : b).appendChild(img);
+            }
+        }
     }
 
     function updateHistoryUI() {
@@ -202,7 +191,7 @@
     function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
     function startTimer() {
         stopTimer();
-        if (timerMode.initial === 0) return;
+        if (timerMode.initial === 0 || (statusInfo && statusInfo.over)) return;
         timerInterval = setInterval(() => {
             if (statusInfo.over) { stopTimer(); return; }
             const active = current.currentPlayer;
@@ -213,6 +202,7 @@
                 statusInfo.over = true;
                 statusInfo.result = active === 'white' ? 'black' : 'white';
                 updateTimerUI(); stopTimer();
+                render();
                 onGameOver(true);
             } else updateTimerUI();
         }, 1000);
@@ -287,7 +277,7 @@
             if (statusInfo.over) { aiThinking = false; updatePlayersUI(); return; }
             const mv = chooseAIMove();
             aiThinking = false;
-            if (mv) playMove(mv, null);
+            if (mv) playMove(mv);
             else { refreshStatus(); render(); }
         }, 350);
     }
@@ -306,16 +296,10 @@
             timers[r.move.piece.color] += timerMode.increment;
         }
 
-        // auto-promote AI to queen
         refreshStatus();
-        if (r.move.promotion && !promotion && r.move.piece.color !== playerColor && gameMode === 'pvc') {
-            // engine already applied default queen promotion
-        }
-
         render();
 
         if (statusInfo.over) { stopTimer(); onGameOver(false); return; }
-
         if (statusInfo.check) SFX.play('check');
         else if (r.move.special === 'kingside-castle' || r.move.special === 'queenside-castle') SFX.play('castle');
         else if (r.move.captured) SFX.play('capture');
@@ -325,8 +309,8 @@
     }
 
     function onUserMove(move) {
-        if (move.promotion && !move.__promoted) { openPromotion(move); return; }
-        playMove(move, null);
+        if (move.promotion) { openPromotion(move); return; }
+        playMove(move);
     }
 
     function openPromotion(move) {
@@ -377,7 +361,7 @@
         p.textContent = message;
         const wrap = document.createElement('div');
         wrap.className = 'modal-buttons';
-        const rematch = mkBtn('btn accent', 'Rematch', resetGame);
+        const rematch = mkBtn('btn accent', 'Rematch', () => { hideModal('gameOverModal'); resetGame(); });
         const copy = mkBtn('btn', 'Copy PGN', copyPGN);
         const close = mkBtn('btn', 'Tutup', () => hideModal('gameOverModal'));
         wrap.append(rematch, copy, close);
@@ -504,7 +488,7 @@
         } catch (e) { toast('Gagal mengunduh PGN', 'error'); }
     }
 
-    /* ---------- game lifecycle ---------- */
+    /* ---------- lifecycle ---------- */
     function resetGame() {
         stopTimer();
         if (aiTimeoutId) { clearTimeout(aiTimeoutId); aiTimeoutId = null; }
@@ -535,17 +519,11 @@
         }
     }
 
-    /* ---------- settings sync ---------- */
     function syncSettingsUI() {
-        const t = $('setTheme'); if (t) t.value = S.get('theme', 'system');
-        const bt = $('setBoardTheme'); if (bt) bt.value = S.get('boardTheme', 'classic');
-        const so = $('setSound'); if (so) so.value = soundEnabled ? 'on' : 'off';
-        const co = $('setCoords'); if (co) co.value = showCoordinates ? 'on' : 'off';
         const sb = $('btnSoundToggle');
         if (sb) { sb.classList.toggle('active', soundEnabled); sb.setAttribute('aria-pressed', String(soundEnabled)); }
     }
 
-    /* ---------- events ---------- */
     function bind() {
         $('btnFlip').addEventListener('click', () => {
             boardOrientation = boardOrientation === 'white' ? 'black' : 'white';
@@ -606,7 +584,7 @@
         $('btnCopyPGN').addEventListener('click', copyPGN);
         $('btnDownloadPGN').addEventListener('click', downloadPGN);
         $('btnTheme').addEventListener('click', () => {
-            const cur = S.get('theme', 'system');
+            const cur = document.documentElement.getAttribute('data-theme') || 'dark';
             const next = cur === 'dark' ? 'light' : 'dark';
             applyTheme(next);
             toast(next === 'dark' ? 'Mode Gelap' : 'Mode Terang', 'info');
@@ -636,7 +614,7 @@
             });
         });
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') ['newGameModal', 'settingsModal'].forEach(hideModal);
+            if (e.key === 'Escape') ['newGameModal', 'promotionModal'].forEach(hideModal);
         });
         window.addEventListener('beforeunload', () => {
             stopTimer();
@@ -644,7 +622,6 @@
         });
     }
 
-    /* ---------- boot (called by app.js when Main page is ready) ---------- */
     window.GameMode = {
         init() {
             SFX.setEnabled(soundEnabled);
@@ -657,21 +634,19 @@
                 if (statusInfo.over || aiThinking) return;
                 if (gameMode === 'pvc' && current.currentPlayer !== playerColor) return;
                 const mv = Chess.legalMovesFrom(current, fr, fc).find(m => m.toRow === tr && m.toCol === tc);
-                if (mv) { selected = null; legalSel = []; onUserMove(mv); }
-                else { selected = null; legalSel = []; render(); }
+                selected = null; legalSel = [];
+                if (mv) onUserMove(mv);
+                else render();
             };
             initTheme();
             bind();
             syncSettingsUI();
             resetGame();
         },
-        // shared with the settings page (app.js)
-        applyTheme, applyBoardTheme, syncSettingsUI,
+        applyTheme, applyBoardTheme, syncSettingsUI, toast,
         get soundEnabled() { return soundEnabled; },
         set soundEnabled(v) { soundEnabled = !!v; S.set('sound', soundEnabled); SFX.setEnabled(soundEnabled); },
         get showCoordinates() { return showCoordinates; },
-        set showCoordinates(v) { showCoordinates = !!v; S.set('coords', showCoordinates); board.setCoords(v); },
-        toast
+        set showCoordinates(v) { showCoordinates = !!v; S.set('coords', showCoordinates); if (board) board.setCoords(v); }
     };
 })();
- 
