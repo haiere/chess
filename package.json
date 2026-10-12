@@ -1,17 +1,22 @@
 {
   "name": "hajir-chess",
   "version": "2.0.0",
-  "type": "module",
+  "description": "Modern chess app — play, puzzles, lessons. Static web + Capacitor Android.",
+  "private": true,
   "scripts": {
-    "test": "node --test tests/",
-    "lint": "eslint js/ --ext .js",
-    "format": "prettier --write 'js/**/*.js' 'css/**/*.css'"
+    "build": "node scripts/build.mjs",
+    "test": "node tests/run.mjs",
+    "locales": "node tests/build-locales.mjs",
+    "build:android": "npm run build && npx cap sync android",
+    "sync:android": "npx cap sync android",
+    "open:android": "npx cap open android"
   },
   "dependencies": {
-    "chess.js": "^1.4.0"
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/status-bar": "^6.0.2"
   },
   "devDependencies": {
-    "eslint": "^9.0.0",
-    "prettier": "^3.0.0"
+    "@capacitor/cli": "^6.2.0"
   }
-} 
+}
