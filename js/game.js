@@ -5,6 +5,7 @@
     'use strict';
 
     const S = window.AppStorage, SFX = window.SFX;
+    const T = (k, p) => window.I18n.t(k, p);
 
     /* ---------- persisted settings ---------- */
     let gameMode = S.get('mode', 'pvp');
@@ -103,15 +104,15 @@
         const s = $('gameStatusText'), sub = $('gameSubStatus');
         if (!s || !sub) return;
         if (statusInfo.over) {
-            if (statusInfo.checkmate) s.textContent = (statusInfo.result === 'white' ? 'Putih' : 'Hitam') + ' Menang — Checkmate!';
-            else if (statusInfo.stalemate) s.textContent = 'Stalemate — Remis';
-            else s.textContent = 'Permainan Berakhir';
+            if (statusInfo.checkmate) s.textContent = T('game.checkmateWin', { color: T(statusInfo.result === 'white' ? 'game.white' : 'game.black') });
+            else if (statusInfo.stalemate) s.textContent = T('game.stalemate');
+            else s.textContent = T('game.gameOver');
             sub.textContent = '';
         } else if (statusInfo.check) {
-            s.textContent = 'Check!';
-            sub.textContent = (current.currentPlayer === 'white' ? 'Putih' : 'Hitam') + ' harus melindungi raja';
+            s.textContent = T('game.statusCheck');
+            sub.textContent = T('game.statusProtect', { color: T(current.currentPlayer === 'white' ? 'game.white' : 'game.black') });
         } else {
-            s.textContent = (current.currentPlayer === 'white' ? 'White' : 'Black') + ' to move';
+            s.textContent = T(current.currentPlayer === 'white' ? 'game.whiteToMove' : 'game.blackToMove');
             sub.textContent = '';
         }
     }
@@ -123,17 +124,17 @@
         w.classList.toggle('active', current.currentPlayer === 'white' && !statusInfo.over);
         b.classList.toggle('active', current.currentPlayer === 'black' && !statusInfo.over);
         if (aiThinking) {
-            (current.currentPlayer === 'white' ? w : b).textContent = 'Berpikir...';
+            (current.currentPlayer === 'white' ? w : b).textContent = T('game.thinking');
             return;
         }
         if (gameMode === 'pvc') {
             w.textContent = current.currentPlayer === 'white'
-                ? (playerColor === 'white' ? 'Giliran Anda' : 'Komputer') : 'Menunggu';
+                ? (playerColor === 'white' ? T('game.yourTurn') : T('game.computer')) : T('game.waiting');
             b.textContent = current.currentPlayer === 'black'
-                ? (playerColor === 'black' ? 'Giliran Anda' : 'Komputer') : 'Menunggu';
+                ? (playerColor === 'black' ? T('game.yourTurn') : T('game.computer')) : T('game.waiting');
         } else {
-            w.textContent = current.currentPlayer === 'white' ? 'Giliran Anda' : 'Menunggu';
-            b.textContent = current.currentPlayer === 'black' ? 'Giliran Anda' : 'Menunggu';
+            w.textContent = current.currentPlayer === 'white' ? T('game.yourTurn') : T('game.waiting');
+            b.textContent = current.currentPlayer === 'black' ? T('game.yourTurn') : T('game.waiting');
         }
     }
 
@@ -322,7 +323,7 @@
             btn.className = 'promotion-btn';
             btn.setAttribute('role', 'button');
             btn.setAttribute('tabindex', '0');
-            btn.setAttribute('aria-label', 'Promosi ke ' + type);
+            btn.setAttribute('aria-label', T('game.promoteTo', { type }));
             const img = document.createElement('img');
             img.src = window.ChessPieces[move.piece.color][type];
             img.alt = type;
@@ -343,13 +344,12 @@
         SFX.play('game-over');
         let title, message;
         if (statusInfo.result === 'draw') {
-            title = 'Permainan Remis';
-            message = statusInfo.stalemate ? 'Stalemate — tidak ada langkah legal.' :
-                      (Chess.insufficientMaterial(current) ? 'Materi tidak cukup untuk mematikan.' : 'Permainan berakhir seri.');
+            title = T('game.drawTitle');
+            message = statusInfo.stalemate ? T('game.msgStalemate') :
+                      (Chess.insufficientMaterial(current) ? T('game.msgInsufficient') : T('game.msgDraw'));
         } else {
-            const winner = statusInfo.result === 'white' ? 'Putih' : 'Hitam';
-            title = winner + ' Menang';
-            message = flagTimeout ? 'Waktu habis!' : 'Checkmate!';
+            title = T(statusInfo.result === 'white' ? 'game.whiteWins' : 'game.blackWins');
+            message = flagTimeout ? T('game.msgTimeout') : T('game.msgCheckmate');
         }
         const modal = $('gameOverModal'), content = $('gameOverContent');
         if (!modal || !content) return;
@@ -361,9 +361,9 @@
         p.textContent = message;
         const wrap = document.createElement('div');
         wrap.className = 'modal-buttons';
-        const rematch = mkBtn('btn accent', 'Rematch', () => { hideModal('gameOverModal'); resetGame(); });
-        const copy = mkBtn('btn', 'Copy PGN', copyPGN);
-        const close = mkBtn('btn', 'Tutup', () => hideModal('gameOverModal'));
+        const rematch = mkBtn('btn accent', T('game.rematch'), () => { hideModal('gameOverModal'); resetGame(); });
+        const copy = mkBtn('btn', T('game.copyPGN'), copyPGN);
+        const close = mkBtn('btn', T('game.closeBtn'), () => hideModal('gameOverModal'));
         wrap.append(rematch, copy, close);
         content.append(h, p, wrap);
         showModal('gameOverModal');
@@ -413,7 +413,7 @@
 
     /* ---------- undo / redo ---------- */
     function undo() {
-        if (!history.length) { toast('Tidak ada langkah untuk di-undo', 'error'); return; }
+        if (!history.length) { toast(T('game.undoEmpty'), 'error'); return; }
         stopTimer();
         if (aiTimeoutId) { clearTimeout(aiTimeoutId); aiTimeoutId = null; }
         aiThinking = false;
@@ -430,10 +430,10 @@
         refreshStatus();
         render();
         if (timerMode.initial > 0 && !statusInfo.over) startTimer();
-        toast('Undo berhasil', 'success');
+        toast(T('game.undoOk'), 'success');
     }
     function redo() {
-        if (!future.length) { toast('Tidak ada langkah untuk di-redo', 'error'); return; }
+        if (!future.length) { toast(T('game.redoEmpty'), 'error'); return; }
         const steps = (gameMode === 'pvc' && future.length >= 2) ? 2 : 1;
         for (let i = 0; i < steps && future.length; i++) {
             const f = future.pop();
@@ -446,7 +446,7 @@
         render();
         if (statusInfo.over) { stopTimer(); onGameOver(false); return; }
         scheduleAI();
-        toast('Redo berhasil', 'success');
+        toast(T('game.redoOk'), 'success');
     }
 
     /* ---------- PGN / FEN ---------- */
@@ -455,7 +455,7 @@
             navigator.clipboard.writeText(text)
                 .then(() => toast(okMsg, 'success'))
                 .catch(() => toast(errMsg, 'error'));
-        } else toast('Clipboard tidak didukung', 'error');
+        } else toast(T('game.clipboardUnsupported'), 'error');
     }
     function buildPGN() {
         let pgn = '';
@@ -471,12 +471,12 @@
     }
     function copyPGN() {
         const pgn = buildPGN();
-        if (!pgn) { toast('Belum ada langkah', 'info'); return; }
-        copyText(pgn, 'PGN disalin!', 'Gagal menyalin PGN');
+        if (!pgn) { toast(T('game.pgnEmpty'), 'info'); return; }
+        copyText(pgn, T('game.pgnCopied'), T('game.pgnCopyFail'));
     }
     function downloadPGN() {
         const pgn = buildPGN();
-        if (!pgn) { toast('Belum ada langkah', 'info'); return; }
+        if (!pgn) { toast(T('game.pgnEmpty'), 'info'); return; }
         try {
             const blob = new Blob([pgn], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
@@ -485,7 +485,7 @@
             a.download = 'chess-game.pgn';
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
-        } catch (e) { toast('Gagal mengunduh PGN', 'error'); }
+        } catch (e) { toast(T('game.pgnDownloadFail'), 'error'); }
     }
 
     /* ---------- lifecycle ---------- */
@@ -513,9 +513,9 @@
             render();
             resetTimers();
             scheduleAI();
-            toast('FEN berhasil dimuat', 'success');
+            toast(T('game.fenLoaded'), 'success');
         } catch (e) {
-            toast('Format FEN tidak valid', 'error');
+            toast(T('game.fenInvalid'), 'error');
         }
     }
 
@@ -534,7 +534,7 @@
         $('btnRedo').addEventListener('click', redo);
         $('btnResign').addEventListener('click', () => {
             if (statusInfo.over) return;
-            if (!confirm('Yakin ingin menyerah?')) return;
+            if (!confirm(T('game.confirmResign'))) return;
             refreshStatus();
             statusInfo.over = true;
             statusInfo.result = current.currentPlayer === 'white' ? 'black' : 'white';
@@ -543,7 +543,7 @@
         });
         $('btnDraw').addEventListener('click', () => {
             if (statusInfo.over) return;
-            if (confirm('Tawarkan / terima remis?')) {
+            if (confirm(T('game.confirmDraw'))) {
                 refreshStatus();
                 statusInfo.over = true;
                 statusInfo.result = 'draw';
@@ -562,7 +562,7 @@
         $('btnCancelNewGame').addEventListener('click', () => hideModal('newGameModal'));
         $('btnStartGame').addEventListener('click', () => {
             const running = history.length > 0 && !statusInfo.over;
-            if (running && !confirm('Permainan sedang berjalan. Mulai permainan baru?')) return;
+            if (running && !confirm(T('game.confirmNewGame'))) return;
             gameMode = $('ngMode').value;
             let color = $('ngColor').value;
             if (color === 'random') color = Math.random() < 0.5 ? 'white' : 'black';
@@ -587,23 +587,23 @@
             const cur = document.documentElement.getAttribute('data-theme') || 'dark';
             const next = cur === 'dark' ? 'light' : 'dark';
             applyTheme(next);
-            toast(next === 'dark' ? 'Mode Gelap' : 'Mode Terang', 'info');
+            toast(next === 'dark' ? T('game.themeDark') : T('game.themeLight'), 'info');
         });
         $('btnSoundToggle').addEventListener('click', () => {
             soundEnabled = !soundEnabled;
             S.set('sound', soundEnabled);
             SFX.setEnabled(soundEnabled);
             syncSettingsUI();
-            toast(soundEnabled ? 'Suara Aktif' : 'Suara Nonaktif', 'info');
+            toast(soundEnabled ? T('game.soundOn') : T('game.soundOff'), 'info');
         });
         $('btnImportFEN').addEventListener('click', () => {
-            const fen = prompt('Masukkan FEN string:');
+            const fen = prompt(T('game.fenPrompt'));
             if (!fen) return;
-            if (!Chess.validateFEN(fen.trim())) { toast('Format FEN tidak valid', 'error'); return; }
+            if (!Chess.validateFEN(fen.trim())) { toast(T('game.fenInvalid'), 'error'); return; }
             loadFEN(fen.trim());
         });
         $('btnExportFEN').addEventListener('click', () => {
-            copyText(Chess.toFEN(current), 'FEN disalin!', 'Gagal menyalin FEN');
+            copyText(Chess.toFEN(current), T('game.fenCopied'), T('game.fenCopyFail'));
         });
         document.querySelectorAll('[data-close]').forEach(btn => {
             btn.addEventListener('click', () => hideModal(btn.dataset.close));
@@ -644,6 +644,7 @@
             resetGame();
         },
         applyTheme, applyBoardTheme, syncSettingsUI, toast,
+        rerender() { refreshStatus(); render(); },
         get soundEnabled() { return soundEnabled; },
         set soundEnabled(v) { soundEnabled = !!v; S.set('sound', soundEnabled); SFX.setEnabled(soundEnabled); },
         get showCoordinates() { return showCoordinates; },

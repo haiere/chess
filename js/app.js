@@ -43,17 +43,35 @@
         $('btnResetAll').addEventListener('click', () => {
             if (!confirm('Reset SEMUA data aplikasi (preferensi, progres puzzle, progres lesson)?')) return;
             window.AppStorage.clearAll();
-            window.GameMode.toast('Semua data direset — memuat ulang...', 'success');
+            window.GameMode.toast(window.I18n.t('settings.resetToast'), 'success');
             setTimeout(() => location.reload(), 800);
         });
+    }
+
+    function bindLanguageSwitchers() {
+        const top = $('langSwitcherTop');
+        const settings = $('setLang');
+        const sync = (value) => { if (top) top.value = value; if (settings) settings.value = value; };
+        sync(window.I18n.lang);
+        const onChange = (e) => window.I18n.setLang(e.target.value);
+        if (top) top.addEventListener('change', onChange);
+        if (settings) settings.addEventListener('change', onChange);
+        window.I18n.onChange((l) => sync(l));
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         window.GameMode.init();
         window.PuzzleMode.init();
         window.LessonsMode.init();
+        window.I18n.apply(document);
         syncSettings();
         bindSettings();
+        bindLanguageSwitchers();
+        window.I18n.onChange(() => {
+            window.GameMode.rerender();
+            window.PuzzleMode.rerender();
+            window.LessonsMode.rerender();
+        });
         window.addEventListener('hashchange', route);
         route();
     });

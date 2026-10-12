@@ -4,6 +4,7 @@
     'use strict';
 
     const S = window.AppStorage, SFX = window.SFX;
+    const T = (k, p) => window.I18n.t(k, p);
     const $ = (id) => document.getElementById(id);
     const PROGRESS_KEY = 'lessonProgress';
 
@@ -39,14 +40,14 @@
             body.append(title, desc);
             const state = document.createElement('span');
             state.className = 'lesson-state';
-            state.textContent = isDone(lesson.id) ? '✓ Selesai' : lesson.steps.length + ' langkah';
+            state.textContent = isDone(lesson.id) ? T('learning.done') : T('learning.stepsCount', { count: lesson.steps.length });
             card.append(badge, body, state);
             card.addEventListener('click', () => openLesson(lesson));
             list.appendChild(card);
         }
         const done = window.LESSON_DATA.filter(l => isDone(l.id)).length;
         const p = $('lessonProgressText');
-        if (p) p.textContent = 'Progres: ' + done + '/' + window.LESSON_DATA.length + ' lesson selesai';
+        if (p) p.textContent = T('learning.progress', { done, total: window.LESSON_DATA.length });
     }
 
     function openLesson(lesson, step) {
@@ -61,8 +62,8 @@
         const lesson = currentLesson;
         const step = lesson.steps[stepIndex];
         $('lessonTitle').textContent = lesson.title;
-        $('lessonGoal').textContent = 'Tujuan: ' + lesson.goal;
-        $('lessonStepCount').textContent = 'Langkah ' + (stepIndex + 1) + '/' + lesson.steps.length;
+        $('lessonGoal').textContent = T('learning.goal', { goal: lesson.goal });
+        $('lessonStepCount').textContent = T('learning.stepCounter', { current: stepIndex + 1, total: lesson.steps.length });
         $('lessonStepTitle').textContent = step.title;
         $('lessonStepText').textContent = step.text;
 
@@ -93,7 +94,7 @@
 
         $('btnLessonPrev').disabled = stepIndex === 0;
         const last = stepIndex === lesson.steps.length - 1;
-        $('btnLessonNext').textContent = last ? (isDone(lesson.id) ? 'Selesai ✓' : 'Tandai Selesai') : 'Berikutnya';
+        $('btnLessonNext').textContent = last ? T('learning.done') : T('learning.next');
     }
 
     function answerQuiz(i, btn) {
@@ -118,7 +119,7 @@
             progress[currentLesson.id] = true;
             save();
             SFX.play('success');
-            window.GameMode.toast('Lesson "' + currentLesson.title + '" selesai!', 'success');
+            window.GameMode.toast(T('learning.completedToast', { title: currentLesson.title }), 'success');
             renderList();
         }
     }
@@ -126,14 +127,17 @@
         if (stepIndex > 0) { stepIndex--; renderStep(); }
     }
     function resetProgress() {
-        if (!confirm('Reset semua progres pembelajaran?')) return;
+        if (!confirm(T('learning.resetConfirm'))) return;
         progress = {};
         save();
         renderList();
-        window.GameMode.toast('Progres pembelajaran direset', 'success');
+        window.GameMode.toast(T('learning.resetToast'), 'success');
     }
 
     window.LessonsMode = {
+        rerender() {
+            if (currentLesson) renderStep(); else renderList();
+        },
         init() {
             $('btnLessonBack').addEventListener('click', renderList);
             $('btnLessonPrev').addEventListener('click', prev);

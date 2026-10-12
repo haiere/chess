@@ -6,8 +6,9 @@
     'use strict';
 
     const S = window.AppStorage, SFX = window.SFX;
+    const T = (k, p) => window.I18n.t(k, p);
     const DIFFICULTIES = ['easy', 'medium', 'hard', 'master'];
-    const DIFF_LABEL = { easy: 'Mudah', medium: 'Menengah', hard: 'Sulit', master: 'Master' };
+    const DIFF_KEY = { easy: 'puzzle.easy', medium: 'puzzle.medium', hard: 'puzzle.hard', master: 'puzzle.master' };
     const HINT_STAGES = 3;
     const MAX_SEEN = 300;
 
@@ -110,21 +111,21 @@
     function updateStatusUI() {
         const el = $('pzStatus');
         if (!el) return;
-        if (!puzzle) { el.textContent = 'Pilih tingkat kesulitan untuk memulai.'; el.className = 'pz-status'; return; }
+        if (!puzzle) { el.textContent = T('puzzle.pick'); el.className = 'pz-status'; return; }
         const total = Math.ceil(puzzle.solution.length / 2);
         const done = Math.ceil(stepIndex / 2);
-        const who = activeColor() === 'white' ? 'Putih' : 'Hitam';
+        const colorKey = activeColor() === 'white' ? 'game.white' : 'game.black';
         if (stepIndex >= puzzle.solution.length) {
-            el.textContent = 'Puzzle selesai — langkah benar!';
+            el.textContent = T('puzzle.solved');
             el.className = 'pz-status success';
         } else if (beforeWrong) {
-            el.textContent = 'Langkah salah. Coba lagi atau lihat petunjuk.';
+            el.textContent = T('puzzle.wrong');
             el.className = 'pz-status error';
         } else if (hintStage > 0) {
-            el.textContent = 'Petunjuk level ' + hintStage + '/' + HINT_STAGES + ' — ' + who + ' bergerak (' + done + '/' + total + ')';
+            el.textContent = T('puzzle.hintStatus', { level: hintStage, max: HINT_STAGES, color: T(colorKey), done, total });
             el.className = 'pz-status hint';
         } else {
-            el.textContent = who + ' bergerak — temukan langkah terbaik (' + done + '/' + total + ')';
+            el.textContent = T('puzzle.inProgress', { color: T(colorKey), done, total });
             el.className = 'pz-status';
         }
     }
@@ -133,9 +134,11 @@
         const el = $('pzStats');
         if (!el) return;
         const total = Math.floor((Date.now() - sessionStart) / 1000) + (stats.seconds || 0);
-        el.textContent = 'Diselesaikan: ' + stats.solved.length + ' · Salah: ' + stats.mistakes +
-            ' · Streak: ' + stats.streak + ' (terbaik ' + stats.bestStreak + ') · Waktu: ' +
-            Math.floor(total / 60) + 'm' + (total % 60) + 's';
+        el.textContent = T('puzzle.statsLine', {
+            solved: stats.solved.length, mistakes: stats.mistakes,
+            streak: stats.streak, best: stats.bestStreak,
+            minutes: Math.floor(total / 60), seconds: total % 60
+        });
     }
 
     function updateNavUI() {
@@ -145,9 +148,13 @@
         const info = $('pzInfo');
         if (info) {
             info.textContent = puzzle
-                ? (puzzle.title || puzzle.id) + ' · ' + DIFF_LABEL[puzzle.difficulty] + ' · rating ' +
-                  (puzzle.rating || '?') + (puzzle.themes ? ' · ' + puzzle.themes.join(', ') : '')
-                : n + ' puzzle tersedia untuk level ' + DIFF_LABEL[diff];
+                ? T('puzzle.info', {
+                    title: (window.I18n.lang === 'en' && puzzle.title_en) ? puzzle.title_en : (puzzle.title || puzzle.id),
+                    difficulty: T(DIFF_KEY[puzzle.difficulty]),
+                    rating: puzzle.rating || '?',
+                    themes: puzzle.themes ? ' · ' + puzzle.themes.join(', ') : ''
+                  })
+                : T('puzzle.available', { count: n, label: T(DIFF_KEY[diff]) });
         }
         const inProgress = puzzle && stepIndex < puzzle.solution.length && !beforeWrong;
         $('btnPzHint').disabled = !inProgress || hintStage >= HINT_STAGES;
@@ -158,7 +165,7 @@
     }
 
     function startPuzzle(p) {
-        if (!p) { window.GameMode.toast('Tidak ada puzzle untuk level ini', 'error'); return; }
+        if (!p) { window.GameMode.toast(T('puzzle.noPuzzles'), 'error'); return; }
         puzzle = p;
         state = Chess.parseFEN(p.fen);
         stepIndex = 0;
@@ -238,7 +245,7 @@
         saveStats();
         SFX.play('error');
         board.setMarks({ ...board.marks, wrongSquare: { row: mv.toRow, col: mv.toCol } });
-        window.GameMode.toast('Langkah salah — coba lagi', 'error');
+        window.GameMode.toast(T('puzzle.toastWrong'), 'error');
         updateStatusUI();
         updateStatsUI();
         updateNavUI();
@@ -261,7 +268,7 @@
         stats.seconds = (stats.seconds || 0) + total;
         sessionStart = Date.now();
         saveStats();
-        window.GameMode.toast('Puzzle selesai! Streak ' + stats.streak, 'success');
+        window.GameMode.toast(T('puzzle.toastSolved', { streak: stats.streak }), 'success');
         updateStatsUI();
     }
 
@@ -293,13 +300,13 @@
     }
 
     function resetProgress() {
-        if (!confirm('Reset semua progres puzzle (statistik dan puzzle yang sudah selesai)?')) return;
+        if (!confirm(T('puzzle.resetConfirm'))) return;
         stats = defaultStats();
         seen = new Set();
         sessionStart = Date.now();
         saveStats();
         render();
-        window.GameMode.toast('Progres puzzle direset', 'success');
+        window.GameMode.toast(T('learning.resetToast'), 'success');
     }
 
     window.PuzzleMode = {
@@ -330,6 +337,7 @@
             render();
             updateStatsUI();
         },
-        refreshCoords() { if (board) board.setCoords(S.get('coords', true)); }
+        refreshCoords() { if (board) board.setCoords(S.get('coords', true)); },
+        rerender() { render(); }
     };
 })();

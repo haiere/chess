@@ -92,7 +92,9 @@
                         const img = document.createElement('img');
                         img.className = 'piece-img';
                         img.src = window.ChessPieces[piece.color][piece.type];
-                        img.alt = piece.color + ' ' + piece.type;
+                        img.alt = window.I18n
+                            ? window.I18n.t('pieces.' + piece.color) + ' ' + window.I18n.t('pieces.' + piece.type)
+                            : piece.color + ' ' + piece.type;
                         img.draggable = false;
                         sq.appendChild(img);
                     }
