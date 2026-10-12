@@ -1,25 +1,25 @@
 /* BoardView — reusable interactive chessboard renderer.
-   Used by Game mode, Puzzle mode, and as a static example board
-   in Lessons. Emits square clicks; drag support via Pointer events. */
+   Used by Game mode, Puzzle mode, and as a static example board in Lessons.
+   Supports mouse, touch (pointer events with capture), and keyboard. */
 (function () {
     'use strict';
 
     class BoardView {
-        /**
-         * @param {HTMLElement} container element with role="grid"
-         * @param {object} opts { orientation, showCoords, interactive, onMove }
-         */
         constructor(container, opts) {
+            opts = opts || {};
             this.el = container;
-            this.orientation = (opts && opts.orientation) || 'white';
-            this.showCoords = opts && opts.showCoords !== undefined ? opts.showCoords : true;
-            this.interactive = opts && opts.interactive !== undefined ? opts.interactive : true;
-            this.onMove = (opts && opts.onMove) || null;   // (fromRow, fromCol) => legal moves or null
-            this.onSquareClick = (opts && opts.onSquareClick) || null;
+            this.orientation = opts.orientation || 'white';
+            this.showCoords = opts.showCoords !== undefined ? opts.showCoords : true;
+            this.interactive = opts.interactive !== undefined ? opts.interactive : true;
+            this.onSquareClick = opts.onSquareClick || null;
+            this.onDrop = null;
             this.state = null;
             this.marks = {};
             this._drag = null;
             this._suppressClick = false;
+            this.kbFocus = null;
+            this.el.setAttribute('tabindex', this.interactive ? '0' : '-1');
+            this.el.addEventListener('keydown', (e) => this._onKeyDown(e));
             this._bindPointer();
         }
 
@@ -28,15 +28,14 @@
             if (marks) this.marks = marks;
             this.render();
         }
-
         setOrientation(o) { this.orientation = o; this.render(); }
         setCoords(v) { this.showCoords = v; this.render(); }
         setMarks(marks) { this.marks = marks || {}; this.render(); }
-
-        destroy() {
-            this.el.innerHTML = '';
-            this.state = null;
+        setInteractive(v) {
+            this.interactive = v;
+            this.el.setAttribute('tabindex', v ? '0' : '-1');
         }
+        destroy() { this.el.innerHTML = ''; this.state = null; }
 
         squareEl(row, col) {
             return this.el.querySelector(`.square[data-row="${row}"][data-col="${col}"]`);
@@ -68,6 +67,7 @@
                     if (m.hintTo && m.hintTo.row === ar && m.hintTo.col === ac) sq.classList.add('hint-to');
                     if (m.wrongSquare && m.wrongSquare.row === ar && m.wrongSquare.col === ac) sq.classList.add('wrong-move');
                     if (m.goodSquare && m.goodSquare.row === ar && m.goodSquare.col === ac) sq.classList.add('good-move');
+                    if (this.kbFocus && this.kbFocus.row === ar && this.kbFocus.col === ac) sq.classList.add('kb-focus');
 
                     const legal = m.legalMoves && m.legalMoves.find(mm => mm.toRow === ar && mm.toCol === ac);
                     if (legal) sq.classList.add((legal.captured || legal.special === 'en-passant') ? 'capture-move' : 'legal-move');
@@ -105,35 +105,77 @@
 
         _onClick(row, col) {
             if (!this.interactive || this._suppressClick) return;
+            this.kbFocus = { row, col };
             if (this.onSquareClick) this.onSquareClick(row, col);
+        }
+
+        /* Keyboard: arrows move a focus cursor, Enter/Space "clicks" it. */
+        _onKeyDown(e) {
+            if (!this.interactive || !this.state) return;
+            const step = {
+                ArrowUp: [-1, 0], ArrowDown: [1, 0],
+                ArrowLeft: [0, -1], ArrowRight: [0, 1]
+            }[e.key];
+            if (step) {
+                e.preventDefault();
+                if (!this.kbFocus) {
+                    this.kbFocus = this.orientation === 'white' ? { row: 7, col: 4 } : { row: 0, col: 3 };
+                } else {
+                    // move in visual space, then map back to board coords
+                    const flipped = this.orientation === 'black';
+                    let vr = (flipped ? 7 - this.kbFocus.row : this.kbFocus.row) + step[0];
+                    let vc = (flipped ? 7 - this.kbFocus.col : this.kbFocus.col) + step[1];
+                    vr = Math.max(0, Math.min(7, vr));
+                    vc = Math.max(0, Math.min(7, vc));
+                    this.kbFocus = { row: flipped ? 7 - vr : vr, col: flipped ? 7 - vc : vc };
+                }
+                this.render();
+                return;
+            }
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (this.kbFocus && this.onSquareClick) this.onSquareClick(this.kbFocus.row, this.kbFocus.col);
+            }
         }
 
         _bindPointer() {
             if (!this.el) return;
             this.el.addEventListener('pointerdown', (e) => {
-                if (!this.interactive || !this.onMove) return;
+                if (!this.interactive || !this.onDrop || !this.state) return;
                 const sq = e.target.closest('.square');
-                if (!sq || !this.state) return;
-                const row = +sq.dataset.row, col = +sq.dataset.col;
-                const piece = this.state.board[row][col];
-                if (!piece) return;
-                this._drag = { row, col, piece, moved: false, id: e.pointerId };
+                if (!sq) return;
+                this._drag = {
+                    row: +sq.dataset.row, col: +sq.dataset.col,
+                    moved: false, captured: false,
+                    startX: e.clientX, startY: e.clientY
+                };
             });
             this.el.addEventListener('pointermove', (e) => {
-                if (!this._drag || this._drag.moved) return;
-                this._drag.moved = true;
-                if (this.onSquareClick) this.onSquareClick(this._drag.row, this._drag.col); // select on drag start
+                const d = this._drag;
+                if (!d || d.moved) return;
+                const dx = e.clientX - d.startX, dy = e.clientY - d.startY;
+                if (Math.sqrt(dx * dx + dy * dy) < 6) return; // treat as tap until 6px
+                d.moved = true;
+                // begin real drag: capture pointer so pointerup fires on container
+                try { this.el.setPointerCapture(e.pointerId); d.captured = true; } catch (err) { /* noop */ }
+                if (this.onSquareClick) this.onSquareClick(d.row, d.col);
             });
             this.el.addEventListener('pointerup', (e) => {
-                if (!this._drag) return;
                 const d = this._drag;
                 this._drag = null;
-                if (!d.moved) return; // plain click already handled
-                const el = document.elementFromPoint(e.clientX, e.clientY);
-                const sq = el && el.closest('.square');
+                if (!d) return;
+                // suppress the compatibility click event in both paths
                 this._suppressClick = true;
                 setTimeout(() => { this._suppressClick = false; }, 120);
-                if (sq && this.onDrop) this.onDrop(d.row, d.col, +sq.dataset.row, +sq.dataset.col);
+                if (d.moved) {
+                    const el = document.elementFromPoint(e.clientX, e.clientY);
+                    const sq = el && el.closest('.square');
+                    if (sq && this.onDrop) this.onDrop(d.row, d.col, +sq.dataset.row, +sq.dataset.col);
+                } else {
+                    // plain tap: handle directly (click event is suppressed above)
+                    this.kbFocus = { row: d.row, col: d.col };
+                    if (this.onSquareClick) this.onSquareClick(d.row, d.col);
+                }
             });
             this.el.addEventListener('pointercancel', () => { this._drag = null; });
         }
