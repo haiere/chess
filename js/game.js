@@ -1,0 +1,677 @@
+/* Game mode — Player vs Player and Player vs Computer.
+   Faithful feature port of the original script.js onto the new
+   immutable Chess engine and BoardView component. All original
+   element IDs are preserved. */
+(function () {
+    'use strict';
+
+    const S = window.AppStorage, SFX = window.SFX;
+
+    /* ---------- persisted settings ---------- */
+    let gameMode = S.get('mode', 'pvp');
+    let playerColor = S.get('playerColor', 'white');
+    let aiDifficulty = S.get('difficulty', 'medium');
+    let timerMode = S.get('timerMode', { initial: 600, increment: 0 });
+    let showCoordinates = S.get('coords', true);
+    let soundEnabled = S.get('sound', true);
+
+    /* ---------- game session state ---------- */
+    let current = null;                    // current engine state
+    let history = [];                      // [{ state, move, capturedWhite, capturedBlack }]
+    let future = [];
+    let lastMove = null;
+    let statusInfo = null;
+    let boardOrientation = S.get('orientation', 'white');
+    let timers = { white: timerMode.initial, black: timerMode.initial };
+    let timerInterval = null;
+    let aiTimeoutId = null;
+    let aiThinking = false;
+    let selected = null;
+    let legalSel = [];
+
+    let board = null;
+
+    /* ---------- helpers ---------- */
+    const $ = (id) => document.getElementById(id);
+    function toast(text, type) {
+        const c = $('toastContainer');
+        if (!c) return;
+        const t = document.createElement('div');
+        t.className = 'toast ' + (type || 'info');
+        t.textContent = text;
+        c.appendChild(t);
+        setTimeout(() => t.remove(), 2600);
+    }
+    function showModal(id) {
+        const el = $(id);
+        if (!el) return;
+        el.classList.remove('hidden');
+        el.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+    }
+    function hideModal(id) {
+        const el = $(id);
+        if (!el) return;
+        el.classList.add('hidden');
+        el.setAttribute('aria-hidden', 'true');
+        if (!document.querySelector('.modal-overlay:not(.hidden)')) document.body.classList.remove('modal-open');
+    }
+
+    /* ---------- theme ---------- */
+    function applyTheme(theme) {
+        if (theme === 'system') {
+            const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        } else document.documentElement.setAttribute('data-theme', theme);
+        S.set('theme', theme);
+        const sel = $('setTheme'); if (sel) sel.value = theme;
+    }
+    function applyBoardTheme(theme) {
+        document.documentElement.setAttribute('data-board-theme', theme);
+        S.set('boardTheme', theme);
+        const s1 = $('setBoardTheme'); if (s1) s1.value = theme;
+        const s2 = $('ngBoardTheme'); if (s2) s2.value = theme;
+    }
+    function initTheme() {
+        applyTheme(S.get('theme', 'system'));
+        applyBoardTheme(S.get('boardTheme', 'classic'));
+        try {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (S.get('theme', 'system') === 'system') applyTheme('system');
+            });
+        } catch (e) { /* older browsers */ }
+    }
+
+    /* ---------- derived data ---------- */
+    function capturedLists() {
+        const cw = [], cb = [];
+        for (const f of history) {
+            if (f.move.captured) (f.move.captured.color === 'black' ? cw : cb).push(f.move.captured);
+        }
+        return { white: cw, black: cb };
+    }
+    function refreshStatus() {
+        statusInfo = Chess.status(current);
+        if (statusInfo.over && Chess.insufficientMaterial(current)) statusInfo.result = 'draw';
+    }
+
+    /* ---------- rendering ---------- */
+    function render() {
+        refreshStatus();
+        const checkSquare = statusInfo.check ? Chess.findKing(current.board, current.currentPlayer) : null;
+        board.setState(current, {
+            selected, legalMoves: legalSel, lastMove, checkSquare
+        });
+        updateStatusUI();
+        updatePlayersUI();
+        updateCapturedUI();
+        updateHistoryUI();
+        updateTimerUI();
+    }
+
+    function updateStatusUI() {
+        const s = $('gameStatusText'), sub = $('gameSubStatus');
+        if (!s || !sub) return;
+        if (statusInfo.over) {
+            if (statusInfo.checkmate) s.textContent = (statusInfo.result === 'white' ? 'Putih' : 'Hitam') + ' Menang — Checkmate!';
+            else if (statusInfo.stalemate) s.textContent = 'Stalemate — Remis';
+            else s.textContent = 'Permainan Berakhir';
+            sub.textContent = '';
+        } else if (statusInfo.check) {
+            s.textContent = 'Check!';
+            sub.textContent = (current.currentPlayer === 'white' ? 'Putih' : 'Hitam') + ' harus melindungi raja';
+        } else {
+            s.textContent = (current.currentPlayer === 'white' ? 'White' : 'Black') + ' to move';
+            sub.textContent = '';
+        }
+    }
+
+    function updatePlayersUI() {
+        const w = $('whiteStatus'), b = $('blackStatus');
+        if (!w || !b) return;
+        w.className = 'player-status'; b.className = 'player-status';
+        w.classList.toggle('active', current.currentPlayer === 'white' && !statusInfo.over);
+        b.classList.toggle('active', current.currentPlayer === 'black' && !statusInfo.over);
+        if (aiThinking) {
+            (current.currentPlayer === 'white' ? w : b).textContent = 'Berpikir...';
+            return;
+        }
+        if (gameMode === 'pvc') {
+            w.textContent = current.currentPlayer === 'white'
+                ? (playerColor === 'white' ? 'Giliran Anda' : 'Komputer') : 'Menunggu';
+            b.textContent = current.currentPlayer === 'black'
+                ? (playerColor === 'black' ? 'Giliran Anda' : 'Komputer') : 'Menunggu';
+        } else {
+            w.textContent = current.currentPlayer === 'white' ? 'Giliran Anda' : 'Menunggu';
+            b.textContent = current.currentPlayer === 'black' ? 'Giliran Anda' : 'Menunggu';
+        }
+    }
+
+    function updateCapturedUI() {
+        const cap = capturedLists();
+        const w = $('whiteCaptured'), b = $('blackCaptured');
+        if (!w || !b) return;
+        w.innerHTML = ''; b.innerHTML = '';
+        for (const p of cap.white) w.appendChild(capturedImg(p));
+        for (const p of cap.black) b.appendChild(capturedImg(p));
+    }
+    function capturedImg(p) {
+        const img = document.createElement('img');
+        img.className = 'captured-piece';
+        img.src = window.ChessPieces[p.color][p.type];
+        img.alt = p.type;
+        return img;
+    }
+
+    function updateHistoryUI() {
+        const el = $('moveHistory');
+        if (!el) return;
+        el.innerHTML = '';
+        for (let i = 0; i < history.length; i += 2) {
+            const row = document.createElement('div');
+            row.className = 'move-row';
+            const n = document.createElement('span');
+            n.className = 'move-number';
+            n.textContent = (Math.floor(i / 2) + 1) + '.';
+            const ws = document.createElement('span');
+            ws.className = 'move-white';
+            ws.textContent = history[i] ? history[i].move.san : '';
+            const bs = document.createElement('span');
+            bs.className = 'move-black';
+            bs.textContent = history[i + 1] ? history[i + 1].move.san : '';
+            row.append(n, ws, bs);
+            el.appendChild(row);
+        }
+        el.scrollTop = el.scrollHeight;
+    }
+
+    function formatTime(s) {
+        if (s <= 0) return '00:00';
+        return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    }
+    function updateTimerUI() {
+        const w = $('whiteTimer'), b = $('blackTimer');
+        if (!w || !b) return;
+        w.textContent = formatTime(timers.white);
+        b.textContent = formatTime(timers.black);
+        w.classList.toggle('low-time', timerMode.initial > 0 && timers.white <= 30 && timers.white > 0);
+        b.classList.toggle('low-time', timerMode.initial > 0 && timers.black <= 30 && timers.black > 0);
+    }
+
+    /* ---------- timers ---------- */
+    function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+    function startTimer() {
+        stopTimer();
+        if (timerMode.initial === 0) return;
+        timerInterval = setInterval(() => {
+            if (statusInfo.over) { stopTimer(); return; }
+            const active = current.currentPlayer;
+            timers[active]--;
+            if (timers[active] <= 0) {
+                timers[active] = 0;
+                refreshStatus();
+                statusInfo.over = true;
+                statusInfo.result = active === 'white' ? 'black' : 'white';
+                updateTimerUI(); stopTimer();
+                onGameOver(true);
+            } else updateTimerUI();
+        }, 1000);
+    }
+    function resetTimers() {
+        timers.white = timerMode.initial;
+        timers.black = timerMode.initial;
+        updateTimerUI(); stopTimer();
+        if (timerMode.initial > 0) startTimer();
+    }
+
+    /* ---------- AI ---------- */
+    const VALUES = { pawn: 100, knight: 320, bishop: 330, rook: 500, queen: 900, king: 0 };
+    function evaluate(st) {
+        let s = 0;
+        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+            const p = st.board[r][c];
+            if (p) s += (p.color === 'white' ? 1 : -1) * VALUES[p.type];
+        }
+        return s;
+    }
+    function minimax(state, depth, alpha, beta, isMax) {
+        if (depth === 0) return evaluate(state);
+        const moves = Chess.allLegalMoves(state, state.currentPlayer);
+        if (moves.length === 0) {
+            return Chess.isInCheck(state, state.currentPlayer) ? (isMax ? -99999 : 99999) : 0;
+        }
+        if (isMax) {
+            let best = -Infinity;
+            for (const m of moves) {
+                const v = minimax(Chess.applyMove(state, m).state, depth - 1, alpha, beta, false);
+                if (v > best) best = v;
+                if (v > alpha) alpha = v;
+                if (beta <= alpha) break;
+            }
+            return best;
+        }
+        let best = Infinity;
+        for (const m of moves) {
+            const v = minimax(Chess.applyMove(state, m).state, depth - 1, alpha, beta, true);
+            if (v < best) best = v;
+            if (v < beta) beta = v;
+            if (beta <= alpha) break;
+        }
+        return best;
+    }
+    function chooseAIMove() {
+        const color = current.currentPlayer;
+        const moves = Chess.allLegalMoves(current, color);
+        if (!moves.length) return null;
+        if (aiDifficulty === 'easy') return moves[Math.floor(Math.random() * moves.length)];
+        for (let i = moves.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [moves[i], moves[j]] = [moves[j], moves[i]];
+        }
+        const depth = aiDifficulty === 'hard' ? 3 : 2;
+        const isMax = color === 'white';
+        let best = moves[0], bestScore = isMax ? -Infinity : Infinity;
+        for (const m of moves) {
+            const v = minimax(Chess.applyMove(current, m).state, depth - 1, -Infinity, Infinity, !isMax);
+            if (isMax ? v > bestScore : v < bestScore) { bestScore = v; best = m; }
+        }
+        return best;
+    }
+    function scheduleAI() {
+        if (gameMode !== 'pvc' || current.currentPlayer === playerColor || statusInfo.over) return;
+        aiThinking = true;
+        updatePlayersUI();
+        if (aiTimeoutId) clearTimeout(aiTimeoutId);
+        aiTimeoutId = setTimeout(() => {
+            aiTimeoutId = null;
+            if (statusInfo.over) { aiThinking = false; updatePlayersUI(); return; }
+            const mv = chooseAIMove();
+            aiThinking = false;
+            if (mv) playMove(mv, null);
+            else { refreshStatus(); render(); }
+        }, 350);
+    }
+
+    /* ---------- move flow ---------- */
+    function playMove(move, promotion) {
+        const played = promotion ? { ...move, promotion } : move;
+        const r = Chess.applyMove(current, played);
+        history.push({ state: current, move: r.move });
+        future = [];
+        current = r.state;
+        lastMove = { fromRow: r.move.fromRow, fromCol: r.move.fromCol, toRow: r.move.toRow, toCol: r.move.toCol };
+        selected = null; legalSel = [];
+
+        if (timerMode.increment > 0 && !Chess.status(current).over) {
+            timers[r.move.piece.color] += timerMode.increment;
+        }
+
+        // auto-promote AI to queen
+        refreshStatus();
+        if (r.move.promotion && !promotion && r.move.piece.color !== playerColor && gameMode === 'pvc') {
+            // engine already applied default queen promotion
+        }
+
+        render();
+
+        if (statusInfo.over) { stopTimer(); onGameOver(false); return; }
+
+        if (statusInfo.check) SFX.play('check');
+        else if (r.move.special === 'kingside-castle' || r.move.special === 'queenside-castle') SFX.play('castle');
+        else if (r.move.captured) SFX.play('capture');
+        else SFX.play('move');
+
+        scheduleAI();
+    }
+
+    function onUserMove(move) {
+        if (move.promotion && !move.__promoted) { openPromotion(move); return; }
+        playMove(move, null);
+    }
+
+    function openPromotion(move) {
+        const modal = $('promotionModal'), opts = $('promotionOptions');
+        if (!modal || !opts) { playMove(move, 'queen'); return; }
+        opts.innerHTML = '';
+        for (const type of Chess.PROMOTION_TYPES) {
+            const btn = document.createElement('div');
+            btn.className = 'promotion-btn';
+            btn.setAttribute('role', 'button');
+            btn.setAttribute('tabindex', '0');
+            btn.setAttribute('aria-label', 'Promosi ke ' + type);
+            const img = document.createElement('img');
+            img.src = window.ChessPieces[move.piece.color][type];
+            img.alt = type;
+            btn.appendChild(img);
+            const choose = () => { hideModal('promotionModal'); playMove(move, type); };
+            btn.addEventListener('click', choose);
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(); }
+            });
+            opts.appendChild(btn);
+        }
+        showModal('promotionModal');
+        setTimeout(() => opts.firstElementChild && opts.firstElementChild.focus(), 50);
+    }
+
+    function onGameOver(flagTimeout) {
+        stopTimer();
+        SFX.play('game-over');
+        let title, message;
+        if (statusInfo.result === 'draw') {
+            title = 'Permainan Remis';
+            message = statusInfo.stalemate ? 'Stalemate — tidak ada langkah legal.' :
+                      (Chess.insufficientMaterial(current) ? 'Materi tidak cukup untuk mematikan.' : 'Permainan berakhir seri.');
+        } else {
+            const winner = statusInfo.result === 'white' ? 'Putih' : 'Hitam';
+            title = winner + ' Menang';
+            message = flagTimeout ? 'Waktu habis!' : 'Checkmate!';
+        }
+        const modal = $('gameOverModal'), content = $('gameOverContent');
+        if (!modal || !content) return;
+        content.innerHTML = '';
+        const h = document.createElement('h2');
+        h.id = 'gameOverTitle';
+        h.textContent = title;
+        const p = document.createElement('p');
+        p.textContent = message;
+        const wrap = document.createElement('div');
+        wrap.className = 'modal-buttons';
+        const rematch = mkBtn('btn accent', 'Rematch', resetGame);
+        const copy = mkBtn('btn', 'Copy PGN', copyPGN);
+        const close = mkBtn('btn', 'Tutup', () => hideModal('gameOverModal'));
+        wrap.append(rematch, copy, close);
+        content.append(h, p, wrap);
+        showModal('gameOverModal');
+        setTimeout(() => rematch.focus(), 50);
+    }
+    function mkBtn(cls, label, fn) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = cls;
+        b.textContent = label;
+        b.addEventListener('click', fn);
+        return b;
+    }
+
+    /* ---------- board interaction ---------- */
+    function onSquareClick(row, col) {
+        if (statusInfo.over || aiThinking) return;
+        if (gameMode === 'pvc' && current.currentPlayer !== playerColor) return;
+        const piece = current.board[row][col];
+
+        if (selected) {
+            if (selected.row === row && selected.col === col) {
+                selected = null; legalSel = [];
+                render();
+                return;
+            }
+            const mv = legalSel.find(m => m.toRow === row && m.toCol === col);
+            if (mv) {
+                selected = null; legalSel = [];
+                onUserMove(mv);
+                return;
+            }
+            if (piece && piece.color === current.currentPlayer) {
+                selected = { row, col };
+                legalSel = Chess.legalMovesFrom(current, row, col);
+                render();
+                return;
+            }
+            selected = null; legalSel = [];
+            render();
+        } else if (piece && piece.color === current.currentPlayer) {
+            selected = { row, col };
+            legalSel = Chess.legalMovesFrom(current, row, col);
+            render();
+        }
+    }
+
+    /* ---------- undo / redo ---------- */
+    function undo() {
+        if (!history.length) { toast('Tidak ada langkah untuk di-undo', 'error'); return; }
+        stopTimer();
+        if (aiTimeoutId) { clearTimeout(aiTimeoutId); aiTimeoutId = null; }
+        aiThinking = false;
+        const steps = (gameMode === 'pvc' && history.length >= 2) ? 2 : 1;
+        for (let i = 0; i < steps && history.length; i++) {
+            const f = history.pop();
+            future.push(f);
+            current = f.state;
+        }
+        lastMove = history.length
+            ? (() => { const m = history[history.length - 1].move;
+                return { fromRow: m.fromRow, fromCol: m.fromCol, toRow: m.toRow, toCol: m.toCol }; })()
+            : null;
+        refreshStatus();
+        render();
+        if (timerMode.initial > 0 && !statusInfo.over) startTimer();
+        toast('Undo berhasil', 'success');
+    }
+    function redo() {
+        if (!future.length) { toast('Tidak ada langkah untuk di-redo', 'error'); return; }
+        const steps = (gameMode === 'pvc' && future.length >= 2) ? 2 : 1;
+        for (let i = 0; i < steps && future.length; i++) {
+            const f = future.pop();
+            history.push(f);
+            current = Chess.applyMove(f.state, f.move).state;
+        }
+        const m = history[history.length - 1].move;
+        lastMove = { fromRow: m.fromRow, fromCol: m.fromCol, toRow: m.toRow, toCol: m.toCol };
+        refreshStatus();
+        render();
+        if (statusInfo.over) { stopTimer(); onGameOver(false); return; }
+        scheduleAI();
+        toast('Redo berhasil', 'success');
+    }
+
+    /* ---------- PGN / FEN ---------- */
+    function copyText(text, okMsg, errMsg) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(() => toast(okMsg, 'success'))
+                .catch(() => toast(errMsg, 'error'));
+        } else toast('Clipboard tidak didukung', 'error');
+    }
+    function buildPGN() {
+        let pgn = '';
+        for (let i = 0; i < history.length; i += 2) {
+            const w = history[i] ? history[i].move.san : '';
+            const b = history[i + 1] ? history[i + 1].move.san : '';
+            pgn += (Math.floor(i / 2) + 1) + '. ' + w + ' ' + b + '\n';
+        }
+        if (statusInfo && statusInfo.over) {
+            pgn += statusInfo.result === 'draw' ? '1/2-1/2' : (statusInfo.result === 'white' ? '1-0' : '0-1');
+        }
+        return pgn.trim();
+    }
+    function copyPGN() {
+        const pgn = buildPGN();
+        if (!pgn) { toast('Belum ada langkah', 'info'); return; }
+        copyText(pgn, 'PGN disalin!', 'Gagal menyalin PGN');
+    }
+    function downloadPGN() {
+        const pgn = buildPGN();
+        if (!pgn) { toast('Belum ada langkah', 'info'); return; }
+        try {
+            const blob = new Blob([pgn], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chess-game.pgn';
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (e) { toast('Gagal mengunduh PGN', 'error'); }
+    }
+
+    /* ---------- game lifecycle ---------- */
+    function resetGame() {
+        stopTimer();
+        if (aiTimeoutId) { clearTimeout(aiTimeoutId); aiTimeoutId = null; }
+        aiThinking = false;
+        current = Chess.initialState();
+        history = [];
+        future = [];
+        lastMove = null;
+        selected = null; legalSel = [];
+        refreshStatus();
+        render();
+        resetTimers();
+        scheduleAI();
+    }
+    function loadFEN(fen) {
+        try {
+            stopTimer();
+            current = Chess.parseFEN(fen);
+            history = []; future = []; lastMove = null;
+            selected = null; legalSel = [];
+            refreshStatus();
+            render();
+            resetTimers();
+            scheduleAI();
+            toast('FEN berhasil dimuat', 'success');
+        } catch (e) {
+            toast('Format FEN tidak valid', 'error');
+        }
+    }
+
+    /* ---------- settings sync ---------- */
+    function syncSettingsUI() {
+        const t = $('setTheme'); if (t) t.value = S.get('theme', 'system');
+        const bt = $('setBoardTheme'); if (bt) bt.value = S.get('boardTheme', 'classic');
+        const so = $('setSound'); if (so) so.value = soundEnabled ? 'on' : 'off';
+        const co = $('setCoords'); if (co) co.value = showCoordinates ? 'on' : 'off';
+        const sb = $('btnSoundToggle');
+        if (sb) { sb.classList.toggle('active', soundEnabled); sb.setAttribute('aria-pressed', String(soundEnabled)); }
+    }
+
+    /* ---------- events ---------- */
+    function bind() {
+        $('btnFlip').addEventListener('click', () => {
+            boardOrientation = boardOrientation === 'white' ? 'black' : 'white';
+            S.set('orientation', boardOrientation);
+            board.setOrientation(boardOrientation);
+        });
+        $('btnUndo').addEventListener('click', undo);
+        $('btnRedo').addEventListener('click', redo);
+        $('btnResign').addEventListener('click', () => {
+            if (statusInfo.over) return;
+            if (!confirm('Yakin ingin menyerah?')) return;
+            refreshStatus();
+            statusInfo.over = true;
+            statusInfo.result = current.currentPlayer === 'white' ? 'black' : 'white';
+            render();
+            onGameOver(false);
+        });
+        $('btnDraw').addEventListener('click', () => {
+            if (statusInfo.over) return;
+            if (confirm('Tawarkan / terima remis?')) {
+                refreshStatus();
+                statusInfo.over = true;
+                statusInfo.result = 'draw';
+                render();
+                onGameOver(false);
+            }
+        });
+        $('btnNewGame').addEventListener('click', () => {
+            $('ngMode').value = gameMode;
+            $('ngColor').value = playerColor;
+            $('ngDifficulty').value = aiDifficulty;
+            $('ngTimer').value = (timerMode.initial / 60) + '|' + timerMode.increment;
+            $('ngBoardTheme').value = S.get('boardTheme', 'classic');
+            showModal('newGameModal');
+        });
+        $('btnCancelNewGame').addEventListener('click', () => hideModal('newGameModal'));
+        $('btnStartGame').addEventListener('click', () => {
+            const running = history.length > 0 && !statusInfo.over;
+            if (running && !confirm('Permainan sedang berjalan. Mulai permainan baru?')) return;
+            gameMode = $('ngMode').value;
+            let color = $('ngColor').value;
+            if (color === 'random') color = Math.random() < 0.5 ? 'white' : 'black';
+            playerColor = color;
+            aiDifficulty = $('ngDifficulty').value;
+            const tv = $('ngTimer').value.split('|').map(Number);
+            timerMode = { initial: (tv[0] || 0) * 60, increment: tv[1] || 0 };
+            applyBoardTheme($('ngBoardTheme').value);
+            S.set('mode', gameMode);
+            S.set('playerColor', playerColor);
+            S.set('difficulty', aiDifficulty);
+            S.set('timerMode', timerMode);
+            boardOrientation = playerColor;
+            S.set('orientation', boardOrientation);
+            board.setOrientation(boardOrientation);
+            hideModal('newGameModal');
+            resetGame();
+        });
+        $('btnCopyPGN').addEventListener('click', copyPGN);
+        $('btnDownloadPGN').addEventListener('click', downloadPGN);
+        $('btnTheme').addEventListener('click', () => {
+            const cur = S.get('theme', 'system');
+            const next = cur === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+            toast(next === 'dark' ? 'Mode Gelap' : 'Mode Terang', 'info');
+        });
+        $('btnSoundToggle').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            S.set('sound', soundEnabled);
+            SFX.setEnabled(soundEnabled);
+            syncSettingsUI();
+            toast(soundEnabled ? 'Suara Aktif' : 'Suara Nonaktif', 'info');
+        });
+        $('btnImportFEN').addEventListener('click', () => {
+            const fen = prompt('Masukkan FEN string:');
+            if (!fen) return;
+            if (!Chess.validateFEN(fen.trim())) { toast('Format FEN tidak valid', 'error'); return; }
+            loadFEN(fen.trim());
+        });
+        $('btnExportFEN').addEventListener('click', () => {
+            copyText(Chess.toFEN(current), 'FEN disalin!', 'Gagal menyalin FEN');
+        });
+        document.querySelectorAll('[data-close]').forEach(btn => {
+            btn.addEventListener('click', () => hideModal(btn.dataset.close));
+        });
+        document.querySelectorAll('.modal-overlay').forEach(o => {
+            o.addEventListener('click', (e) => {
+                if (e.target === o && o.id !== 'promotionModal' && o.id !== 'gameOverModal') hideModal(o.id);
+            });
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') ['newGameModal', 'settingsModal'].forEach(hideModal);
+        });
+        window.addEventListener('beforeunload', () => {
+            stopTimer();
+            if (aiTimeoutId) clearTimeout(aiTimeoutId);
+        });
+    }
+
+    /* ---------- boot (called by app.js when Main page is ready) ---------- */
+    window.GameMode = {
+        init() {
+            SFX.setEnabled(soundEnabled);
+            board = new BoardView($('board'), {
+                orientation: boardOrientation,
+                showCoords: showCoordinates,
+                onSquareClick
+            });
+            board.onDrop = (fr, fc, tr, tc) => {
+                if (statusInfo.over || aiThinking) return;
+                if (gameMode === 'pvc' && current.currentPlayer !== playerColor) return;
+                const mv = Chess.legalMovesFrom(current, fr, fc).find(m => m.toRow === tr && m.toCol === tc);
+                if (mv) { selected = null; legalSel = []; onUserMove(mv); }
+                else { selected = null; legalSel = []; render(); }
+            };
+            initTheme();
+            bind();
+            syncSettingsUI();
+            resetGame();
+        },
+        // shared with the settings page (app.js)
+        applyTheme, applyBoardTheme, syncSettingsUI,
+        get soundEnabled() { return soundEnabled; },
+        set soundEnabled(v) { soundEnabled = !!v; S.set('sound', soundEnabled); SFX.setEnabled(soundEnabled); },
+        get showCoordinates() { return showCoordinates; },
+        set showCoordinates(v) { showCoordinates = !!v; S.set('coords', showCoordinates); board.setCoords(v); },
+        toast
+    };
+})();
+ 
