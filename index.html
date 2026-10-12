@@ -3,17 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Chess — Main, Puzzle, dan Belajar | Hajir Studio</title>
-    <meta name="description" content="Aplikasi catur modern: main melawan teman atau komputer, latihan taktik dengan puzzle bertingkat, dan pelajari catur langkah demi langkah.">
+
+    <!-- Primary SEO -->
+    <title>Hajir Chess — Play Online, Solve Puzzles & Learn Chess</title>
+
+    <meta
+        name="description"
+        content="Play chess online against friends or the computer, solve tactical puzzles, and learn chess step by step with Hajir Chess."
+    >
+
     <meta name="author" content="Hajir Studio">
+    <meta name="creator" content="Hajir Studio">
+    <meta name="application-name" content="Hajir Chess">
+    <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="theme-color" content="#0f1117">
-    <link rel="icon" href="/favicon.ico">
+    <meta name="color-scheme" content="dark">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://hajir.is-a.dev/chess">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Hajir Studio">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:url" content="https://hajir.is-a.dev/chess">
+    <meta property="og:title" content="Hajir Chess — Play, Puzzle & Learn">
+    <meta
+        property="og:description"
+        content="Play chess online, challenge the computer or your friends, solve tactical puzzles, and improve your game."
+    >
+    <meta property="og:image" content="https://hajir.is-a.dev/og/chess-card.png">
+    <meta property="og:image:secure_url" content="https://hajir.is-a.dev/og/chess-card.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Hajir Chess online chess game">
+
+    <!-- X / Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@haierehere">
+    <meta name="twitter:creator" content="@haierehere">
+    <meta name="twitter:url" content="https://hajir.is-a.dev/chess">
+    <meta name="twitter:title" content="Hajir Chess — Play, Puzzle & Learn">
+    <meta
+        name="twitter:description"
+        content="Play chess online, solve puzzles, and learn step by step with Hajir Chess."
+    >
+    <meta name="twitter:image" content="https://hajir.is-a.dev/og/chess-card.png">
+    <meta name="twitter:image:alt" content="Hajir Chess online chess game">
+
+    <!-- Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style.ext.css">
-</head>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/chess/style.css">
+    <link rel="stylesheet" href="/chess/style.ext.css">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Hajir Chess",
+        "url": "https://hajir.is-a.dev/chess",
+        "description": "An online chess game for playing against friends or the computer, solving puzzles, and learning chess.",
+        "applicationCategory": "GameApplication",
+        "genre": "Chess",
+        "operatingSystem": "Web Browser",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "inLanguage": "en",
+        "author": {
+            "@type": "Organization",
+            "name": "Hajir Studio",
+            "url": "https://hajir.is-a.dev"
+        },
+        "creator": {
+            "@type": "Person",
+            "name": "Hajir",
+            "sameAs": [
+                "https://x.com/haierehere"
+            ]
+        }
+    }
+    </script>
+        </head>
 <body>
     <a href="#page-main" class="skip-link">Langsung ke konten</a>
 
@@ -23,11 +108,18 @@
             <span>Hajir Chess</span>
         </a>
         <nav aria-label="Navigasi utama">
-            <a href="#main" data-nav="main">Main</a>
-            <a href="#puzzle" data-nav="puzzle">Puzzle</a>
-            <a href="#learn" data-nav="learn">Belajar</a>
-            <a href="#settings" data-nav="settings">Pengaturan</a>
-            <a href="#about" data-nav="about">Tentang</a>
+            <a href="#main" data-nav="main" data-i18n="navigation.play">Main</a>
+            <a href="#puzzle" data-nav="puzzle" data-i18n="navigation.puzzles">Puzzle</a>
+            <a href="#learn" data-nav="learn" data-i18n="navigation.learning">Belajar</a>
+            <a href="#settings" data-nav="settings" data-i18n="navigation.settings">Pengaturan</a>
+            <a href="#about" data-nav="about" data-i18n="navigation.about">Tentang</a>
+            <label class="lang-switcher">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm7.93 9h-3.02a15.7 15.7 0 0 0-1.2-5.4A8.02 8.02 0 0 1 19.93 11ZM12 4.06c.9 1.16 1.61 2.9 1.93 5.34h-3.86c.32-2.44 1.03-4.18 1.93-5.34ZM8.29 5.6A15.7 15.7 0 0 0 7.09 11H4.07a8.02 8.02 0 0 1 4.22-5.4ZM4.07 13h3.02c.14 2.08.62 3.92 1.2 5.4A8.02 8.02 0 0 1 4.07 13ZM12 19.94c-.9-1.16-1.61-2.9-1.93-5.34h3.86c-.32 2.44-1.03 4.18-1.93 5.34Zm3.71-1.54c.58-1.48 1.06-3.32 1.2-5.4h3.02a8.02 8.02 0 0 1-4.22 5.4Z"/></svg>
+                <select id="langSwitcherTop" data-i18n-aria="navigation.language" aria-label="Bahasa">
+                    <option value="id">ID</option>
+                    <option value="en">EN</option>
+                </select>
+            </label>
         </nav>
     </header>
 
@@ -37,31 +129,31 @@
                 <section class="board-section" aria-labelledby="gameTitle">
                     <h1 id="gameTitle" class="visually-hidden">Permainan Catur</h1>
                     <div class="board-wrapper">
-                        <div class="board-container" id="board" role="grid" aria-label="Papan catur"></div>
+                        <div class="board-container" id="board" role="grid" data-i18n-aria="game.ariaBoard" aria-label="Papan catur"></div>
                     </div>
                     <nav class="board-controls" aria-label="Kontrol permainan">
-                        <button class="btn icon-btn" id="btnFlip" type="button" aria-label="Putar papan" title="Putar papan">
+                        <button class="btn icon-btn" id="btnFlip" type="button" data-i18n-aria="game.ariaFlip" aria-label="Putar papan" title="Putar papan">
                             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 5a7 7 0 0 1 7 7h2l-3 3-3-3h2a5 5 0 1 0-5 5v2a7 7 0 0 1 0-14Zm0 14a7 7 0 0 1-7-7H3l3-3 3 3H7a5 5 0 1 0 5-5V5a7 7 0 0 1 0 14Z"/></svg>
                         </button>
-                        <button class="btn" id="btnUndo" type="button" aria-label="Urungkan langkah terakhir">
+                        <button class="btn" id="btnUndo" type="button" data-i18n-aria="game.ariaUndo" aria-label="Urungkan langkah terakhir">
                             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.5 5C9.46 5 6.73 6.2 4.75 8.15L2 5.4V13h7.6L6.6 10A8 8 0 1 1 4 16h2.2a6 6 0 1 0 6.3-11Z"/></svg>
-                            <span>Undo</span>
+                            <span data-i18n="game.undo">Undo</span>
                         </button>
-                        <button class="btn" id="btnRedo" type="button" aria-label="Ulangi langkah">
+                        <button class="btn" id="btnRedo" type="button" data-i18n-aria="game.ariaRedo" aria-label="Ulangi langkah">
                             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M11.5 5A8 8 0 1 1 18 16h2v2h-4.2A8 8 0 0 1 11.5 5Zm0 2a6 6 0 1 0 5.9 7h2.1l-2.75 3L16 14h2a6 6 0 0 0-6.5-7Z"/></svg>
-                            <span>Redo</span>
+                            <span data-i18n="game.redo">Redo</span>
                         </button>
-                        <button class="btn danger" id="btnResign" type="button" aria-label="Menyerah">
+                        <button class="btn danger" id="btnResign" type="button" data-i18n-aria="game.ariaResign" aria-label="Menyerah">
                             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M5 3h10l4 4v14H5V3Zm10 1.5V8h3.5L15 4.5ZM8 12h8v2H8v-2Zm0 4h8v2H8v-2Z"/></svg>
-                            <span>Resign</span>
+                            <span data-i18n="game.resign">Resign</span>
                         </button>
-                        <button class="btn" id="btnDraw" type="button" aria-label="Tawarkan remis">
+                        <button class="btn" id="btnDraw" type="button" data-i18n-aria="game.ariaDraw" aria-label="Tawarkan remis">
                             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 21s-7-4.35-7-10a4.5 4.5 0 0 1 8-2.85A4.5 4.5 0 0 1 19 11c0 5.65-7 10-7 10Z"/></svg>
-                            <span>Draw</span>
+                            <span data-i18n="game.draw">Draw</span>
                         </button>
-                        <button class="btn accent" id="btnNewGame" type="button" aria-label="Mulai permainan baru">
+                        <button class="btn accent" id="btnNewGame" type="button" data-i18n-aria="game.ariaNewGame" aria-label="Mulai permainan baru">
                             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/></svg>
-                            <span>New Game</span>
+                            <span data-i18n="game.newGame">New Game</span>
                         </button>
                     </nav>
                 </section>
@@ -71,36 +163,36 @@
                         <div class="player-header">
                             <div class="player-avatar white" aria-hidden="true">W</div>
                             <div class="player-info">
-                                <div class="player-name">White</div>
-                                <div class="player-status active" id="whiteStatus">Giliran Anda</div>
+                                <div class="player-name" data-i18n="game.white">Putih</div>
+                                <div class="player-status active" id="whiteStatus"></div>
                             </div>
                             <time class="player-timer" id="whiteTimer">10:00</time>
                         </div>
-                        <div class="captured-row" id="whiteCaptured" aria-label="Bidak yang ditangkap putih"></div>
+                        <div class="captured-row" id="whiteCaptured" data-i18n-aria="game.capturedWhite" aria-label="Bidak yang ditangkap putih"></div>
                     </section>
                     <section class="panel-card text-center" aria-live="polite">
-                        <div id="gameStatusText" class="text-bold">White to move</div>
+                        <div id="gameStatusText" class="text-bold"></div>
                         <div class="text-sub" id="gameSubStatus"></div>
                     </section>
                     <section class="panel-card">
                         <div class="player-header">
                             <div class="player-avatar black" aria-hidden="true">B</div>
                             <div class="player-info">
-                                <div class="player-name">Black</div>
-                                <div class="player-status" id="blackStatus">Menunggu</div>
+                                <div class="player-name" data-i18n="game.black">Hitam</div>
+                                <div class="player-status" id="blackStatus"></div>
                             </div>
                             <time class="player-timer" id="blackTimer">10:00</time>
                         </div>
-                        <div class="captured-row" id="blackCaptured" aria-label="Bidak yang ditangkap hitam"></div>
+                        <div class="captured-row" id="blackCaptured" data-i18n-aria="game.capturedBlack" aria-label="Bidak yang ditangkap hitam"></div>
                     </section>
                     <section class="panel-card panel-history">
                         <div class="history-header">
-                            <strong>Riwayat Langkah</strong>
+                            <strong data-i18n="game.history">Riwayat Langkah</strong>
                             <div class="flex-gap-4">
-                                <button class="btn small icon-btn" id="btnCopyPGN" type="button" aria-label="Salin PGN" title="Salin PGN">
+                                <button class="btn small icon-btn" id="btnCopyPGN" type="button" data-i18n-aria="game.ariaCopyPGN" aria-label="Salin PGN" title="Salin PGN">
                                     <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1Zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H10V7h9v14Z"/></svg>
                                 </button>
-                                <button class="btn small icon-btn" id="btnDownloadPGN" type="button" aria-label="Unduh PGN" title="Unduh PGN">
+                                <button class="btn small icon-btn" id="btnDownloadPGN" type="button" data-i18n-aria="game.ariaDownloadPGN" aria-label="Unduh PGN" title="Unduh PGN">
                                     <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M12 3v10.17l3.59-3.58L17 11l-5 5-5-5 1.41-1.41L11 13.17V3h1Zm-7 16h14v2H5v-2Z"/></svg>
                                 </button>
                             </div>
@@ -108,25 +200,25 @@
                         <div class="move-history" id="moveHistory" role="log" aria-label="Riwayat langkah"></div>
                     </section>
                     <section class="panel-card panel-actions" aria-label="Alat permainan">
-                        <button class="btn small" id="btnSettings" type="button" aria-label="Buka pengaturan" onclick="location.hash='settings'">
+                        <button class="btn small" id="btnSettings" type="button" data-i18n-aria="game.ariaSettings" aria-label="Buka pengaturan" onclick="location.hash='settings'">
                             <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.49-.42h-3.8a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 7.48a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.62-.05.94s.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.8a.5.5 0 0 0 .49-.42l.36-2.54c.58.23 1.12.55 1.63.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>
-                            <span>Pengaturan</span>
+                            <span data-i18n="game.settings">Pengaturan</span>
                         </button>
-                        <button class="btn small" id="btnTheme" type="button" aria-label="Ganti tema">
+                        <button class="btn small" id="btnTheme" type="button" data-i18n-aria="game.ariaTheme" aria-label="Ganti tema">
                             <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v1.1A7 7 0 1 1 8.9 6H8a1 1 0 1 1 0-2h1.1A1 1 0 0 1 12 3Zm0 4a5 5 0 1 0 5 5 1 1 0 0 1 1.7-.7l1.3 1.3V10a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-2.6a7 7 0 0 1-7.4 7.4V20a1 1 0 1 1-2 0v-1.1A7 7 0 0 1 12 7Z"/></svg>
-                            <span>Tema</span>
+                            <span data-i18n="game.theme">Tema</span>
                         </button>
-                        <button class="btn small" id="btnImportFEN" type="button" aria-label="Impor FEN">
+                        <button class="btn small" id="btnImportFEN" type="button" data-i18n-aria="game.ariaImportFEN" aria-label="Impor FEN">
                             <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 11v5m0 0-2-2m2 2 2-2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span>Impor FEN</span>
+                            <span data-i18n="game.importFEN">Impor FEN</span>
                         </button>
-                        <button class="btn small" id="btnExportFEN" type="button" aria-label="Ekspor FEN">
+                        <button class="btn small" id="btnExportFEN" type="button" data-i18n-aria="game.ariaExportFEN" aria-label="Ekspor FEN">
                             <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 13v-5m0 0-2 2m2-2 2 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span>Ekspor FEN</span>
+                            <span data-i18n="game.exportFEN">Ekspor FEN</span>
                         </button>
-                        <button class="btn small active" id="btnSoundToggle" type="button" aria-label="Aktifkan atau matikan suara" aria-pressed="true">
+                        <button class="btn small active" id="btnSoundToggle" type="button" data-i18n-aria="game.ariaSound" aria-label="Aktifkan atau matikan suara" aria-pressed="true">
                             <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M4 10v4h4l5 4V6L8 10H4Zm13.5 2a3.5 3.5 0 0 0-1.5-2.9v5.8a3.5 3.5 0 0 0 1.5-2.9Zm2.5 0a6 6 0 0 1-3 5.2v-2.1a4 4 0 0 0 0-6.2V6.8A6 6 0 0 1 20 12Z"/></svg>
-                            <span>Suara</span>
+                            <span data-i18n="game.sound">Suara</span>
                         </button>
                     </section>
                 </aside>
@@ -139,40 +231,40 @@
                     <div class="panel-card pz-toolbar">
                         <label class="visually-hidden" for="pzDifficulty">Tingkat kesulitan</label>
                         <select id="pzDifficulty">
-                            <option value="easy">Mudah</option>
-                            <option value="medium">Menengah</option>
-                            <option value="hard">Sulit</option>
-                            <option value="master">Master</option>
+                            <option value="easy" data-i18n="game.ngEasy">Mudah</option>
+                            <option value="medium" data-i18n="game.ngMedium">Menengah</option>
+                            <option value="hard" data-i18n="game.ngHard">Sulit</option>
+                            <option value="master" data-i18n="puzzle.master">Master</option>
                         </select>
-                        <button class="btn small" id="btnPzRandom" type="button">Acak</button>
-                        <button class="btn small" id="btnPzDaily" type="button">Puzzle Harian</button>
-                        <button class="btn small icon-btn" id="btnPzPrev" type="button" aria-label="Puzzle sebelumnya">
+                        <button class="btn small" id="btnPzRandom" type="button" data-i18n="puzzle.random">Acak</button>
+                        <button class="btn small" id="btnPzDaily" type="button" data-i18n="puzzle.daily">Puzzle Harian</button>
+                        <button class="btn small icon-btn" id="btnPzPrev" type="button" data-i18n-aria="puzzle.ariaPrev" aria-label="Puzzle sebelumnya">
                             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12l4.6-4.6Z"/></svg>
                         </button>
-                        <button class="btn small icon-btn" id="btnPzNext" type="button" aria-label="Puzzle berikutnya">
+                        <button class="btn small icon-btn" id="btnPzNext" type="button" data-i18n-aria="puzzle.ariaNext" aria-label="Puzzle berikutnya">
                             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6-4.6 4.6Z"/></svg>
                         </button>
                     </div>
                     <div class="board-wrapper">
-                        <div class="board-container" id="puzzleBoard" role="grid" aria-label="Papan puzzle catur"></div>
+                        <div class="board-container" id="puzzleBoard" role="grid" data-i18n-aria="puzzle.ariaBoard" aria-label="Papan puzzle catur"></div>
                     </div>
                 </section>
                 <aside class="side-panel">
                     <section class="panel-card">
-                        <div id="pzStatus" class="pz-status" aria-live="polite">Pilih tingkat kesulitan untuk memulai.</div>
+                        <div id="pzStatus" class="pz-status" aria-live="polite"></div>
                         <div class="text-sub" id="pzInfo"></div>
                     </section>
                     <section class="panel-card panel-actions">
-                        <button class="btn small" id="btnPzHint" type="button" aria-label="Petunjuk langkah">
+                        <button class="btn small" id="btnPzHint" type="button" data-i18n-aria="puzzle.ariaHint" aria-label="Petunjuk langkah">
                             <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M9 21h6v-1H9v1Zm3-19a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2Z"/></svg>
-                            <span>Hint</span>
+                            <span data-i18n="puzzle.hint">Hint</span>
                         </button>
-                        <button class="btn small" id="btnPzSolution" type="button" aria-label="Lihat solusi puzzle">Lihat Solusi</button>
-                        <button class="btn small" id="btnPzRetry" type="button" aria-label="Coba lagi puzzle">Coba Lagi</button>
-                        <button class="btn small danger" id="btnPzReset" type="button" aria-label="Reset progres puzzle">Reset Progres</button>
+                        <button class="btn small" id="btnPzSolution" type="button" data-i18n-aria="puzzle.ariaSolution" aria-label="Lihat solusi puzzle"><span data-i18n="puzzle.solution">Lihat Solusi</span></button>
+                        <button class="btn small" id="btnPzRetry" type="button" data-i18n-aria="puzzle.ariaRetry" aria-label="Coba lagi puzzle"><span data-i18n="puzzle.retry">Coba Lagi</span></button>
+                        <button class="btn small danger" id="btnPzReset" type="button" data-i18n-aria="puzzle.ariaReset" aria-label="Reset progres puzzle"><span data-i18n="puzzle.reset">Reset Progres</span></button>
                     </section>
                     <section class="panel-card">
-                        <strong>Statistik Puzzle</strong>
+                        <strong data-i18n="puzzle.stats">Statistik Puzzle</strong>
                         <div class="text-sub" id="pzStats"></div>
                     </section>
                 </aside>
@@ -182,13 +274,13 @@
         <section id="page-learn" class="page hidden">
             <div class="learn-container">
                 <div class="learn-header">
-                    <h1>Belajar Catur</h1>
+                    <h1 data-i18n="learning.title">Belajar Catur</h1>
                     <p class="text-sub" id="lessonProgressText"></p>
                 </div>
                 <div id="lessonList" class="lesson-list"></div>
                 <div id="lessonDetail" class="lesson-detail hidden">
                     <div class="panel-card">
-                        <button class="btn small" id="btnLessonBack" type="button">← Semua Lesson</button>
+                        <button class="btn small" id="btnLessonBack" type="button" data-i18n="learning.back">← Semua Lesson</button>
                         <h2 id="lessonTitle" style="margin:10px 0 4px"></h2>
                         <p class="text-sub" id="lessonGoal"></p>
                     </div>
@@ -204,50 +296,55 @@
                             <div id="lessonQuizOptions" class="quiz-options"></div>
                         </div>
                         <div class="modal-buttons" style="justify-content:flex-start">
-                            <button class="btn" id="btnLessonPrev" type="button">← Sebelumnya</button>
-                            <button class="btn accent" id="btnLessonNext" type="button">Berikutnya</button>
-                            <button class="btn" id="btnLessonRepeat" type="button">Ulangi Lesson</button>
+                            <button class="btn" id="btnLessonPrev" type="button" data-i18n="learning.prev">← Sebelumnya</button>
+                            <button class="btn accent" id="btnLessonNext" type="button" data-i18n="learning.next">Berikutnya</button>
+                            <button class="btn" id="btnLessonRepeat" type="button" data-i18n="learning.repeat">Ulangi Lesson</button>
                         </div>
                     </div>
-                    <button class="btn small danger" id="btnLessonReset" type="button">Reset Progres Belajar</button>
+                    <button class="btn small danger" id="btnLessonReset" type="button" data-i18n="learning.reset">Reset Progres Belajar</button>
                 </div>
             </div>
         </section>
 
         <section id="page-settings" class="page hidden">
             <div class="settings-page">
-                <h1>Pengaturan</h1>
+                <h1 data-i18n="settings.title">Pengaturan</h1>
                 <div class="panel-card settings-grid">
-                    <label for="setTheme">Tema Aplikasi</label>
+                    <label for="setLang" data-i18n="settings.language">Bahasa</label>
+                    <select id="setLang" data-i18n-aria="settings.language" aria-label="Bahasa">
+                        <option value="id" data-i18n="settings.indonesian">Bahasa Indonesia</option>
+                        <option value="en" data-i18n="settings.english">English</option>
+                    </select>
+                    <label for="setTheme" data-i18n="settings.appTheme">Tema Aplikasi</label>
                     <select id="setTheme">
-                        <option value="dark">Gelap</option>
-                        <option value="light">Terang</option>
-                        <option value="system">Ikuti Sistem</option>
+                        <option value="dark" data-i18n="settings.themeDark">Gelap</option>
+                        <option value="light" data-i18n="settings.themeLight">Terang</option>
+                        <option value="system" data-i18n="settings.themeSystem">Ikuti Sistem</option>
                     </select>
-                    <label for="setBoardTheme">Tema Papan</label>
+                    <label for="setBoardTheme" data-i18n="settings.boardTheme">Tema Papan</label>
                     <select id="setBoardTheme">
-                        <option value="classic">Classic Brown</option>
-                        <option value="emerald">Emerald</option>
-                        <option value="midnight">Midnight Blue</option>
-                        <option value="rose">Rose</option>
-                        <option value="bw">Black and White</option>
-                        <option value="neon">Neon Cyberpunk</option>
+                        <option value="classic" data-i18n="game.themeClassic">Classic Brown</option>
+                        <option value="emerald" data-i18n="game.themeEmerald">Emerald</option>
+                        <option value="midnight" data-i18n="game.themeMidnight">Midnight Blue</option>
+                        <option value="rose" data-i18n="game.themeRose">Rose</option>
+                        <option value="bw" data-i18n="game.themeBW">Black and White</option>
+                        <option value="neon" data-i18n="game.themeNeon">Neon Cyberpunk</option>
                     </select>
-                    <label for="setSound">Efek Suara</label>
+                    <label for="setSound" data-i18n="settings.sound">Efek Suara</label>
                     <select id="setSound">
-                        <option value="on">Aktif</option>
-                        <option value="off">Nonaktif</option>
+                        <option value="on" data-i18n="common.on">Aktif</option>
+                        <option value="off" data-i18n="common.off">Nonaktif</option>
                     </select>
-                    <label for="setCoords">Koordinat Papan</label>
+                    <label for="setCoords" data-i18n="settings.coords">Koordinat Papan</label>
                     <select id="setCoords">
-                        <option value="on">Tampilkan</option>
-                        <option value="off">Sembunyikan</option>
+                        <option value="on" data-i18n="common.show">Tampilkan</option>
+                        <option value="off" data-i18n="common.hide">Sembunyikan</option>
                     </select>
                 </div>
                 <div class="panel-card">
-                    <strong>Data</strong>
-                    <p class="text-sub">Semua data tersimpan hanya di perangkat Anda (localStorage). Reset tidak dapat dibatalkan.</p>
-                    <button class="btn danger" id="btnResetAll" type="button">Reset Semua Data</button>
+                    <strong data-i18n="settings.data">Data</strong>
+                    <p class="text-sub" data-i18n="settings.dataDesc">Semua data tersimpan hanya di perangkat Anda (localStorage). Reset tidak dapat dibatalkan.</p>
+                    <button class="btn danger" id="btnResetAll" type="button" data-i18n="settings.resetAll">Reset Semua Data</button>
                 </div>
             </div>
         </section>
@@ -257,17 +354,15 @@
                 <h1>Tentang</h1>
                 <div class="panel-card">
                     <p style="line-height:1.7">
-                        <strong>Hajir Chess</strong> adalah aplikasi catur modern yang berjalan sepenuhnya di browser:
-                        tanpa server, tanpa akun, tanpa pelacakan. Engine aturan catur, AI, puzzle, dan
-                        pembelajaran semuanya dihitung lokal di perangkat Anda.
+                        <strong>Hajir Chess</strong> <span data-i18n="about.p1">adalah aplikasi catur modern.</span>
                     </p>
                     <ul class="about-list">
-                        <li>Main — Pemain vs Pemain atau vs Komputer (3 level), timer, undo/redo, PGN/FEN.</li>
-                        <li>Puzzle — 14+ puzzle tervalidasi engine dengan 4 tingkat kesulitan, hint bertahap, dan statistik.</li>
-                        <li>Belajar — 14 lesson berbahasa Indonesia dari dasar hingga endgame.</li>
+                        <li data-i18n="about.f1">Main — Pemain vs Pemain atau vs Komputer.</li>
+                        <li data-i18n="about.f2">Puzzle — 14+ puzzle tervalidasi engine.</li>
+                        <li data-i18n="about.f3">Belajar — lesson dari dasar hingga endgame.</li>
                     </ul>
-                    <p class="text-sub">Dibuat oleh Haiere dan Hajir Studio. Lisensi: lihat LICENSE di repositori.</p>
-                    <a class="btn small accent" href="https://github.com/haiere/chess" target="_blank" rel="noopener noreferrer">Repositori GitHub</a>
+                    <p class="text-sub" data-i18n="about.footer">Dibuat oleh Haiere dan Hajir Studio.</p>
+                    <a class="btn small accent" href="https://github.com/haiere/chess" target="_blank" rel="noopener noreferrer" data-i18n="about.repo">Repositori GitHub</a>
                 </div>
             </div>
         </section>
@@ -276,25 +371,25 @@
     <nav class="bottom-nav" aria-label="Navigasi utama">
         <a href="#main" data-nav="main">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a2 2 0 0 1 2 2v1.07A7 7 0 0 1 19 12v1h1a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h1v-1a7 7 0 0 1 5-6.93V4a2 2 0 0 1 2-2Zm-6 12v4h12v-4H6Z"/></svg>
-            <span>Main</span>
+            <span data-i18n="navigation.play">Main</span>
         </a>
         <a href="#puzzle" data-nav="puzzle">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M10 3h4v4h4v4h4v6h-4v4h-6v-4H8v-4H4V7h6V3Zm2 6v4h4v2h-4v4h-2v-4H8v-2h2V9h2Z"/></svg>
-            <span>Puzzle</span>
+            <span data-i18n="navigation.puzzles">Puzzle</span>
         </a>
         <a href="#learn" data-nav="learn">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 3 1 8l11 5 9-4.09V15h2V8L12 3Zm-6 9.2V17c0 1.66 2.69 3 6 3s6-1.34 6-3v-4.8l-6 2.7-6-2.7Z"/></svg>
-            <span>Belajar</span>
+            <span data-i18n="navigation.learning">Belajar</span>
         </a>
         <a href="#settings" data-nav="settings">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Zm7.4-2.56.05.94-.05.94 2.03 1.58a.5.5 0 0 1 .12.64l-1.92 3.32a.5.5 0 0 1-.6.22l-2.39-.96a7.2 7.2 0 0 1-1.63.94l-.36 2.54a.5.5 0 0 1-.49.42h-3.8a.5.5 0 0 1-.49-.42l-.36-2.54a7.2 7.2 0 0 1-1.63-.94l-2.39.96a.5.5 0 0 1-.6-.22L2.71 16.1a.5.5 0 0 1 .12-.64l2.03-1.58a7.43 7.43 0 0 1 0-1.88L2.71 9.42a.5.5 0 0 1 .12-.64l1.92-3.32a.5.5 0 0 1 .6-.22l2.39.96c.51-.39 1.05.71 1.63.94l.36-2.54A.5.5 0 0 1 12.22 2h3.8c.24 0 .45.17.49.42l.36 2.54c.58.23 1.12.55 1.63.94l2.39-.96a.5.5 0 0 1 .6.22l1.92 3.32a.5.5 0 0 1-.12.64l-2.03 1.58c.03.31.05.62.05.94Z"/></svg>
-            <span>Pengaturan</span>
+            <span data-i18n="game.settings">Pengaturan</span>
         </a>
     </nav>
 
     <div class="modal-overlay hidden" id="promotionModal" role="dialog" aria-modal="true" aria-labelledby="promotionTitle" aria-hidden="true">
         <div class="modal">
-            <h2 id="promotionTitle">Pilih Promosi</h2>
+            <h2 id="promotionTitle" data-i18n="game.promotionTitle">Pilih Promosi</h2>
             <div class="promotion-options" id="promotionOptions"></div>
         </div>
     </div>
@@ -302,50 +397,50 @@
     <div class="modal-overlay hidden" id="newGameModal" role="dialog" aria-modal="true" aria-labelledby="newGameTitle" aria-hidden="true">
         <div class="modal max-w-500">
             <header class="modal-header">
-                <h2 id="newGameTitle">Permainan Baru</h2>
+                <h2 id="newGameTitle" data-i18n="game.ngTitle">Permainan Baru</h2>
                 <button class="btn icon-btn" data-close="newGameModal" aria-label="Tutup">
                     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3 1.4 1.4Z"/></svg>
                 </button>
             </header>
             <div class="settings-grid">
-                <label for="ngMode">Mode Permainan</label>
+                <label for="ngMode" data-i18n="game.ngMode">Mode Permainan</label>
                 <select id="ngMode">
-                    <option value="pvp">Pemain vs Pemain</option>
-                    <option value="pvc">Pemain vs Komputer</option>
+                    <option value="pvp" data-i18n="game.ngModePvp">Pemain vs Pemain</option>
+                    <option value="pvc" data-i18n="game.ngModePvc">Pemain vs Komputer</option>
                 </select>
-                <label for="ngColor">Warna Pemain</label>
+                <label for="ngColor" data-i18n="game.ngColor">Warna Pemain</label>
                 <select id="ngColor">
-                    <option value="white">Putih</option>
-                    <option value="black">Hitam</option>
-                    <option value="random">Acak</option>
+                    <option value="white" data-i18n="game.ngColorWhite">Putih</option>
+                    <option value="black" data-i18n="game.ngColorBlack">Hitam</option>
+                    <option value="random" data-i18n="game.ngColorRandom">Acak</option>
                 </select>
-                <label for="ngDifficulty">Kesulitan AI</label>
+                <label for="ngDifficulty" data-i18n="game.ngDifficulty">Kesulitan AI</label>
                 <select id="ngDifficulty">
-                    <option value="easy">Mudah</option>
-                    <option value="medium">Menengah</option>
-                    <option value="hard">Sulit</option>
+                    <option value="easy" data-i18n="game.ngEasy">Mudah</option>
+                    <option value="medium" data-i18n="game.ngMedium">Menengah</option>
+                    <option value="hard" data-i18n="game.ngHard">Sulit</option>
                 </select>
-                <label for="ngTimer">Kontrol Waktu</label>
+                <label for="ngTimer" data-i18n="game.ngTimer">Kontrol Waktu</label>
                 <select id="ngTimer">
-                    <option value="10|0">10|0 Rapid</option>
-                    <option value="5|3">5|3 Blitz</option>
-                    <option value="3|2">3|2 Blitz</option>
-                    <option value="1|0">1|0 Bullet</option>
-                    <option value="0|0">Tanpa Timer</option>
+                    <option value="10|0" data-i18n="game.ngRapid">10|0 Rapid</option>
+                    <option value="5|3" data-i18n="game.ngBlitz53">5|3 Blitz</option>
+                    <option value="3|2" data-i18n="game.ngBlitz32">3|2 Blitz</option>
+                    <option value="1|0" data-i18n="game.ngBullet">1|0 Bullet</option>
+                    <option value="0|0" data-i18n="game.ngNone">Tanpa Timer</option>
                 </select>
-                <label for="ngBoardTheme">Tema Papan</label>
+                <label for="ngBoardTheme" data-i18n="game.ngBoardTheme">Tema Papan</label>
                 <select id="ngBoardTheme">
-                    <option value="classic">Classic Brown</option>
-                    <option value="emerald">Emerald</option>
-                    <option value="midnight">Midnight Blue</option>
-                    <option value="rose">Rose</option>
-                    <option value="bw">Black and White</option>
-                    <option value="neon">Neon Cyberpunk</option>
+                    <option value="classic" data-i18n="game.themeClassic">Classic Brown</option>
+                    <option value="emerald" data-i18n="game.themeEmerald">Emerald</option>
+                    <option value="midnight" data-i18n="game.themeMidnight">Midnight Blue</option>
+                    <option value="rose" data-i18n="game.themeRose">Rose</option>
+                    <option value="bw" data-i18n="game.themeBW">Black and White</option>
+                    <option value="neon" data-i18n="game.themeNeon">Neon Cyberpunk</option>
                 </select>
             </div>
             <div class="modal-buttons">
-                <button class="btn accent" id="btnStartGame" type="button">Mulai</button>
-                <button class="btn" id="btnCancelNewGame" type="button">Batal</button>
+                <button class="btn accent" id="btnStartGame" type="button" data-i18n="game.ngStart">Mulai</button>
+                <button class="btn" id="btnCancelNewGame" type="button" data-i18n="common.cancel">Batal</button>
             </div>
         </div>
     </div>
@@ -357,6 +452,8 @@
     <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
     <script src="js/storage.js"></script>
+    <script src="js/locales.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/pieces.js"></script>
     <script src="js/engine.js"></script>
