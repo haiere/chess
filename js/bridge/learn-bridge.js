@@ -1,129 +1,84 @@
-/**
- * learn-bridge.js — Adapter HTML pembelajaran (#learn-content, #btn-learn-*)
- * ke modul LessonsMode.
- */
-(function (global) {
-  "use strict";
-
-  var MOUNTED = false;
-  var instance = null;
-
-  function $(id) { return document.getElementById(id); }
-  function safe(label, fn) {
-    try { return fn(); }
-    catch (e) {
-      if (global.console) console.warn("[LearnBridge] " + label + " gagal:", e);
-      return null;
-    }
-  }
-
-  function detectApi() {
-    var api = {};
-    if (global.LessonsMode) api.LessonsMode = global.LessonsMode;
-    else if (global.Lessons && typeof global.Lessons === "object") api.LessonsMode = global.Lessons;
-    return api;
-  }
-
-  function showPlaceholder(msg) {
-  var c = $("learn-content");
+/** js/bridge/learn-bridge.js — ESM. */
+let MOUNTED = false, instance = null;
+const $ = id => document.getElementById(id);
+function safe(label, fn) {
+  try { return fn(); } catch (e) { console.warn("[LearnBridge] " + label + " gagal:", e); return null; }
+}
+function showPlaceholder(msg) {
+  const c = $("learn-content");
   if (!c) return;
   c.innerHTML = '<div class="app-placeholder" role="status">' + msg + "</div>";
+}
+function detectApi() {
+  const api = {};
+  api.LessonsMode = window.LessonsMode || (window.Lessons && typeof window.Lessons === "object" ? window.Lessons : null);
+  return api;
+}
+function tryInit(api) {
+  if (!api.LessonsMode) return null;
+  const container = $("learn-content");
+  const attempts = [
+    () => api.LessonsMode.init({ container, onProgress }),
+    () => api.LessonsMode.init(container),
+    () => api.LessonsMode.init()
+  ];
+  for (let i = 0; i < attempts.length; i++) {
+    const r = safe("LessonsMode.init#" + i, attempts[i]);
+    if (r) return r;
   }
-
-  var container = $("learn-content");
-if (!container) return null;
-var api = detectApi();
-if (!api.LessonsMode) {
-  showPlaceholder("Modul pembelajaran belum tersedia. Pastikan <code>js/lessons.js</code> dimuat dan mengekspos <code>window.LessonsMode</code>.");
-  bindButtons();
   return null;
 }
-var instance = initLessons(api);
-if (!instance) {
-  showPlaceholder("Modul pembelajaran gagal diinisialisasi.");
-  bindButtons();
-  return null;
+function onProgress(p) {
+  const el = $("learn-progress");
+  if (!el || !p) return;
+  el.textContent = window.I18n
+    ? window.I18n.t("learning.progress", { done: p.done || 0, total: p.total || 0 })
+    : (p.done || 0) + " / " + (p.total || 0);
+}
+function bindButton(id, actionName) {
+  const btn = $(id);
+  if (!btn || btn.__bridgeBound) return;
+  btn.__bridgeBound = true;
+  btn.addEventListener("click", e => {
+    e.preventDefault();
+    const fn = instance && instance[actionName];
+    if (typeof fn === "function") safe(actionName, () => fn.call(instance));
+    else if (window.LessonsMode && typeof window.LessonsMode[actionName] === "function") safe(actionName, () => window.LessonsMode[actionName]());
+    else console.warn("[LearnBridge] aksi tidak tersedia:", actionName);
+  });
+}
+function bindButtons() {
+  bindButton("btn-learn-prev", "previous");
+  bindButton("btn-learn-next", "next");
+  bindButton("btn-learn-restart", "restart");
+  bindButton("btn-learn-finish", "finish");
 }
 
-  function initLessons(api) {
-    if (!api.LessonsMode) return null;
-    var container = $("learn-content");
-    var attempts = [
-      function () {
-        return api.LessonsMode.init({
-          container: container,
-          onProgress: onProgress
-        });
-      },
-      function () { return api.LessonsMode.init(container); },
-      function () { return api.LessonsMode.init(); }
-    ];
-    for (var i = 0; i < attempts.length; i++) {
-      var r = safe("LessonsMode.init#" + i, attempts[i]);
-      if (r) return r;
-    }
-    return null;
-  }
-
-  function onProgress(p) {
-    var el = $("learn-progress");
-    if (!el || !p) return;
-    var I18n = global.I18n;
-    el.textContent = I18n
-      ? I18n.t("learning.progress", { done: p.done || 0, total: p.total || 0 })
-      : (p.done || 0) + " / " + (p.total || 0);
-  }
-
-  function bindButton(id, actionName) {
-    var btn = $(id);
-    if (!btn || btn.__bridgeBound) return;
-    btn.__bridgeBound = true;
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      var fn = instance && instance[actionName];
-      if (typeof fn === "function") safe(actionName, function () { fn.call(instance); });
-      else if (global.LessonsMode && typeof global.LessonsMode[actionName] === "function") {
-        safe(actionName, function () { global.LessonsMode[actionName](); });
-      } else {
-        if (global.console) console.warn("[LearnBridge] aksi tidak tersedia:", actionName);
-      }
-    });
-  }
-
-  function bindButtons() {
-    bindButton("btn-learn-prev", "previous");
-    bindButton("btn-learn-next", "next");
-    bindButton("btn-learn-restart", "restart");
-    bindButton("btn-learn-finish", "finish");
-  }
-
-  var LearnBridge = {
-    init: function () {
-      if (MOUNTED) return instance;
-      MOUNTED = true;
-
-      var container = $("learn-content");
-      if (!container) return null;
-
-      var api = detectApi();
-      if (!api.LessonsMode) {
-        showPlaceholder(
-          container,
-          "Modul pembelajaran belum tersedia. " +
-          "Pastikan <code>js/lessons.js</code> dimuat sebelum bridge."
-        );
-        bindButtons();
-        return null;
-      }
-
-      instance = initLessons(api);
+export const LearnBridge = {
+  init() {
+    if (MOUNTED) return instance;
+    MOUNTED = true;
+    const container = $("learn-content");
+    if (!container) return null;
+    const api = detectApi();
+    if (!api.LessonsMode) {
+      showPlaceholder("Modul pembelajaran belum tersedia. Pastikan <code>js/lessons.js</code> dimuat (lihat Console).");
       bindButtons();
-      if (global.console && console.info) console.info("[LearnBridge] siap.");
-      return instance;
-    },
-    getInstance: function () { return instance; },
-    _reset: function () { MOUNTED = false; instance = null; }
-  };
+      return null;
+    }
+    instance = tryInit(api);
+    if (!instance) {
+      showPlaceholder("Modul pembelajaran gagal diinisialisasi. Buka Console untuk detail.");
+      bindButtons();
+      return null;
+    }
+    bindButtons();
+    console.info("[LearnBridge] siap.");
+    return instance;
+  },
+  getInstance() { return instance; },
+  _reset() { MOUNTED = false; instance = null; }
+};
 
-  global.LearnBridge = LearnBridge;
-})(typeof window !== "undefined" ? window : this); 
+if (typeof window !== "undefined") window.LearnBridge = LearnBridge;
+export default LearnBridge;
