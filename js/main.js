@@ -7,6 +7,7 @@
 import "./i18n.js";
 import "./components/LanguageSwitcher.js";
 import "./bridge/game-bridge.js";
+import "./bridge/visual-polish.js";
 import "./bridge/puzzle-bridge.js";
 import "./bridge/learn-bridge.js";
 // bridge/index.js TIDAK diimpor — kita kontrol manual di bawah.
