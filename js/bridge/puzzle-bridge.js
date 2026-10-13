@@ -23,6 +23,21 @@
   c.innerHTML = '<div class="app-placeholder" role="status">' + msg + "</div>";
   }
 
+  var boardEl = $("puzzle-board");
+if (!boardEl) return null;
+var api = detectApi();
+if (!api.PuzzleMode) {
+  showPlaceholder("Modul teka-teki belum tersedia. Pastikan <code>js/puzzle.js</code> dimuat dan mengekspos <code>window.PuzzleMode</code>.");
+  bindButtons();
+  return null;
+}
+var instance = initPuzzleMode(api, boardEl);
+if (!instance) {
+  showPlaceholder("Modul teka-teki gagal diinisialisasi.");
+  bindButtons();
+  return null;
+}
+
   function detectPuzzleApi() {
     var api = {};
     if (global.PuzzleMode) api.PuzzleMode = global.PuzzleMode;
