@@ -508,3 +508,76 @@ export const GameBridge = {
 
 if (typeof window !== "undefined") window.GameBridge = GameBridge;
 export default GameBridge;
+
+/* ============================================================
+   AUTO-INIT — v9
+   ============================================================
+   Tidak butuh dipanggil dari main.js.
+   Self-trigger saat:
+     - DOM ready + window.GameMode tersedia
+     - Route berubah ke #game
+     - Polling fallback 30 detik
+   ============================================================ */
+(function autoInitGameBridge() {
+  if (typeof window === "undefined") return;
+  if (window.__GameBridgeAutoInit) return;
+  window.__GameBridgeAutoInit = true;
+
+  let done = false;
+
+  function routeIs(r) {
+    const current = (location.hash || "#game").replace(/^#\/?/, "").trim() || "game";
+    return current === r;
+  }
+
+  function tryInit(reason) {
+    if (done) return true;
+    if (!routeIs("game")) return false;
+    if (!document.getElementById("board")) return false;
+    const GM = window.GameMode;
+    if (!GM || typeof GM.init !== "function") return false;
+
+    done = true;
+    console.info("[GameBridge] AUTO-INIT trigger:", reason);
+    try {
+      GameBridge.init();
+      return true;
+    } catch (e) {
+      console.error("[GameBridge] AUTO-INIT error:", e);
+      done = false;
+      return false;
+    }
+  }
+
+  // Coba langsung jika DOM sudah siap
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    tryInit("document-ready");
+  } else {
+    document.addEventListener("DOMContentLoaded", () => tryInit("DOMContentLoaded"));
+  }
+
+  // Polling fallback — 60 x 500ms = 30 detik
+  let attempts = 0;
+  const interval = setInterval(() => {
+    attempts++;
+    if (tryInit("poll #" + attempts)) {
+      clearInterval(interval);
+    } else if (attempts > 60) {
+      console.warn("[GameBridge] AUTO-INIT timeout. GameMode belum siap setelah 30 detik.");
+      console.warn("[GameBridge] Diagnostic:", {
+        GameMode: typeof window.GameMode,
+        GameModeInit: window.GameMode && typeof window.GameMode.init,
+        board: !!document.getElementById("board"),
+        route: location.hash
+      });
+      clearInterval(interval);
+    }
+  }, 500);
+
+  // Reset saat user kembali ke #game
+  window.addEventListener("hashchange", () => {
+    if (routeIs("game") && !done) {
+      setTimeout(() => tryInit("hashchange"), 50);
+    }
+  });
+})();
