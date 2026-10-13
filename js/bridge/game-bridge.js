@@ -1,11 +1,11 @@
 /**
- * js/bridge/game-bridge.js — ESM v4.
- * Perbaikan kunci:
- *  - showPlaceholder TIDAK menghapus #board
- *  - BoardView instantiation pakai signature (container, opts) yang benar
- *  - Fallback BoardView merender papan 8x8 minimal
+ * js/bridge/game-bridge.js — ESM v5.
+ * - Panggil GameMode.init() langsung (arity 0)
+ * - Intercept getElementById untuk log semua ID yang diminta game.js
+ * - Fallback manual: render BoardView dengan setState + render
+ * - Placeholder aman (tidak hapus #board)
  */
-let MOUNTED = false, instance = null, currentApi = null;
+let MOUNTED = false, instance = null, currentApi = null, boardViewRef = null;
 const $ = id => document.getElementById(id);
 
 function safe(label, fn) {
@@ -18,37 +18,19 @@ function safe(label, fn) {
 function placeholderText(key) {
   const lang = window.I18n ? window.I18n.getLang() : "id";
   const texts = {
-    id: {
-      noGameMode: "Modul permainan belum tersedia. Pastikan <code>js/game.js</code> dimuat (lihat Console).",
-      initFailed: "Modul permainan ada, tetapi gagal diinisialisasi. Buka Console untuk detail.",
-      noBoard: "Elemen papan tidak ditemukan."
-    },
-    en: {
-      noGameMode: "Game module not available. Make sure <code>js/game.js</code> is loaded (see Console).",
-      initFailed: "Game module exists but failed to initialize. Check Console for details.",
-      noBoard: "Board element not found."
-    }
+    id: { noGameMode:"Modul permainan belum tersedia.", initFailed:"Modul permainan gagal diinisialisasi. Buka Console untuk detail.", noBoard:"Elemen papan tidak ditemukan." },
+    en: { noGameMode:"Game module not available.", initFailed:"Game module failed to initialize. Check Console.", noBoard:"Board element not found." }
   };
   return (texts[lang] || texts.id)[key];
 }
 
-/**
- * showPlaceholder — JANGAN hapus #board. Pakai sibling + sembunyikan board.
- * Idempotent: hapus placeholder lama sebelum tambah baru.
- */
 function showPlaceholder(msg) {
   const container = $("board-container");
   const boardEl = $("board");
   if (!container) return;
-
-  // Sembunyikan board asli (jangan hapus — bridge lain mungkin butuh)
   if (boardEl) boardEl.style.display = "none";
-
-  // Hapus placeholder lama kalau ada
   const old = container.querySelector(".app-placeholder");
   if (old) old.remove();
-
-  // Tambah placeholder sebagai sibling #board
   const ph = document.createElement("div");
   ph.className = "app-placeholder";
   ph.setAttribute("role", "status");
@@ -70,140 +52,154 @@ function clearPlaceholder() {
   if (boardEl) boardEl.style.display = "";
 }
 
-function detectApi() {
-  const api = {};
-  api.BoardView = window.BoardView
-    || (window.Board && typeof window.Board === "object" ? window.Board : null);
-  api.GameMode = window.GameMode
-    || (window.Game && typeof window.Game === "object" ? window.Game : null);
-  api.Chess = window.Chess || window.ChessEngine || null;
-  return api;
+/* ---------- Intercept getElementById ---------- */
+function callInitWithIdLogging() {
+  const requestedIds = new Set();
+  const original = document.getElementById;
+  document.getElementById = function (id) {
+    requestedIds.add(id);
+    return original.call(document, id);
+  };
+  let error = null;
+  try {
+    if (window.GameMode && typeof window.GameMode.init === "function") {
+      window.GameMode.init();
+    }
+  } catch (e) { error = e; }
+  document.getElementById = original;
+  return { requestedIds: Array.from(requestedIds), error };
 }
 
-/* ---------- GameMode init ---------- */
-function tryInitGameMode(api, boardEl) {
-  if (!api.GameMode) return null;
-  const GM = api.GameMode;
-
-  function hasRendered() { return boardEl && boardEl.children.length > 0; }
-  function attempt(fn, label) {
-    try {
-      const r = fn();
-      if (r) return r;
-      if (hasRendered()) {
-        console.info("[GameBridge] " + label + " → return undefined tapi board terisi. Treat as success.");
-        return GM;
-      }
-    } catch (e) {
-      console.warn("[GameBridge] GameMode." + label + " error:", e && e.message ? e.message : e);
-    }
-    return null;
-  }
-
-  // Coba semua signature umum
-  const calls = [
-    ["init({board,...})", () => GM.init({ board: boardEl, container: boardEl, element: boardEl, onStateChange: onState, onStatusChange: onStatus, onChange: onState })],
-    ["init(boardEl)",     () => GM.init(boardEl)],
-    ["init()",            () => GM.init()],
-    ["start({board})",    () => GM.start && GM.start({ board: boardEl })],
-    ["start(boardEl)",    () => GM.start && GM.start(boardEl)],
-    ["mount({board})",    () => GM.mount && GM.mount({ board: boardEl })],
-    ["setup(boardEl)",    () => GM.setup && GM.setup(boardEl)],
-    ["boot(boardEl)",     () => GM.boot && GM.boot(boardEl)],
-    ["render(boardEl)",   () => GM.render && GM.render(boardEl)],
-    ["newGame(boardEl)",  () => GM.newGame && GM.newGame(boardEl)]
-  ];
-  for (const [label, fn] of calls) {
-    const r = attempt(fn, label);
-    if (r) { console.info("[GameBridge] GameMode sukses via " + label); return r; }
-  }
-
-  // Kalau GameMode adalah constructor class
-  if (typeof GM === "function") {
-    const ctors = [
-      ["new GameMode(boardEl)",         () => new GM(boardEl)],
-      ["new GameMode(boardEl, opts)",   () => new GM(boardEl, { onStateChange: onState })],
-      ["new GameMode({board})",         () => new GM({ board: boardEl })]
-    ];
-    for (const [label, fn] of ctors) {
-      const r = attempt(fn, label);
-      if (r) { console.info("[GameBridge] GameMode sukses via " + label); return r; }
-    }
-  }
-
-  return null;
-}
-
-/* ---------- BoardView fallback ---------- */
-/**
- * Fallback: kalau GameMode tidak jalan, minimal render papan via BoardView.
- * Signature BoardView: constructor(container, opts) — DUA argumen.
- */
-function tryFallbackBoard(api, boardEl) {
-  if (!api.BoardView) return null;
-  const BV = api.BoardView;
-  if (typeof BV !== "function") return null;
+/* ---------- Fallback BoardView manual render ---------- */
+function manualBoardRender(boardEl) {
+  const BV = window.BoardView;
+  if (!BV || typeof BV !== "function") return null;
 
   let view = null;
-  const attempts = [
-    ["new BoardView(boardEl, opts)",        () => new BV(boardEl, { orientation: "white", showCoords: true, interactive: true, onSquareClick: () => {} })],
-    ["new BoardView(boardEl)",              () => new BV(boardEl)],
-    ["new BoardView(boardEl, {})",          () => new BV(boardEl, {})]
-  ];
-  for (const [label, fn] of attempts) {
-    try {
-      view = fn();
-      if (view) { console.info("[GameBridge] BoardView instantiated via " + label); break; }
-    } catch (e) {
-      console.warn("[GameBridge] " + label + " error:", e && e.message ? e.message : e);
+  try {
+    view = new BV(boardEl, {
+      orientation: "white",
+      showCoords: true,
+      interactive: true,
+      onSquareClick: function () {}
+    });
+  } catch (e) {
+    console.warn("[GameBridge] new BoardView gagal:", e && e.message ? e.message : e);
+    return null;
+  }
+  boardViewRef = view;
+
+  // Coba setState dengan berbagai sumber state
+  const startFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  const stateCandidates = [];
+
+  // Dari Chess engine kalau ada
+  if (window.Chess) {
+    for (const fn of ["fromFEN", "parseFEN", "fenToState", "initialState", "initial"]) {
+      if (typeof window.Chess[fn] === "function") {
+        stateCandidates.push({
+          label: "Chess." + fn + "()",
+          fn: () => window.Chess[fn](startFEN)
+        });
+        stateCandidates.push({
+          label: "Chess." + fn + "() no-arg",
+          fn: () => window.Chess[fn]()
+        });
+      }
     }
   }
-  if (!view) return null;
 
-  // Coba render posisi awal. BoardView biasanya punya method render/update/setPosition.
-  const startFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  const renderCalls = [
-    ["render(state)",       () => view.render && view.render({ fen: startFEN })],
-    ["render(fen)",         () => view.render && view.render(startFEN)],
-    ["render()",            () => view.render && view.render()],
-    ["setPosition(fen)",    () => view.setPosition && view.setPosition(startFEN)],
-    ["update(fen)",         () => view.update && view.update(startFEN)],
-    ["renderFromFEN(fen)",  () => view.renderFromFEN && view.renderFromFEN(startFEN)]
-  ];
-  let rendered = false;
-  for (const [label, fn] of renderCalls) {
-    try {
-      const r = fn();
-      if (r !== false && boardEl.children.length > 0) {
-        console.info("[GameBridge] BoardView rendered via " + label);
-        rendered = true;
-        break;
-      }
-    } catch (e) { /* continue */ }
+  // Objek dengan fen
+  stateCandidates.push({ label: "setState({fen})", fn: () => ({ fen: startFEN }) });
+  stateCandidates.push({ label: "setState(fen-string)", fn: () => startFEN });
+
+  let stateSet = false;
+  if (typeof view.setState === "function") {
+    for (const c of stateCandidates) {
+      try {
+        const st = c.fn();
+        if (st) {
+          view.setState(st);
+          console.info("[GameBridge] BoardView.setState via " + c.label);
+          stateSet = true;
+          break;
+        }
+      } catch (e) { /* coba berikutnya */ }
+    }
+    if (!stateSet) console.warn("[GameBridge] tidak bisa setState dengan kandidat manapun.");
   }
-  if (!rendered && boardEl.children.length === 0) {
-    console.warn("[GameBridge] BoardView ada tapi tidak bisa auto-render. Coba panggil view.render(...) manual.");
+
+  // Render
+  try {
+    if (typeof view.render === "function") view.render();
+    console.info("[GameBridge] BoardView.render() dipanggil. Board children:", boardEl.children.length);
+  } catch (e) {
+    console.warn("[GameBridge] render() error:", e && e.message ? e.message : e);
   }
+
   return view;
+}
+
+/* ---------- Aliasing ID lama → ID baru ---------- */
+/**
+ * Bikin elemen tersembunyi dengan ID lama, agar game.js bisa menemukan tombolnya.
+ * Arah: klik tombol baru → trigger klik elemen alias → game.js listener bereaksi.
+ */
+const ID_ALIASES = [
+  // [id lama yang mungkin dicari game.js, id baru di HTML kita]
+  ["btnNew",       "btn-new-game"],
+  ["btnNewGame",   "btn-new-game"],
+  ["newGameBtn",   "btn-new-game"],
+  ["btnUndo",      "btn-undo"],
+  ["undoBtn",      "btn-undo"],
+  ["btnRedo",      "btn-redo"],
+  ["redoBtn",      "btn-redo"],
+  ["btnFlip",      "btn-flip"],
+  ["btnFlipBoard", "btn-flip"],
+  ["flipBtn",      "btn-flip"],
+  ["btnCopyFen",   "btn-copy-fen"],
+  ["btnCopyFEN",   "btn-copy-fen"],
+  ["btnResign",    "btn-resign"],
+  ["resignBtn",    "btn-resign"],
+  ["btnCopyPgn",   "btn-copy-pgn"],
+  ["btnCopyPGN",   "btn-copy-pgn"]
+];
+
+function createAliases(requestedIds) {
+  let created = 0;
+  for (const [oldId, newId] of ID_ALIASES) {
+    // Buat alias hanya kalau game.js benar-benar memintanya
+    if (!requestedIds.includes(oldId)) continue;
+    // Dan kalau belum ada
+    if (document.getElementById(oldId)) continue;
+    const real = document.getElementById(newId);
+    if (!real) continue;
+
+    const alias = document.createElement("button");
+    alias.id = oldId;
+    alias.type = "button";
+    alias.style.cssText = "position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;";
+    alias.setAttribute("aria-hidden", "true");
+    alias.tabIndex = -1;
+    // Klik alias = klik real, jadi listener yang di-bind ke alias terpanggil
+    document.body.appendChild(alias);
+    // Klik real → trigger klik alias
+    real.addEventListener("click", function () {
+      try { alias.click(); } catch (e) {}
+    });
+    created++;
+  }
+  if (created > 0) console.info("[GameBridge] " + created + " alias tombol dibuat untuk kompatibilitas game.js lama.");
+  return created;
 }
 
 /* ---------- Handlers ---------- */
 function onState(s) { renderMoveHistory(s); updateStatus(s); }
-function onStatus(status) {
-  const el = $("game-status");
-  if (!el || !status) return;
-  const key = typeof status === "string" ? status : (status.key || "yourTurn");
-  el.textContent = window.I18n ? window.I18n.t("game." + key) : key;
-}
 function updateStatus(state) {
   const el = $("game-status");
   if (!el) return;
   let key = "game.yourTurn";
   if (state && state.turn) key = state.turn === "w" ? "game.whiteTurn" : "game.blackTurn";
-  if (state && state.status) {
-    const map = { check:"game.check", checkmate:"game.checkmate", stalemate:"game.stalemate", draw:"game.drawResult" };
-    if (map[state.status]) key = map[state.status];
-  }
   el.textContent = window.I18n ? window.I18n.t(key) : key;
 }
 function renderMoveHistory(state) {
@@ -217,142 +213,65 @@ function renderMoveHistory(state) {
   }
 }
 
-/* ---------- Buttons ---------- */
-function bindButton(id, actionName, opts) {
-  const btn = $(id);
-  if (!btn || btn.__bridgeBound) return;
-  btn.__bridgeBound = true;
-  btn.addEventListener("click", e => {
-    e.preventDefault();
-    if (opts && typeof opts.confirmKey === "function") {
-      const msg = opts.confirmKey();
-      if (msg && !window.confirm(msg)) return;
-    }
-    const fn = instance && instance[actionName];
-    if (typeof fn === "function") safe(actionName, () => fn.call(instance));
-    else if (currentApi && currentApi.GameMode && typeof currentApi.GameMode[actionName] === "function")
-      safe(actionName, () => currentApi.GameMode[actionName]());
-    else console.warn("[GameBridge] aksi tidak tersedia:", actionName);
-  });
-}
-function bindCopy(id, kind) {
-  const btn = $(id);
-  if (!btn || btn.__bridgeBound) return;
-  btn.__bridgeBound = true;
-  btn.addEventListener("click", e => {
-    e.preventDefault();
-    let value = null;
-    if (instance) {
-      if (kind === "fen") value = (instance.getFEN && instance.getFEN()) || (instance.exportFEN && instance.exportFEN());
-      if (kind === "pgn") value = (instance.getPGN && instance.getPGN()) || (instance.exportPGN && instance.exportPGN());
-    }
-    if (!value && currentApi && currentApi.GameMode) {
-      const GM = currentApi.GameMode;
-      if (kind === "fen" && GM.getFEN) value = GM.getFEN();
-      if (kind === "pgn" && GM.getPGN) value = GM.getPGN();
-    }
-    if (!value) return;
-    copy(value)
-      .then(() => toast(window.I18n ? window.I18n.t("toast.copied") : "Copied"))
-      .catch(() => toast(window.I18n ? window.I18n.t("toast.copyFailed") : "Copy failed"));
-  });
-}
-function copy(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
-  return new Promise((res, rej) => {
-    try {
-      const ta = document.createElement("textarea");
-      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
-      document.body.appendChild(ta); ta.select();
-      const ok = document.execCommand("copy"); document.body.removeChild(ta);
-      ok ? res() : rej(new Error("exec failed"));
-    } catch (e) { rej(e); }
-  });
-}
-function toast(msg) {
-  const el = document.createElement("div");
-  el.setAttribute("role", "status"); el.setAttribute("aria-live", "polite");
-  el.textContent = msg;
-  el.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--app-surface);color:var(--app-text);border:1px solid var(--app-border);border-radius:8px;padding:10px 16px;font-size:.9rem;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:opacity .2s;";
-  document.body.appendChild(el);
-  setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 220); }, 1800);
-}
-function bindButtons() {
-  const t = window.I18n ? k => window.I18n.t(k) : k => k;
-  bindButton("btn-new-game", "newGame", { confirmKey: () => t("game.restartConfirm") });
-  bindButton("btn-undo", "undo");
-  bindButton("btn-redo", "redo");
-  bindButton("btn-flip", "flipBoard");
-  bindButton("btn-resign", "resign", { confirmKey: () => t("game.resignConfirm") });
-  bindCopy("btn-copy-fen", "fen");
-  bindCopy("btn-copy-pgn", "pgn");
-}
-
 /* ---------- Public ---------- */
 export const GameBridge = {
   init() {
     if (MOUNTED) return instance;
     MOUNTED = true;
 
-    const boardEl = $("board");
+    let boardEl = $("board");
     if (!boardEl) {
-      // Cari alternatif: buat elemen #board kalau hilang
       const container = $("board-container");
       if (container) {
-        const nb = document.createElement("div");
-        nb.id = "board";
-        nb.className = "board";
-        container.appendChild(nb);
+        boardEl = document.createElement("div");
+        boardEl.id = "board";
+        boardEl.className = "board";
+        container.appendChild(boardEl);
         console.warn("[GameBridge] #board tidak ada, dibuat baru.");
-        return GameBridge._initWithBoard(nb);
+      } else {
+        showPlaceholder(placeholderText("noBoard"));
+        return null;
       }
-      showPlaceholder(placeholderText("noBoard"));
-      return null;
-    }
-    return GameBridge._initWithBoard(boardEl);
-  },
-
-  _initWithBoard(boardEl) {
-    clearPlaceholder(); // pastikan placeholder lama hilang
-    const api = detectApi();
-    currentApi = api;
-
-    if (!api.GameMode && !api.BoardView) {
-      showPlaceholder(placeholderText("noGameMode"));
-      bindButtons();
-      return null;
     }
 
-    // 1. Coba GameMode
-    instance = tryInitGameMode(api, boardEl);
-    if (instance) {
-      clearPlaceholder();
-      bindButtons();
-      updateStatus(instance.getState ? instance.getState() : null);
-      if (window.I18n && window.I18n.onChange) {
-        window.I18n.onChange(() => updateStatus(instance.getState ? instance.getState() : null));
-      }
-      console.info("[GameBridge] siap (GameMode).");
+    clearPlaceholder();
+    currentApi = {
+      GameMode: window.GameMode || null,
+      BoardView: window.BoardView || null,
+      Chess: window.Chess || null
+    };
+
+    /* ==== LANGKAH 1: panggil GameMode.init() dengan ID logging ==== */
+    console.info("[GameBridge] memanggil GameMode.init()...");
+    const { requestedIds, error } = callInitWithIdLogging();
+    console.info("[GameBridge] ID yang diminta game.js selama init:", requestedIds);
+    if (error) console.error("[GameBridge] GameMode.init() throw:", error);
+
+    /* ==== LANGKAH 2: cek apakah board terisi ==== */
+    if (boardEl.children.length > 0) {
+      console.info("[GameBridge] board terisi oleh GameMode.init(). Siap.");
+      instance = window.GameMode;
+      // Buat alias tombol untuk yang belum ada
+      createAliases(requestedIds);
       return instance;
     }
 
-    // 2. Fallback BoardView
-    const fallback = tryFallbackBoard(api, boardEl);
-    if (fallback) {
-      clearPlaceholder();
-      bindButtons();
-      console.warn("[GameBridge] Hanya BoardView yang aktif. Game belum playable sampai GameMode.init dipetakan.");
-      return fallback;
+    /* ==== LANGKAH 3: fallback — render BoardView manual ==== */
+    console.warn("[GameBridge] board kosong setelah init(). Coba render BoardView manual.");
+    const bv = manualBoardRender(boardEl);
+    if (bv && boardEl.children.length > 0) {
+      console.info("[GameBridge] board dirender manual (mode terbatas: tidak bisa main sampai tombol ter-wire).");
+      instance = bv;
+      createAliases(requestedIds);
+      return instance;
     }
 
-    // 3. Gagal total
+    /* ==== LANGKAH 4: gagal total ==== */
     showPlaceholder(placeholderText("initFailed"));
-    bindButtons();
     return null;
   },
-
   getInstance() { return instance; },
-  _reset() { MOUNTED = false; instance = null; currentApi = null; }
+  _reset() { MOUNTED = false; instance = null; currentApi = null; boardViewRef = null; }
 };
 
 if (typeof window !== "undefined") window.GameBridge = GameBridge;
