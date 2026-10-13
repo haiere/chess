@@ -17,13 +17,10 @@
     }
   }
 
-  function showPlaceholder(container, msg) {
-    if (!container) return;
-    container.innerHTML =
-      '<div role="status" style="display:flex;align-items:center;justify-content:center;' +
-      'min-height:320px;border:1px dashed var(--app-border);border-radius:12px;' +
-      'color:var(--app-muted);text-align:center;padding:24px;font-size:.9rem;">' +
-      msg + "</div>";
+  function showPlaceholder(msg) {
+  var c = $("puzzle-board-container") || $("puzzle-board");
+  if (!c) return;
+  c.innerHTML = '<div class="app-placeholder" role="status">' + msg + "</div>";
   }
 
   function detectPuzzleApi() {
