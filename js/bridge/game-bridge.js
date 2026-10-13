@@ -510,13 +510,8 @@ if (typeof window !== "undefined") window.GameBridge = GameBridge;
 export default GameBridge;
 
 /* ============================================================
-   AUTO-INIT — v9
-   ============================================================
-   Tidak butuh dipanggil dari main.js.
-   Self-trigger saat:
-     - DOM ready + window.GameMode tersedia
-     - Route berubah ke #game
-     - Polling fallback 30 detik
+   AUTO-INIT — v9.1
+   Skip kalau GameBridge sudah sukses init dari main.js.
    ============================================================ */
 (function autoInitGameBridge() {
   if (typeof window === "undefined") return;
@@ -525,6 +520,13 @@ export default GameBridge;
 
   let done = false;
 
+  function alreadyInitialized() {
+    if (window.GameBridge && typeof window.GameBridge.getInstance === "function") {
+      return !!window.GameBridge.getInstance();
+    }
+    return false;
+  }
+
   function routeIs(r) {
     const current = (location.hash || "#game").replace(/^#\/?/, "").trim() || "game";
     return current === r;
@@ -532,6 +534,7 @@ export default GameBridge;
 
   function tryInit(reason) {
     if (done) return true;
+    if (alreadyInitialized()) { done = true; return true; }
     if (!routeIs("game")) return false;
     if (!document.getElementById("board")) return false;
     const GM = window.GameMode;
@@ -549,35 +552,27 @@ export default GameBridge;
     }
   }
 
-  // Coba langsung jika DOM sudah siap
+  // Kalau sudah sukses dari main.js, tidak perlu apa-apa lagi
+  if (alreadyInitialized()) { done = true; return; }
+
   if (document.readyState === "complete" || document.readyState === "interactive") {
     tryInit("document-ready");
   } else {
     document.addEventListener("DOMContentLoaded", () => tryInit("DOMContentLoaded"));
   }
 
-  // Polling fallback — 60 x 500ms = 30 detik
   let attempts = 0;
   const interval = setInterval(() => {
     attempts++;
     if (tryInit("poll #" + attempts)) {
       clearInterval(interval);
     } else if (attempts > 60) {
-      console.warn("[GameBridge] AUTO-INIT timeout. GameMode belum siap setelah 30 detik.");
-      console.warn("[GameBridge] Diagnostic:", {
-        GameMode: typeof window.GameMode,
-        GameModeInit: window.GameMode && typeof window.GameMode.init,
-        board: !!document.getElementById("board"),
-        route: location.hash
-      });
+      console.warn("[GameBridge] AUTO-INIT timeout (30s).");
       clearInterval(interval);
     }
   }, 500);
 
-  // Reset saat user kembali ke #game
   window.addEventListener("hashchange", () => {
-    if (routeIs("game") && !done) {
-      setTimeout(() => tryInit("hashchange"), 50);
-    }
+    if (routeIs("game") && !done) setTimeout(() => tryInit("hashchange"), 50);
   });
 })();
