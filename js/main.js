@@ -11,8 +11,6 @@
 import "./i18n.js";
 import "./components/LanguageSwitcher.js";
 import "./bridge/game-bridge.js";
-import "./bridge/puzzle-bridge.js";
-import "./bridge/learn-bridge.js";
 import "./bridge/index.js";
 
 async function safeImport(path) {
