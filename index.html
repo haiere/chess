@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark" data-board-theme="classic">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -96,153 +96,78 @@
 
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="style.ext.css">
-
-<!-- App-shell styles: prefix .app- agar tidak konflik dengan style.css existing -->
+	
 <style>
   :root {
-    --app-bg: #0f172a;
-    --app-surface: #1e293b;
-    --app-border: #334155;
-    --app-text: #e2e8f0;
-    --app-muted: #94a3b8;
-    --app-accent: #3b82f6;
+    --app-bg: #0f172a; --app-surface: #1e293b; --app-border: #334155;
+    --app-text: #e2e8f0; --app-muted: #94a3b8; --app-accent: #3b82f6;
     --app-accent-soft: rgba(59,130,246,.15);
-    --app-radius: 12px;
-    --app-nav-w: 240px;
+    --app-radius: 12px; --app-nav-w: 240px;
   }
   [data-theme="light"] {
-    --app-bg: #f8fafc;
-    --app-surface: #ffffff;
-    --app-border: #e2e8f0;
-    --app-text: #0f172a;
-    --app-muted: #64748b;
-    --app-accent-soft: rgba(59,130,246,.12);
+    --app-bg: #f8fafc; --app-surface: #ffffff; --app-border: #e2e8f0;
+    --app-text: #0f172a; --app-muted: #64748b; --app-accent-soft: rgba(59,130,246,.12);
   }
-
   html, body { margin: 0; padding: 0; }
   body.app-body {
-    background: var(--app-bg);
-    color: var(--app-text);
+    background: var(--app-bg); color: var(--app-text);
     font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    padding-bottom: env(safe-area-inset-bottom, 0);
+    min-height: 100dvh; display: flex; flex-direction: column;
   }
-
-  /* Skip link */
-  .app-skip {
-    position: absolute; left: -9999px; top: 0; z-index: 1000;
-    background: var(--app-accent); color: #fff;
-    padding: 8px 16px; border-radius: 0 0 8px 0; text-decoration: none;
-  }
+  .app-skip { position: absolute; left: -9999px; top: 0; z-index: 1000;
+    background: var(--app-accent); color: #fff; padding: 8px 16px;
+    border-radius: 0 0 8px 0; text-decoration: none; }
   .app-skip:focus { left: 0; }
-
-  /* Header */
-  .app-header {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; padding: 12px 16px;
-    background: var(--app-surface);
+  .app-header { display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 12px 16px; background: var(--app-surface);
     border-bottom: 1px solid var(--app-border);
     padding-top: calc(12px + env(safe-area-inset-top, 0));
-    position: sticky; top: 0; z-index: 50;
-  }
-  .app-brand {
-    display: flex; align-items: center; gap: 10px;
-    font-weight: 700; font-size: 1.05rem; letter-spacing: .2px;
-    color: var(--app-text); text-decoration: none;
-  }
+    position: sticky; top: 0; z-index: 50; }
+  .app-brand { display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 1.05rem; color: var(--app-text); text-decoration: none; }
   .app-brand svg { width: 26px; height: 26px; color: var(--app-accent); }
   .app-header-actions { display: flex; align-items: center; gap: 8px; }
-
-  /* Layout */
-  .app-layout {
-    display: grid;
-    grid-template-columns: var(--app-nav-w) 1fr;
-    flex: 1; min-height: 0;
-  }
-  .app-nav {
-    background: var(--app-surface);
-    border-right: 1px solid var(--app-border);
-    padding: 16px 12px;
-    display: flex; flex-direction: column; gap: 4px;
-  }
-  .app-nav a {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 12px; border-radius: 10px;
-    color: var(--app-muted); text-decoration: none;
-    font-size: .95rem; font-weight: 500;
-    min-height: 44px;
-    transition: background .15s, color .15s;
-  }
+  .app-layout { display: grid; grid-template-columns: var(--app-nav-w) 1fr;
+    flex: 1; min-height: 0; }
+  .app-nav { background: var(--app-surface); border-right: 1px solid var(--app-border);
+    padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .app-nav a { display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 10px; color: var(--app-muted);
+    text-decoration: none; font-size: .95rem; font-weight: 500;
+    min-height: 44px; transition: background .15s, color .15s; }
   .app-nav a:hover { background: var(--app-accent-soft); color: var(--app-text); }
-  .app-nav a[aria-current="page"] {
-    background: var(--app-accent-soft); color: var(--app-accent); font-weight: 600;
-  }
+  .app-nav a[aria-current="page"] { background: var(--app-accent-soft);
+    color: var(--app-accent); font-weight: 600; }
   .app-nav a svg { width: 20px; height: 20px; flex-shrink: 0; }
-
-  main.app-main {
-    padding: 20px;
-    min-width: 0;
-    overflow-x: hidden;
-  }
-
-  /* Pages */
+  main.app-main { padding: 20px; min-width: 0; overflow-x: hidden; }
   .app-page { display: none; }
   .app-page.is-active { display: block; animation: appFade .2s ease; }
   @keyframes appFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) {
-    .app-page.is-active { animation: none; }
-  }
-
-  .app-page-title {
-    margin: 0 0 4px; font-size: 1.4rem; font-weight: 700;
-  }
-  .app-page-subtitle {
-    margin: 0 0 20px; color: var(--app-muted); font-size: .95rem;
-  }
-  .app-card {
-    background: var(--app-surface);
-    border: 1px solid var(--app-border);
-    border-radius: var(--app-radius);
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-
-  /* Bottom nav (mobile) */
-  .app-bottomnav {
-    display: none;
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
-    background: var(--app-surface);
+  @media (prefers-reduced-motion: reduce) { .app-page.is-active { animation: none; } }
+  .app-page-title { margin: 0 0 4px; font-size: 1.4rem; font-weight: 700; }
+  .app-page-subtitle { margin: 0 0 20px; color: var(--app-muted); font-size: .95rem; }
+  .app-card { background: var(--app-surface); border: 1px solid var(--app-border);
+    border-radius: var(--app-radius); padding: 20px; margin-bottom: 16px; }
+  .app-placeholder { display: flex; align-items: center; justify-content: center;
+    min-height: 320px; border: 1px dashed var(--app-border); border-radius: 12px;
+    color: var(--app-muted); text-align: center; padding: 24px; font-size: .9rem; }
+  .app-bottomnav { display: none; position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 60; background: var(--app-surface);
     border-top: 1px solid var(--app-border);
-    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0));
-  }
-  .app-bottomnav a {
-    flex: 1;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 2px; padding: 6px 2px;
-    color: var(--app-muted); text-decoration: none;
-    font-size: .7rem; font-weight: 500;
-    min-height: 52px; border-radius: 8px;
-  }
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0)); }
+  .app-bottomnav-inner { display: flex; }
+  .app-bottomnav a { flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px; padding: 6px 2px;
+    color: var(--app-muted); text-decoration: none; font-size: .7rem;
+    font-weight: 500; min-height: 52px; border-radius: 8px; }
   .app-bottomnav a[aria-current="page"] { color: var(--app-accent); }
   .app-bottomnav a svg { width: 22px; height: 22px; }
-  .app-bottomnav-inner { display: flex; }
-
-  /* Language switcher (fallback styling jika CSS eksternal belum ada) */
   .lang-switcher { display: flex; align-items: center; gap: 8px; }
   .lang-switcher__label { font-size: .85rem; color: var(--app-muted); }
-  .lang-switcher__select {
-    min-height: 40px; padding: 6px 10px;
-    border-radius: 8px; border: 1px solid var(--app-border);
-    background: var(--app-surface); color: var(--app-text);
-    font: inherit; cursor: pointer;
-  }
-  .lang-switcher__select:focus-visible {
-    outline: 2px solid var(--app-accent); outline-offset: 2px;
-  }
-
-  /* Responsive */
+  .lang-switcher__select { min-height: 40px; padding: 6px 10px; border-radius: 8px;
+    border: 1px solid var(--app-border); background: var(--app-surface);
+    color: var(--app-text); font: inherit; cursor: pointer; }
+  .lang-switcher__select:focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; }
   @media (max-width: 899px) {
     .app-layout { grid-template-columns: 1fr; }
     .app-nav { display: none; }
@@ -251,37 +176,26 @@
     main.app-main { padding: 16px 12px; }
     .app-header { padding: 10px 12px; padding-top: calc(10px + env(safe-area-inset-top, 0)); }
   }
-
-  /* Touch target & focus */
   button, a, select, input { min-height: 40px; }
   :focus-visible { outline: 2px solid var(--app-accent); outline-offset: 2px; border-radius: 4px; }
-
-  /* Placeholder board shell (dihidrasi oleh BoardView/app.js) */
-  #board, .board, #board-container { width: 100%; max-width: 640px; aspect-ratio: 1 / 1; margin: 0 auto; }
+  #board, .board { width: 100%; max-width: 640px; aspect-ratio: 1 / 1; margin: 0 auto; }
 </style>
 </head>
 
 <body class="app-body" data-theme="dark">
+<a class="app-skip" href="#main-content" data-i18n="common.skip">Lewati</a>
 
-<a class="app-skip" href="#main-content" data-i18n="common.skip">Lewati ke konten</a>
-
-<!-- ================= HEADER ================= -->
 <header class="app-header">
   <a class="app-brand" href="#game" aria-label="Chess">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M9 3h6v3l-1 2 2 2v2H8V10l2-2-1-2z"/>
-      <path d="M8 12h8v3H8z"/>
-      <path d="M7 15h10v3H7z"/>
-      <path d="M6 18h12v3H6z"/>
+      <path d="M8 12h8v3H8z"/><path d="M7 15h10v3H7z"/><path d="M6 18h12v3H6z"/>
     </svg>
     <span>Chess</span>
   </a>
-
   <div class="app-header-actions">
-    <!-- Language switcher di-mount di sini oleh LanguageSwitcher.js -->
     <div id="lang-slot"></div>
-
-    <button id="btn-theme" type="button" aria-label="Toggle theme" data-i18n-attr="aria-label:settings.theme"
+    <button id="btn-theme" type="button" aria-label="Toggle theme"
       style="background:transparent;border:1px solid var(--app-border);border-radius:8px;color:inherit;cursor:pointer;padding:8px;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="4"/>
@@ -291,70 +205,39 @@
   </div>
 </header>
 
-<!-- ================= LAYOUT ================= -->
 <div class="app-layout">
-
-  <!-- Desktop sidebar nav -->
   <nav class="app-nav" aria-label="Navigasi utama" data-i18n-attr="aria-label:navigation.mainNavigation">
     <a href="#game" data-route="game">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polygon points="6 3 18 3 16 9 8 9 6 3"/>
-        <rect x="8" y="9" width="8" height="3"/>
-        <rect x="7" y="12" width="10" height="3"/>
-        <rect x="6" y="15" width="12" height="3"/>
-        <rect x="5" y="18" width="14" height="3"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 18 3 16 9 8 9 6 3"/><rect x="8" y="9" width="8" height="3"/><rect x="7" y="12" width="10" height="3"/><rect x="6" y="15" width="12" height="3"/><rect x="5" y="18" width="14" height="3"/></svg>
       <span data-i18n="navigation.play">Main</span>
     </a>
-
     <a href="#puzzle" data-route="puzzle">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/></svg>
       <span data-i18n="navigation.puzzles">Teka-teki</span>
     </a>
-
     <a href="#learn" data-route="learn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       <span data-i18n="navigation.learning">Pembelajaran</span>
     </a>
-
     <a href="#settings" data-route="settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span data-i18n="navigation.settings">Pengaturan</span>
     </a>
-
     <a href="#about" data-route="about">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="16" x2="12" y2="12"/>
-        <line x1="12" y1="8" x2="12.01" y2="8"/>
-      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
       <span data-i18n="navigation.about">Tentang</span>
     </a>
   </nav>
 
-  <!-- Main content -->
   <main class="app-main" id="main-content" tabindex="-1">
-
-    <!-- ============ PAGE: GAME ============ -->
     <section class="app-page" id="page-game" data-page="game">
       <h1 class="app-page-title" data-i18n="game.title">Permainan</h1>
-      <p class="app-page-subtitle" data-i18n="game.yourTurn">Giliran Anda</p>
-
+      <p class="app-page-subtitle" id="game-status" aria-live="polite" data-i18n="game.yourTurn">Giliran Anda</p>
       <div class="app-card">
-        <div id="board-container" aria-label="Papan catur" data-i18n-attr="aria-label:a11y.boardLabel">
-          <!-- Diisi oleh BoardView / game.js -->
-          <div id="board" class="board"></div>
+        <div id="board-container">
+          <div id="board" class="board" aria-label="Papan catur" data-i18n-attr="aria-label:a11y.boardLabel"></div>
         </div>
       </div>
-
       <div class="app-card">
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
           <button type="button" id="btn-new-game" data-i18n="game.newGame">Permainan Baru</button>
@@ -365,18 +248,15 @@
           <button type="button" id="btn-resign" data-i18n="game.resign">Menyerah</button>
         </div>
       </div>
-
       <div class="app-card">
         <h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="game.moveHistory">Riwayat Langkah</h2>
         <ol id="move-history" style="margin:0;padding-left:20px;font-family:ui-monospace,monospace;font-size:.9rem;"></ol>
       </div>
     </section>
 
-    <!-- ============ PAGE: PUZZLE ============ -->
     <section class="app-page" id="page-puzzle" data-page="puzzle">
       <h1 class="app-page-title" data-i18n="puzzle.title">Teka-teki Catur</h1>
-      <p class="app-page-subtitle" data-i18n="puzzle.subtitle">Latih taktik dan tingkatkan permainan Anda</p>
-
+      <p class="app-page-subtitle" data-i18n="puzzle.subtitle">Latih taktik</p>
       <div class="app-card">
         <label for="puzzle-difficulty" data-i18n="puzzle.difficulty">Tingkat Kesulitan</label>
         <select id="puzzle-difficulty" style="margin-top:8px;min-height:44px;width:100%;max-width:280px;">
@@ -386,13 +266,11 @@
           <option value="expert" data-i18n="puzzle.expert">Master</option>
         </select>
       </div>
-
       <div class="app-card">
-        <div id="puzzle-board-container" style="max-width:640px;margin:0 auto;">
+        <div id="puzzle-board-container">
           <div id="puzzle-board" class="board"></div>
         </div>
       </div>
-
       <div class="app-card">
         <div id="puzzle-status" aria-live="polite" style="margin-bottom:12px;font-weight:500;"></div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -404,16 +282,13 @@
       </div>
     </section>
 
-    <!-- ============ PAGE: LEARN ============ -->
     <section class="app-page" id="page-learn" data-page="learn">
       <h1 class="app-page-title" data-i18n="learning.title">Pembelajaran</h1>
       <p class="app-page-subtitle" data-i18n="learning.subtitle">Pelajari dasar hingga mahir</p>
-
       <div class="app-card">
         <div id="learn-progress" aria-live="polite" style="margin-bottom:12px;color:var(--app-muted);"></div>
         <div id="learn-content"></div>
       </div>
-
       <div class="app-card">
         <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
           <button type="button" id="btn-learn-prev" data-i18n="learning.previous">Sebelumnya</button>
@@ -422,16 +297,12 @@
       </div>
     </section>
 
-    <!-- ============ PAGE: SETTINGS ============ -->
     <section class="app-page" id="page-settings" data-page="settings">
       <h1 class="app-page-title" data-i18n="settings.title">Pengaturan</h1>
-
       <div class="app-card">
         <h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="settings.language">Bahasa</h2>
-        <!-- Switcher juga di-mount di sini agar mudah diakses dari Settings -->
         <div id="lang-slot-settings"></div>
       </div>
-
       <div class="app-card">
         <h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="settings.theme">Tema</h2>
         <select id="setting-theme" style="min-height:44px;width:100%;max-width:280px;">
@@ -440,7 +311,6 @@
           <option value="system" data-i18n="settings.themeSystem">Ikuti Sistem</option>
         </select>
       </div>
-
       <div class="app-card">
         <h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="settings.boardTheme">Tema Papan</h2>
         <select id="setting-board-theme" style="min-height:44px;width:100%;max-width:280px;">
@@ -452,17 +322,14 @@
           <option value="neon" data-i18n="settings.boardThemes.neon">Neon</option>
         </select>
       </div>
-
       <div class="app-card">
-        <button type="button" id="btn-reset-all" data-i18n="settings.resetAll">Atur Ulang Semua Pengaturan</button>
+        <button type="button" id="btn-reset-all" data-i18n="settings.resetAll">Atur Ulang Semua</button>
       </div>
     </section>
 
-    <!-- ============ PAGE: ABOUT ============ -->
     <section class="app-page" id="page-about" data-page="about">
       <h1 class="app-page-title" data-i18n="about.title">Tentang</h1>
-      <p class="app-page-subtitle" data-i18n="about.description">Aplikasi catur modern untuk bermain, berlatih, dan belajar.</p>
-
+      <p class="app-page-subtitle" data-i18n="about.description">Aplikasi catur modern</p>
       <div class="app-card">
         <h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="about.features">Fitur</h2>
         <ul style="margin:0;padding-left:20px;line-height:1.8;">
@@ -473,58 +340,27 @@
         </ul>
       </div>
     </section>
-
   </main>
 </div>
 
-<!-- ================= MOBILE BOTTOM NAV ================= -->
 <nav class="app-bottomnav" aria-label="Navigasi utama" data-i18n-attr="aria-label:navigation.mainNavigation">
   <div class="app-bottomnav-inner">
-    <a href="#game" data-route="game">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polygon points="6 3 18 3 16 9 8 9 6 3"/>
-        <rect x="8" y="9" width="8" height="3"/>
-        <rect x="7" y="12" width="10" height="3"/>
-        <rect x="6" y="15" width="12" height="3"/>
-        <rect x="5" y="18" width="14" height="3"/>
-      </svg>
-      <span data-i18n="navigation.play">Main</span>
-    </a>
-    <a href="#puzzle" data-route="puzzle">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/>
-      </svg>
-      <span data-i18n="navigation.puzzles">Teka-teki</span>
-    </a>
-    <a href="#learn" data-route="learn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-      </svg>
-      <span data-i18n="navigation.learning">Pembelajaran</span>
-    </a>
-    <a href="#settings" data-route="settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-      <span data-i18n="navigation.settings">Pengaturan</span>
-    </a>
+    <a href="#game" data-route="game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 18 3 16 9 8 9 6 3"/><rect x="8" y="9" width="8" height="3"/><rect x="7" y="12" width="10" height="3"/><rect x="6" y="15" width="12" height="3"/><rect x="5" y="18" width="14" height="3"/></svg><span data-i18n="navigation.play">Main</span></a>
+    <a href="#puzzle" data-route="puzzle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/></svg><span data-i18n="navigation.puzzles">Teka-teki</span></a>
+    <a href="#learn" data-route="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span data-i18n="navigation.learning">Pembelajaran</span></a>
+    <a href="#settings" data-route="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-i18n="navigation.settings">Pengaturan</span></a>
   </div>
 </nav>
 
-<!-- ================= SCRIPTS (urutan penting) ================= -->
-<!-- 1. Storage dulu -->
+<!-- Scripts -->
 <script src="js/storage.js"></script>
 <script src="js/utils/storage.js"></script>
 <script src="js/utils/theme.js"></script>
 
-<!-- 2. Lokalisasi -->
-<script src="js/locales.js"></script>
+<!-- i18n self-contained (embed locales, tidak butuh locales.js) -->
 <script src="js/i18n.js"></script>
 <script src="js/components/LanguageSwitcher.js"></script>
 
-<!-- 3. Core game -->
 <script src="js/audio.js"></script>
 <script src="js/pieces.js"></script>
 <script src="js/icons/svg.js"></script>
@@ -534,7 +370,6 @@
 <script src="js/components/Board.js"></script>
 <script src="js/components/Icon.js"></script>
 
-<!-- 4. Modes -->
 <script src="js/game.js"></script>
 <script src="js/puzzle-data.js"></script>
 <script src="js/data/puzzles.js"></script>
@@ -544,137 +379,94 @@
 <script src="js/data/Lesson.js"></script>
 <script src="js/lessons.js"></script>
 
-<!-- 5. Pages & App -->
 <script src="js/pages/PuzzlePage.js"></script>
 <script src="js/pages/LearnPage.js"></script>
 <script src="js/app.js"></script>
 
-
- <!-- 6. Bridges (adapter HTML baru ↔ modul lama) -->
+<!-- Bridges -->
 <script src="js/bridge/game-bridge.js"></script>
 <script src="js/bridge/puzzle-bridge.js"></script>
 <script src="js/bridge/learn-bridge.js"></script>
-<script src="js/bridge/index.js"></script> 
+<script src="js/bridge/index.js"></script>
 
-<!-- ================= DEFENSIVE BOOTSTRAP ================= -->
-<!-- Berjalan setelah semua script. Menjamin:
-     - Navigasi hash tetap bekerja meski app.js gagal.
-     - Language switcher selalu ter-mount.
-     - Halaman default (game) aktif.
-     - Theme toggle berfungsi minimal.
--->
+<!-- Bootstrap -->
 <script>
 (function () {
   "use strict";
-
   var ROUTES = ["game", "puzzle", "learn", "settings", "about"];
-
   function normalizeRoute(hash) {
     var r = (hash || "").replace(/^#\/?/, "").trim();
     return ROUTES.indexOf(r) !== -1 ? r : "game";
   }
-
   function showRoute(route) {
-    document.querySelectorAll(".app-page").forEach(function (page) {
-      var active = page.getAttribute("data-page") === route;
-      page.classList.toggle("is-active", active);
-      page.hidden = !active;
+    document.querySelectorAll(".app-page").forEach(function (p) {
+      var active = p.getAttribute("data-page") === route;
+      p.classList.toggle("is-active", active);
+      p.hidden = !active;
     });
-    document.querySelectorAll("[data-route]").forEach(function (link) {
-      var active = link.getAttribute("data-route") === route;
-      if (active) link.setAttribute("aria-current", "page");
-      else link.removeAttribute("aria-current");
+    document.querySelectorAll("[data-route]").forEach(function (a) {
+      if (a.getAttribute("data-route") === route) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
     });
-    // Beritahu modul lain (app.js boleh listen 'route:change')
-    try {
-      document.dispatchEvent(new CustomEvent("route:change", { detail: { route: route } }));
-    } catch (e) { /* older browsers: ignore */ }
-    // Fokuskan konten utama untuk screen reader
-    var main = document.getElementById("main-content");
-    if (main && typeof main.focus === "function") {
-      try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); }
-    }
+    try { document.dispatchEvent(new CustomEvent("route:change", { detail: { route: route } })); }
+    catch (e) {}
+    var m = document.getElementById("main-content");
+    if (m && m.focus) { try { m.focus({ preventScroll: true }); } catch (e) { m.focus(); } }
   }
-
-  function onHashChange() {
-    showRoute(normalizeRoute(location.hash));
+  function onHash() { showRoute(normalizeRoute(location.hash)); }
+  function safe(label, fn) {
+    try { fn(); } catch (e) { if (window.console) console.warn("[bootstrap] " + label + " gagal:", e); }
   }
-
-  function safeInit(label, fn) {
-    try { fn(); }
-    catch (e) {
-      if (window.console && console.warn) console.warn("[bootstrap] " + label + " gagal:", e);
-    }
-  }
-
   function initLangSwitcher() {
     if (!window.LanguageSwitcher || !window.I18n) return;
-    var slots = [
-      document.getElementById("lang-slot"),
-      document.getElementById("lang-slot-settings")
-    ];
-    slots.forEach(function (slot) {
+    ["lang-slot", "lang-slot-settings"].forEach(function (id) {
+      var slot = document.getElementById(id);
       if (!slot) return;
-      safeInit("LanguageSwitcher.mount(" + slot.id + ")", function () {
+      safe("LanguageSwitcher.mount(#" + id + ")", function () {
         window.LanguageSwitcher.mount(slot);
       });
     });
   }
-
   function initI18n() {
     if (!window.I18n) return;
-    safeInit("I18n.init", function () { window.I18n.init(); });
+    safe("I18n.init", function () { window.I18n.init(); });
   }
-
   function initThemeToggle() {
     var btn = document.getElementById("btn-theme");
     if (!btn) return;
     btn.addEventListener("click", function () {
-      var root = document.documentElement;
-      var current = document.body.getAttribute("data-theme") || "dark";
-      var next = current === "dark" ? "light" : "dark";
+      var cur = document.body.getAttribute("data-theme") || "dark";
+      var next = cur === "dark" ? "light" : "dark";
       document.body.setAttribute("data-theme", next);
-      root.setAttribute("data-theme", next);
+      document.documentElement.setAttribute("data-theme", next);
       try {
         if (window.AppStorage && AppStorage.set) AppStorage.set("theme", next);
         else if (window.localStorage) localStorage.setItem("chess:theme", next);
-      } catch (e) { /* ignore */ }
+      } catch (e) {}
     });
   }
-
   function restoreTheme() {
     try {
-      var saved = null;
-      if (window.AppStorage && AppStorage.get) saved = AppStorage.get("theme");
-      else if (window.localStorage) saved = localStorage.getItem("chess:theme");
+      var saved = window.AppStorage && AppStorage.get ? AppStorage.get("theme")
+        : (window.localStorage ? localStorage.getItem("chess:theme") : null);
       if (saved === "light" || saved === "dark") {
         document.body.setAttribute("data-theme", saved);
         document.documentElement.setAttribute("data-theme", saved);
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
   }
-
   function boot() {
     restoreTheme();
     initI18n();
     initLangSwitcher();
     initThemeToggle();
-
-    window.addEventListener("hashchange", onHashChange);
-    if (!location.hash) {
-      // Default ke #game tanpa reload
-      try { history.replaceState(null, "", "#game"); } catch (e) { location.hash = "game"; }
-    }
-    onHashChange();
+    window.addEventListener("hashchange", onHash);
+    if (!location.hash) { try { history.replaceState(null, "", "#game"); } catch (e) { location.hash = "game"; } }
+    onHash();
   }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
 })();
 </script>
-
 </body>
-        </html>
+    </html>
