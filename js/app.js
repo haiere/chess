@@ -57,8 +57,8 @@
         if (top) top.addEventListener('change', onChange);
         if (settings) settings.addEventListener('change', onChange);
         window.I18n.onChange((l) => sync(l));
-    }
-
+    } 
+   
     document.addEventListener('DOMContentLoaded', () => {
         window.GameMode.init();
         window.PuzzleMode.init();
@@ -74,5 +74,8 @@
         });
         window.addEventListener('hashchange', route);
         route();
+
+       I18n.init();
+LanguageSwitcher.mount(document.getElementById("lang-slot"));
     });
 })();
