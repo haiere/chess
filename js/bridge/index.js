@@ -1,126 +1,91 @@
-/**
- * bridge/index.js — Bootstrap semua bridge setelah DOM siap.
- * Dipanggil dari bootstrap inline di index.html.
- *
- * Setiap bridge di-init saat halaman terkait pertama kali dibuka
- * (lazy init) agar tidak membebani first paint.
- */
-(function (global) {
-  "use strict";
+/** js/bridge/index.js — ESM. */
+const INITIALIZED = { game: false, puzzle: false, learn: false };
 
-  var INITIALIZED = {
-    game: false,
-    puzzle: false,
-    learn: false
-  };
-
-  function safe(label, fn) {
-    try { return fn(); }
-    catch (e) {
-      if (global.console) console.warn("[bridge] " + label + " gagal:", e);
-    }
+function safe(label, fn) {
+  try { fn(); } catch (e) { console.warn("[bridge] " + label + " gagal:", e); }
+}
+function initForRoute(route) {
+  if (route === "game" && !INITIALIZED.game) {
+    INITIALIZED.game = true;
+    safe("GameBridge.init", () => window.GameBridge && window.GameBridge.init());
   }
-
-  function initForRoute(route) {
-    if (route === "game" && !INITIALIZED.game) {
-      INITIALIZED.game = true;
-      safe("GameBridge.init", function () {
-        global.GameBridge && global.GameBridge.init();
-      });
-    }
-    if (route === "puzzle" && !INITIALIZED.puzzle) {
-      INITIALIZED.puzzle = true;
-      safe("PuzzleBridge.init", function () {
-        global.PuzzleBridge && global.PuzzleBridge.init();
-      });
-    }
-    if (route === "learn" && !INITIALIZED.learn) {
-      INITIALIZED.learn = true;
-      safe("LearnBridge.init", function () {
-        global.LearnBridge && global.LearnBridge.init();
-      });
-    }
+  if (route === "puzzle" && !INITIALIZED.puzzle) {
+    INITIALIZED.puzzle = true;
+    safe("PuzzleBridge.init", () => window.PuzzleBridge && window.PuzzleBridge.init());
   }
-
-  function bindSettings() {
-    var themeSel = document.getElementById("setting-theme");
-    if (themeSel && !themeSel.__bridgeBound) {
-      themeSel.__bridgeBound = true;
-      themeSel.addEventListener("change", function (e) {
-        var val = e.target.value;
-        var root = document.documentElement;
-        document.body.setAttribute("data-theme", val === "system"
-          ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-          : val);
-        try {
-          if (global.AppStorage && AppStorage.set) AppStorage.set("theme", val);
-          else if (global.localStorage) localStorage.setItem("chess:theme", val);
-        } catch (err) { /* ignore */ }
-      });
-    }
-
-    var boardSel = document.getElementById("setting-board-theme");
-    if (boardSel && !boardSel.__bridgeBound) {
-      boardSel.__bridgeBound = true;
-      boardSel.addEventListener("change", function (e) {
-        document.documentElement.setAttribute("data-board-theme", e.target.value);
-        try {
-          if (global.AppStorage && AppStorage.set) AppStorage.set("boardTheme", e.target.value);
-          else if (global.localStorage) localStorage.setItem("chess:boardTheme", e.target.value);
-        } catch (err) { /* ignore */ }
-      });
-    }
-
-    var resetBtn = document.getElementById("btn-reset-all");
-    if (resetBtn && !resetBtn.__bridgeBound) {
-      resetBtn.__bridgeBound = true;
-      resetBtn.addEventListener("click", function () {
-        var I18n = global.I18n;
-        var msg = I18n ? I18n.t("settings.resetConfirm") : "Reset all settings?";
-        if (!confirm(msg)) return;
-        try {
-          if (global.AppStorage && AppStorage.clear) AppStorage.clear();
-          else if (global.localStorage) {
-            Object.keys(localStorage)
-              .filter(function (k) { return k.indexOf("chess:") === 0; })
-              .forEach(function (k) { localStorage.removeItem(k); });
-          }
-        } catch (err) { /* ignore */ }
-        location.reload();
-      });
-    }
+  if (route === "learn" && !INITIALIZED.learn) {
+    INITIALIZED.learn = true;
+    safe("LearnBridge.init", () => window.LearnBridge && window.LearnBridge.init());
   }
-
-  function restoreBoardTheme() {
-    try {
-      var saved = null;
-      if (global.AppStorage && AppStorage.get) saved = AppStorage.get("boardTheme");
-      else if (global.localStorage) saved = localStorage.getItem("chess:boardTheme");
-      if (saved) document.documentElement.setAttribute("data-board-theme", saved);
-    } catch (e) { /* ignore */ }
-  }
-
-  function boot() {
-    restoreBoardTheme();
-    bindSettings();
-    document.addEventListener("route:change", function (e) {
-      if (e && e.detail && e.detail.route) initForRoute(e.detail.route);
+}
+function bindSettings() {
+  const themeSel = document.getElementById("setting-theme");
+  if (themeSel && !themeSel.__bridgeBound) {
+    themeSel.__bridgeBound = true;
+    themeSel.addEventListener("change", e => {
+      const val = e.target.value;
+      const resolved = val === "system"
+        ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+        : val;
+      document.body.setAttribute("data-theme", resolved);
+      document.documentElement.setAttribute("data-theme", resolved);
+      try {
+        if (window.AppStorage && window.AppStorage.set) window.AppStorage.set("theme", val);
+        else if (window.localStorage) localStorage.setItem("chess:theme", val);
+      } catch (err) {}
     });
-    // Init halaman awal
-    var initialRoute = (location.hash || "#game").replace(/^#\/?/, "") || "game";
-    initForRoute(initialRoute);
   }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
+  const boardSel = document.getElementById("setting-board-theme");
+  if (boardSel && !boardSel.__bridgeBound) {
+    boardSel.__bridgeBound = true;
+    boardSel.addEventListener("change", e => {
+      document.documentElement.setAttribute("data-board-theme", e.target.value);
+      try {
+        if (window.AppStorage && window.AppStorage.set) window.AppStorage.set("boardTheme", e.target.value);
+        else if (window.localStorage) localStorage.setItem("chess:boardTheme", e.target.value);
+      } catch (err) {}
+    });
   }
+  const resetBtn = document.getElementById("btn-reset-all");
+  if (resetBtn && !resetBtn.__bridgeBound) {
+    resetBtn.__bridgeBound = true;
+    resetBtn.addEventListener("click", () => {
+      const msg = window.I18n ? window.I18n.t("settings.resetConfirm") : "Reset all?";
+      if (!confirm(msg)) return;
+      try {
+        if (window.AppStorage && window.AppStorage.clear) window.AppStorage.clear();
+        else if (window.localStorage) {
+          Object.keys(localStorage).filter(k => k.indexOf("chess:") === 0).forEach(k => localStorage.removeItem(k));
+        }
+      } catch (err) {}
+      location.reload();
+    });
+  }
+}
+function restoreBoardTheme() {
+  try {
+    const saved = (window.AppStorage && window.AppStorage.get)
+      ? window.AppStorage.get("boardTheme")
+      : (window.localStorage ? localStorage.getItem("chess:boardTheme") : null);
+    if (saved) document.documentElement.setAttribute("data-board-theme", saved);
+  } catch (e) {}
+}
+function boot() {
+  restoreBoardTheme();
+  bindSettings();
+  document.addEventListener("route:change", e => {
+    if (e && e.detail && e.detail.route) initForRoute(e.detail.route);
+  });
+  const initial = (location.hash || "#game").replace(/^#\/?/, "") || "game";
+  initForRoute(initial);
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+else boot();
 
-  global.Bridge = {
-    initForRoute: initForRoute,
-    _reset: function () {
-      INITIALIZED = { game: false, puzzle: false, learn: false };
-    }
-  };
-})(typeof window !== "undefined" ? window : this);
+export const Bridge = {
+  initForRoute,
+  _reset() { INITIALIZED.game = INITIALIZED.puzzle = INITIALIZED.learn = false; }
+};
+
+if (typeof window !== "undefined") window.Bridge = Bridge;
+export default Bridge;
