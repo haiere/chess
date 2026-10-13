@@ -24,12 +24,26 @@
     return api;
   }
 
-  function showPlaceholder(container, msg) {
-    if (!container) return;
-    container.innerHTML =
-      '<div role="status" style="padding:24px;text-align:center;' +
-      'color:var(--app-muted);font-size:.9rem;">' + msg + "</div>";
+  function showPlaceholder(msg) {
+  var c = $("learn-content");
+  if (!c) return;
+  c.innerHTML = '<div class="app-placeholder" role="status">' + msg + "</div>";
   }
+
+  var container = $("learn-content");
+if (!container) return null;
+var api = detectApi();
+if (!api.LessonsMode) {
+  showPlaceholder("Modul pembelajaran belum tersedia. Pastikan <code>js/lessons.js</code> dimuat dan mengekspos <code>window.LessonsMode</code>.");
+  bindButtons();
+  return null;
+}
+var instance = initLessons(api);
+if (!instance) {
+  showPlaceholder("Modul pembelajaran gagal diinisialisasi.");
+  bindButtons();
+  return null;
+}
 
   function initLessons(api) {
     if (!api.LessonsMode) return null;
