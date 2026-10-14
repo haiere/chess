@@ -4,70 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <!-- Primary SEO -->
-    <title>Hajir Chess — Play Online, Solve Puzzles & Learn Chess</title>
-
-    <meta
-        name="description"
-        content="Play chess online against friends or the computer, solve tactical puzzles, and learn chess step by step with Hajir Chess."
-    >
-
+    <!-- ============================================================
+         PRIMARY SEO
+         ============================================================ -->
+    <title>Hajir Chess — Play Online, Solve Puzzles &amp; Learn Chess</title>
+    <meta name="description" content="Play chess online against friends or the computer, solve tactical puzzles, and learn chess step by step with Hajir Chess.">
     <meta name="author" content="Hajir Studio">
     <meta name="creator" content="Hajir Studio">
     <meta name="application-name" content="Hajir Chess">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="theme-color" content="#0f1117">
-    <meta name="color-scheme" content="dark">
+    <meta name="color-scheme" content="dark light">
 
-    <!-- Canonical URL -->
+    <!-- ============================================================
+         CANONICAL
+         ============================================================ -->
     <link rel="canonical" href="https://hajir.is-a.dev/chess">
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script> 
-
-    <!-- Favicon -->
     <link rel="icon" href="https://i.postimg.cc/GmWt2wch/H-blue.webp" sizes="any">
     <link rel="icon" type="image/png" href="https://i.postimg.cc/GmWt2wch/H-blue.webp" sizes="32x32">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/GmWt2wch/H-blue.webp">
 
-    <!-- Open Graph -->
+    <!-- ============================================================
+         OPEN GRAPH
+         ============================================================ -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Hajir Studio">
     <meta property="og:locale" content="en_US">
     <meta property="og:url" content="https://hajir.is-a.dev/chess">
-    <meta property="og:title" content="Hajir Chess — Play, Puzzle & Learn">
-    <meta
-        property="og:description"
-        content="Play chess online, challenge the computer or your friends, solve tactical puzzles, and improve your game."
-    >
-    <meta property="og:image" content="https://hajir.is-a.dev/og/chess-card.png">
+    <meta property="og:title" content="Hajir Chess — Play, Puzzle &amp; Learn">
+    <meta property="og:description" content="Play chess online, challenge the computer or your friends, solve tactical puzzles, and improve your game.">
+    <meta property="og:image" content="https://i.postimg.cc/GmWt2wch/H-blue.webp">
     <meta property="og:image:secure_url" content="https://i.postimg.cc/GmWt2wch/H-blue.webp">
-    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:type" content="image/webp">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Hajir Chess online chess game">
 
-    <!-- X / Twitter Card -->
+    <!-- ============================================================
+         TWITTER / X CARD
+         ============================================================ -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@haierehere">
     <meta name="twitter:creator" content="@haierehere">
     <meta name="twitter:url" content="https://hajir.is-a.dev/chess">
-    <meta name="twitter:title" content="Hajir Chess — Play, Puzzle & Learn">
-    <meta
-        name="twitter:description"
-        content="Play chess online, solve puzzles, and learn step by step with Hajir Chess."
-    >
-    <meta name="twitter:image" content="https://hajir.is-a.dev/og/chess-card.png">
+    <meta name="twitter:title" content="Hajir Chess — Play, Puzzle &amp; Learn">
+    <meta name="twitter:description" content="Play chess online, solve puzzles, and learn step by step with Hajir Chess.">
+    <meta name="twitter:image" content="https://i.postimg.cc/GmWt2wch/H-blue.webp">
     <meta name="twitter:image:alt" content="Hajir Chess online chess game">
 
-    <!-- Performance -->
+    <!-- ============================================================
+         PERFORMANCE
+         ============================================================ -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-    <!-- Structured Data -->
+    <!-- ============================================================
+         STRUCTURED DATA
+         ============================================================ -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -80,7 +74,7 @@
         "operatingSystem": "Web Browser",
         "browserRequirements": "Requires JavaScript",
         "isAccessibleForFree": true,
-        "inLanguage": "en",
+        "inLanguage": ["en", "id"],
         "author": {
             "@type": "Organization",
             "name": "Hajir Studio",
@@ -89,167 +83,689 @@
         "creator": {
             "@type": "Person",
             "name": "Hajir",
-            "sameAs": [
-                "https://x.com/haierehere"
-            ]
+            "sameAs": ["https://x.com/haierehere"]
         }
     }
     </script>
 
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="style.ext.css">
-	
-<style>
-  :root {
-    --app-bg:#0f172a;--app-surface:#1e293b;--app-border:#334155;
-    --app-text:#e2e8f0;--app-muted:#94a3b8;--app-accent:#3b82f6;
-    --app-accent-soft:rgba(59,130,246,.15);--app-radius:12px;--app-nav-w:240px;
-  }
-  [data-theme="light"]{--app-bg:#f8fafc;--app-surface:#fff;--app-border:#e2e8f0;--app-text:#0f172a;--app-muted:#64748b;--app-accent-soft:rgba(59,130,246,.12);}
-  html,body{margin:0;padding:0;}
-  body.app-body{background:var(--app-bg);color:var(--app-text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100dvh;display:flex;flex-direction:column;}
-  .app-skip{position:absolute;left:-9999px;top:0;z-index:1000;background:var(--app-accent);color:#fff;padding:8px 16px;border-radius:0 0 8px 0;text-decoration:none;}
-  .app-skip:focus{left:0;}
-  .app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--app-surface);border-bottom:1px solid var(--app-border);padding-top:calc(12px + env(safe-area-inset-top,0));position:sticky;top:0;z-index:50;}
-  .app-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem;color:var(--app-text);text-decoration:none;}
-  .app-brand svg{width:26px;height:26px;color:var(--app-accent);}
-  .app-header-actions{display:flex;align-items:center;gap:8px;}
-  .app-layout{display:grid;grid-template-columns:var(--app-nav-w) 1fr;flex:1;min-height:0;}
-  .app-nav{background:var(--app-surface);border-right:1px solid var(--app-border);padding:16px 12px;display:flex;flex-direction:column;gap:4px;}
-  .app-nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--app-muted);text-decoration:none;font-size:.95rem;font-weight:500;min-height:44px;transition:background .15s,color .15s;}
-  .app-nav a:hover{background:var(--app-accent-soft);color:var(--app-text);}
-  .app-nav a[aria-current="page"]{background:var(--app-accent-soft);color:var(--app-accent);font-weight:600;}
-  .app-nav a svg{width:20px;height:20px;flex-shrink:0;}
-  main.app-main{padding:20px;min-width:0;overflow-x:hidden;}
-  .app-page{display:none;}
-  .app-page.is-active{display:block;animation:appFade .2s ease;}
-  @keyframes appFade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
-  @media (prefers-reduced-motion:reduce){.app-page.is-active{animation:none;}}
-  .app-page-title{margin:0 0 4px;font-size:1.4rem;font-weight:700;}
-  .app-page-subtitle{margin:0 0 20px;color:var(--app-muted);font-size:.95rem;}
-  .app-card{background:var(--app-surface);border:1px solid var(--app-border);border-radius:var(--app-radius);padding:20px;margin-bottom:16px;}
-  .app-placeholder{display:flex;align-items:center;justify-content:center;min-height:320px;border:1px dashed var(--app-border);border-radius:12px;color:var(--app-muted);text-align:center;padding:24px;font-size:.9rem;}
-  .app-bottomnav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--app-surface);border-top:1px solid var(--app-border);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0));}
-  .app-bottomnav-inner{display:flex;}
-  .app-bottomnav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;color:var(--app-muted);text-decoration:none;font-size:.7rem;font-weight:500;min-height:52px;border-radius:8px;}
-  .app-bottomnav a[aria-current="page"]{color:var(--app-accent);}
-  .app-bottomnav a svg{width:22px;height:22px;}
-  .lang-switcher{display:flex;align-items:center;gap:8px;}
-  .lang-switcher__label{font-size:.85rem;color:var(--app-muted);}
-  .lang-switcher__select{min-height:40px;padding:6px 10px;border-radius:8px;border:1px solid var(--app-border);background:var(--app-surface);color:var(--app-text);font:inherit;cursor:pointer;}
-  .lang-switcher__select:focus-visible{outline:2px solid var(--app-accent);outline-offset:2px;}
-  @media (max-width:899px){
-    .app-layout{grid-template-columns:1fr;}
-    .app-nav{display:none;}
-    .app-bottomnav{display:block;}
-    body.app-body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0));}
-    main.app-main{padding:16px 12px;}
-    .app-header{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0));}
-  }
-  button,a,select,input{min-height:40px;}
-  :focus-visible{outline:2px solid var(--app-accent);outline-offset:2px;border-radius:4px;}
-  #board,.board{width:100%;max-width:640px;aspect-ratio:1/1;margin:0 auto;}
-</style>
+    <!-- ============================================================
+         STYLESHEETS
+         ============================================================ -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.ext.css">
+
+    <!-- ============================================================
+         APP SHELL — design tokens + layout dasar
+         ============================================================ -->
+    <style>
+        /* ---------- 1. DESIGN TOKENS ---------- */
+        :root {
+            --app-bg: #0f172a;
+            --app-bg-soft: #131c31;
+            --app-surface: #1e293b;
+            --app-surface-2: #243044;
+            --app-border: #334155;
+            --app-border-soft: #2a3648;
+            --app-text: #e2e8f0;
+            --app-text-dim: #cbd5e1;
+            --app-muted: #94a3b8;
+            --app-accent: #3b82f6;
+            --app-accent-hover: #60a5fa;
+            --app-accent-soft: rgba(59, 130, 246, .15);
+            --app-danger: #ef4444;
+            --app-success: #10b981;
+            --app-radius-sm: 8px;
+            --app-radius: 12px;
+            --app-radius-lg: 16px;
+            --app-nav-w: 240px;
+            --app-header-h: 60px;
+            --app-bottomnav-h: 64px;
+            --app-focus: #60a5fa;
+        }
+        [data-theme="light"] {
+            --app-bg: #f8fafc;
+            --app-bg-soft: #eef2f7;
+            --app-surface: #ffffff;
+            --app-surface-2: #f1f5f9;
+            --app-border: #e2e8f0;
+            --app-border-soft: #e2e8f0;
+            --app-text: #0f172a;
+            --app-text-dim: #334155;
+            --app-muted: #64748b;
+            --app-accent-soft: rgba(59, 130, 246, .12);
+        }
+
+        /* ---------- 2. RESET & BASE ---------- */
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+        }
+        body.app-body {
+            background: var(--app-bg);
+            color: var(--app-text);
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        img, svg { display: block; max-width: 100%; }
+        button, a, select, input { font: inherit; }
+
+        /* ---------- 3. SKIP LINK ---------- */
+        .app-skip {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            z-index: 1000;
+            background: var(--app-accent);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 0 0 8px 0;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .app-skip:focus { left: 0; }
+
+        /* ---------- 4. HEADER ---------- */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            padding-top: calc(12px + env(safe-area-inset-top, 0));
+            background: var(--app-surface);
+            border-bottom: 1px solid var(--app-border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .app-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: .2px;
+            color: var(--app-text);
+            text-decoration: none;
+            min-width: 0;
+        }
+        .app-brand svg {
+            width: 26px;
+            height: 26px;
+            color: var(--app-accent);
+            flex-shrink: 0;
+        }
+        .app-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .icon-btn {
+            background: transparent;
+            border: 1px solid var(--app-border);
+            border-radius: 8px;
+            color: inherit;
+            cursor: pointer;
+            padding: 8px;
+            min-height: 40px;
+            min-width: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s ease, border-color .15s ease;
+        }
+        .icon-btn:hover {
+            background: var(--app-accent-soft);
+            border-color: var(--app-accent);
+        }
+
+        /* ---------- 5. LAYOUT ---------- */
+        .app-layout {
+            display: grid;
+            grid-template-columns: var(--app-nav-w) 1fr;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* ---------- 6. SIDEBAR NAV ---------- */
+        .app-nav {
+            background: var(--app-surface);
+            border-right: 1px solid var(--app-border);
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .app-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            color: var(--app-muted);
+            text-decoration: none;
+            font-size: .95rem;
+            font-weight: 500;
+            min-height: 44px;
+            transition: background .15s ease, color .15s ease;
+        }
+        .app-nav a:hover {
+            background: var(--app-accent-soft);
+            color: var(--app-text);
+        }
+        .app-nav a[aria-current="page"] {
+            background: var(--app-accent-soft);
+            color: var(--app-accent);
+            font-weight: 600;
+        }
+        .app-nav a svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ---------- 7. MAIN ---------- */
+        .app-main {
+            padding: 20px;
+            min-width: 0;
+            overflow-x: hidden;
+        }
+
+        /* ---------- 8. PAGES ---------- */
+        .app-page { display: none; }
+        .app-page.is-active {
+            display: block;
+            animation: appFade .2s ease;
+        }
+        @keyframes appFade {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        .app-page-title {
+            margin: 0 0 4px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .app-page-subtitle {
+            margin: 0 0 20px;
+            color: var(--app-muted);
+            font-size: .95rem;
+        }
+
+        /* ---------- 9. CARD ---------- */
+        .app-card {
+            background: var(--app-surface);
+            border: 1px solid var(--app-border);
+            border-radius: var(--app-radius);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .app-card-title {
+            margin: 0 0 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--app-text);
+        }
+
+        /* ---------- 10. BUTTON ROW ---------- */
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .btn-row--split {
+            justify-content: space-between;
+        }
+
+        /* ---------- 11. BOARD CONTAINERS ---------- */
+        .board-wrap {
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+            aspect-ratio: 1 / 1;
+        }
+        #board, #puzzle-board {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ---------- 12. PLACEHOLDER ---------- */
+        .app-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 320px;
+            border: 1px dashed var(--app-border);
+            border-radius: 12px;
+            color: var(--app-muted);
+            text-align: center;
+            padding: 24px;
+            font-size: .9rem;
+            line-height: 1.6;
+        }
+
+        /* ---------- 13. MOVE HISTORY LIST ---------- */
+        #move-history {
+            margin: 0;
+            padding-left: 20px;
+            font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+            font-size: .9rem;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        /* ---------- 14. FORM CONTROLS ---------- */
+        .app-select {
+            margin-top: 8px;
+            min-height: 44px;
+            width: 100%;
+            max-width: 320px;
+            padding: 8px 12px;
+            border-radius: var(--app-radius-sm);
+            border: 1px solid var(--app-border);
+            background: var(--app-surface-2);
+            color: var(--app-text);
+            cursor: pointer;
+        }
+        .app-select:focus-visible {
+            outline: 2px solid var(--app-focus);
+            outline-offset: 2px;
+        }
+
+        /* ---------- 15. LANGUAGE SWITCHER ---------- */
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .lang-switcher__label {
+            font-size: .85rem;
+            color: var(--app-muted);
+        }
+        .lang-switcher__select {
+            min-height: 40px;
+            padding: 6px 10px;
+            border-radius: var(--app-radius-sm);
+            border: 1px solid var(--app-border);
+            background: var(--app-surface-2);
+            color: var(--app-text);
+            font: inherit;
+            cursor: pointer;
+        }
+        .lang-switcher__select:focus-visible {
+            outline: 2px solid var(--app-focus);
+            outline-offset: 2px;
+        }
+
+        /* ---------- 16. BOTTOM NAV (MOBILE) ---------- */
+        .app-bottomnav {
+            display: none;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 60;
+            background: var(--app-surface);
+            border-top: 1px solid var(--app-border);
+            padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0));
+        }
+        .app-bottomnav-inner {
+            display: flex;
+        }
+        .app-bottomnav a {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 6px 2px;
+            color: var(--app-muted);
+            text-decoration: none;
+            font-size: .7rem;
+            font-weight: 500;
+            min-height: 52px;
+            border-radius: 8px;
+        }
+        .app-bottomnav a[aria-current="page"] { color: var(--app-accent); }
+        .app-bottomnav a svg { width: 22px; height: 22px; }
+
+        /* ---------- 17. FOCUS ---------- */
+        :focus-visible {
+            outline: 2px solid var(--app-focus);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* ---------- 18. RESPONSIVE ---------- */
+        @media (max-width: 899px) {
+            .app-layout { grid-template-columns: 1fr; }
+            .app-nav { display: none; }
+            .app-bottomnav { display: block; }
+            body.app-body {
+                padding-bottom: calc(var(--app-bottomnav-h) + env(safe-area-inset-bottom, 0));
+            }
+            .app-main { padding: 16px 12px; }
+            .app-header {
+                padding: 10px 12px;
+                padding-top: calc(10px + env(safe-area-inset-top, 0));
+            }
+        }
+        @media (max-width: 480px) {
+            .app-main { padding: 14px 10px; }
+            .app-card { padding: 14px; }
+            .app-page-title { font-size: 1.25rem; }
+        }
+
+        /* ---------- 19. REDUCED MOTION ---------- */
+        @media (prefers-reduced-motion: reduce) {
+            .app-page.is-active { animation: none; }
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+
+        /* ---------- 20. PRINT ---------- */
+        @media print {
+            .app-header, .app-nav, .app-bottomnav { display: none !important; }
+            .app-layout { grid-template-columns: 1fr; }
+            .app-card { border: 1px solid #ccc; }
+        }
+    </style>
 </head>
-<body class="app-body" data-theme="dark">
-<a class="app-skip" href="#main-content" data-i18n="common.skip">Lewati</a>
-<header class="app-header">
-  <a class="app-brand" href="#game" aria-label="Chess">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6v3l-1 2 2 2v2H8V10l2-2-1-2z"/><path d="M8 12h8v3H8z"/><path d="M7 15h10v3H7z"/><path d="M6 18h12v3H6z"/></svg>
-    <span>Chess</span>
-  </a>
-  <div class="app-header-actions">
-    <div id="lang-slot"></div>
-    <button id="btn-theme" type="button" aria-label="Toggle theme" style="background:transparent;border:1px solid var(--app-border);border-radius:8px;color:inherit;cursor:pointer;padding:8px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-    </button>
-  </div>
-</header>
 
-<div class="app-layout">
-  <nav class="app-nav" aria-label="Navigasi utama" data-i18n-attr="aria-label:navigation.mainNavigation">
-    <a href="#game" data-route="game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 18 3 16 9 8 9 6 3"/><rect x="8" y="9" width="8" height="3"/><rect x="7" y="12" width="10" height="3"/><rect x="6" y="15" width="12" height="3"/><rect x="5" y="18" width="14" height="3"/></svg><span data-i18n="navigation.play">Main</span></a>
-    <a href="#puzzle" data-route="puzzle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/></svg><span data-i18n="navigation.puzzles">Teka-teki</span></a>
-    <a href="#learn" data-route="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span data-i18n="navigation.learning">Pembelajaran</span></a>
-    <a href="#settings" data-route="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-i18n="navigation.settings">Pengaturan</span></a>
-    <a href="#about" data-route="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span data-i18n="navigation.about">Tentang</span></a>
-  </nav>
+<body class="app-body">
 
-  <main class="app-main" id="main-content" tabindex="-1">
-    <section class="app-page" id="page-game" data-page="game">
-      <h1 class="app-page-title" data-i18n="game.title">Permainan</h1>
-      <p class="app-page-subtitle" id="game-status" aria-live="polite" data-i18n="game.yourTurn">Giliran Anda</p>
-      <div class="app-card"><div id="board-container"><div id="board" class="board" aria-label="Papan catur" data-i18n-attr="aria-label:a11y.boardLabel"></div></div></div>
-      <div class="app-card">
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          <button type="button" id="btn-new-game" data-i18n="game.newGame">Permainan Baru</button>
-          <button type="button" id="btn-undo" data-i18n="game.undo">Urungkan</button>
-          <button type="button" id="btn-redo" data-i18n="game.redo">Ulangi</button>
-          <button type="button" id="btn-flip" data-i18n="game.flipBoard">Putar Papan</button>
-          <button type="button" id="btn-copy-fen" data-i18n="game.copyFEN">Salin FEN</button>
-          <button type="button" id="btn-resign" data-i18n="game.resign">Menyerah</button>
+    <!-- ============================================================
+         SKIP LINK
+         ============================================================ -->
+    <a class="app-skip" href="#main-content" data-i18n="common.skip">Lewati ke konten</a>
+
+    <!-- ============================================================
+         HEADER
+         ============================================================ -->
+    <header class="app-header">
+        <a class="app-brand" href="#game" aria-label="Chess — Hajir Studio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 3h6v3l-1 2 2 2v2H8V10l2-2-1-2z"/>
+                <path d="M8 12h8v3H8z"/>
+                <path d="M7 15h10v3H7z"/>
+                <path d="M6 18h12v3H6z"/>
+            </svg>
+            <span>Chess</span>
+        </a>
+
+        <div class="app-header-actions">
+            <div id="lang-slot"></div>
+            <button id="btn-theme" type="button" class="icon-btn"
+                    aria-label="Toggle theme"
+                    data-i18n-attr="aria-label:settings.theme">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                </svg>
+            </button>
         </div>
-      </div>
-      <div class="app-card">
-        <h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="game.moveHistory">Riwayat Langkah</h2>
-        <ol id="move-history" style="margin:0;padding-left:20px;font-family:ui-monospace,monospace;font-size:.9rem;"></ol>
-      </div>
-    </section>
+    </header>
 
-    <section class="app-page" id="page-puzzle" data-page="puzzle">
-      <h1 class="app-page-title" data-i18n="puzzle.title">Teka-teki Catur</h1>
-      <p class="app-page-subtitle" data-i18n="puzzle.subtitle">Latih taktik</p>
-      <div class="app-card">
-        <label for="puzzle-difficulty" data-i18n="puzzle.difficulty">Tingkat Kesulitan</label>
-        <select id="puzzle-difficulty" style="margin-top:8px;min-height:44px;width:100%;max-width:280px;">
-          <option value="easy" data-i18n="puzzle.easy">Mudah</option><option value="medium" data-i18n="puzzle.medium">Menengah</option><option value="hard" data-i18n="puzzle.hard">Sulit</option><option value="expert" data-i18n="puzzle.expert">Master</option>
-        </select>
-      </div>
-      <div class="app-card"><div id="puzzle-board-container"><div id="puzzle-board" class="board"></div></div></div>
-      <div class="app-card">
-        <div id="puzzle-status" aria-live="polite" style="margin-bottom:12px;font-weight:500;"></div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          <button type="button" id="btn-puzzle-hint" data-i18n="puzzle.hint">Petunjuk</button>
-          <button type="button" id="btn-puzzle-retry" data-i18n="puzzle.retry">Coba Lagi</button>
-          <button type="button" id="btn-puzzle-next" data-i18n="puzzle.next">Teka-teki Berikutnya</button>
-          <button type="button" id="btn-puzzle-solution" data-i18n="puzzle.showSolution">Tampilkan Solusi</button>
+    <!-- ============================================================
+         LAYOUT
+         ============================================================ -->
+    <div class="app-layout">
+
+        <!-- ---------- SIDEBAR NAV (DESKTOP) ---------- -->
+        <nav class="app-nav" aria-label="Navigasi utama" data-i18n-attr="aria-label:navigation.mainNavigation">
+
+            <a href="#game" data-route="game">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon points="6 3 18 3 16 9 8 9 6 3"/>
+                    <rect x="8" y="9" width="8" height="3"/>
+                    <rect x="7" y="12" width="10" height="3"/>
+                    <rect x="6" y="15" width="12" height="3"/>
+                    <rect x="5" y="18" width="14" height="3"/>
+                </svg>
+                <span data-i18n="navigation.play">Main</span>
+            </a>
+
+            <a href="#puzzle" data-route="puzzle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/>
+                </svg>
+                <span data-i18n="navigation.puzzles">Teka-teki</span>
+            </a>
+
+            <a href="#learn" data-route="learn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span data-i18n="navigation.learning">Pembelajaran</span>
+            </a>
+
+            <a href="#settings" data-route="settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span data-i18n="navigation.settings">Pengaturan</span>
+            </a>
+
+            <a href="#about" data-route="about">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span data-i18n="navigation.about">Tentang</span>
+            </a>
+
+        </nav>
+
+        <!-- ---------- MAIN CONTENT ---------- -->
+        <main class="app-main" id="main-content" tabindex="-1">
+
+            <!-- ============ PAGE: GAME ============ -->
+            <section class="app-page" id="page-game" data-page="game" aria-labelledby="page-game-title">
+                <h1 class="app-page-title" id="page-game-title" data-i18n="game.title">Permainan</h1>
+                <p class="app-page-subtitle" id="game-status" aria-live="polite" data-i18n="game.yourTurn">Giliran Anda</p>
+
+                <div class="app-card">
+                    <div id="board-container">
+                        <div id="board" class="board"
+                             role="grid"
+                             aria-label="Papan catur"
+                             data-i18n-attr="aria-label:a11y.boardLabel"></div>
+                    </div>
+                </div>
+
+                <div class="app-card">
+                    <div class="btn-row" role="group" aria-label="Kontrol permainan">
+                        <button type="button" id="btn-new-game" data-i18n="game.newGame">Permainan Baru</button>
+                        <button type="button" id="btn-undo" data-i18n="game.undo">Urungkan</button>
+                        <button type="button" id="btn-redo" data-i18n="game.redo">Ulangi</button>
+                        <button type="button" id="btn-flip" data-i18n="game.flipBoard">Putar Papan</button>
+                        <button type="button" id="btn-copy-fen" data-i18n="game.copyFEN">Salin FEN</button>
+                        <button type="button" id="btn-resign" data-i18n="game.resign">Menyerah</button>
+                    </div>
+                </div>
+
+                <div class="app-card">
+                    <h2 class="app-card-title" data-i18n="game.moveHistory">Riwayat Langkah</h2>
+                    <ol id="move-history" aria-live="polite"></ol>
+                </div>
+            </section>
+
+            <!-- ============ PAGE: PUZZLE ============ -->
+            <section class="app-page" id="page-puzzle" data-page="puzzle" aria-labelledby="page-puzzle-title">
+                <h1 class="app-page-title" id="page-puzzle-title" data-i18n="puzzle.title">Teka-teki Catur</h1>
+                <p class="app-page-subtitle" data-i18n="puzzle.subtitle">Latih taktik dan tingkatkan permainan Anda</p>
+
+                <div class="app-card">
+                    <label for="puzzle-difficulty" data-i18n="puzzle.difficulty">Tingkat Kesulitan</label>
+                    <select id="puzzle-difficulty" class="app-select">
+                        <option value="easy"   data-i18n="puzzle.easy">Mudah</option>
+                        <option value="medium" data-i18n="puzzle.medium">Menengah</option>
+                        <option value="hard"   data-i18n="puzzle.hard">Sulit</option>
+                        <option value="expert" data-i18n="puzzle.expert">Master</option>
+                    </select>
+                </div>
+
+                <div class="app-card">
+                    <div id="puzzle-board-container">
+                        <div id="puzzle-board" class="board"></div>
+                    </div>
+                </div>
+
+                <div class="app-card">
+                    <div id="puzzle-status" aria-live="polite" style="margin-bottom:12px;font-weight:500;"></div>
+                    <div class="btn-row" role="group" aria-label="Kontrol teka-teki">
+                        <button type="button" id="btn-puzzle-hint"     data-i18n="puzzle.hint">Petunjuk</button>
+                        <button type="button" id="btn-puzzle-retry"    data-i18n="puzzle.retry">Coba Lagi</button>
+                        <button type="button" id="btn-puzzle-next"     data-i18n="puzzle.next">Teka-teki Berikutnya</button>
+                        <button type="button" id="btn-puzzle-solution" data-i18n="puzzle.showSolution">Tampilkan Solusi</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ PAGE: LEARN ============ -->
+            <section class="app-page" id="page-learn" data-page="learn" aria-labelledby="page-learn-title">
+                <h1 class="app-page-title" id="page-learn-title" data-i18n="learning.title">Pembelajaran</h1>
+                <p class="app-page-subtitle" data-i18n="learning.subtitle">Pelajari dasar hingga mahir</p>
+
+                <div class="app-card">
+                    <div id="learn-progress" aria-live="polite" style="margin-bottom:12px;color:var(--app-muted);"></div>
+                    <div id="learn-content"></div>
+                </div>
+
+                <div class="app-card">
+                    <div class="btn-row btn-row--split" role="group" aria-label="Navigasi pelajaran">
+                        <button type="button" id="btn-learn-prev" data-i18n="learning.previous">Sebelumnya</button>
+                        <button type="button" id="btn-learn-next" data-i18n="learning.next">Berikutnya</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ PAGE: SETTINGS ============ -->
+            <section class="app-page" id="page-settings" data-page="settings" aria-labelledby="page-settings-title">
+                <h1 class="app-page-title" id="page-settings-title" data-i18n="settings.title">Pengaturan</h1>
+
+                <div class="app-card">
+                    <h2 class="app-card-title" data-i18n="settings.language">Bahasa</h2>
+                    <div id="lang-slot-settings"></div>
+                </div>
+
+                <div class="app-card">
+                    <h2 class="app-card-title" data-i18n="settings.theme">Tema</h2>
+                    <select id="setting-theme" class="app-select">
+                        <option value="light"  data-i18n="settings.themeLight">Terang</option>
+                        <option value="dark"   data-i18n="settings.themeDark">Gelap</option>
+                        <option value="system" data-i18n="settings.themeSystem">Ikuti Sistem</option>
+                    </select>
+                </div>
+
+                <div class="app-card">
+                    <h2 class="app-card-title" data-i18n="settings.boardTheme">Tema Papan</h2>
+                    <select id="setting-board-theme" class="app-select">
+                        <option value="classic"  data-i18n="settings.boardThemes.classic">Klasik</option>
+                        <option value="emerald"  data-i18n="settings.boardThemes.emerald">Emerald</option>
+                        <option value="midnight" data-i18n="settings.boardThemes.midnight">Midnight</option>
+                        <option value="rose"     data-i18n="settings.boardThemes.rose">Rose</option>
+                        <option value="bw"       data-i18n="settings.boardThemes.bw">Hitam Putih</option>
+                        <option value="neon"     data-i18n="settings.boardThemes.neon">Neon</option>
+                    </select>
+                </div>
+
+                <div class="app-card">
+                    <button type="button" id="btn-reset-all" data-i18n="settings.resetAll">Atur Ulang Semua</button>
+                </div>
+            </section>
+
+            <!-- ============ PAGE: ABOUT ============ -->
+            <section class="app-page" id="page-about" data-page="about" aria-labelledby="page-about-title">
+                <h1 class="app-page-title" id="page-about-title" data-i18n="about.title">Tentang</h1>
+                <p class="app-page-subtitle" data-i18n="about.description">Aplikasi catur modern untuk bermain, berlatih, dan belajar.</p>
+
+                <div class="app-card">
+                    <h2 class="app-card-title" data-i18n="about.features">Fitur</h2>
+                    <ul style="margin:0;padding-left:20px;line-height:1.8;">
+                        <li data-i18n="about.feature1">Main lawan komputer atau teman</li>
+                        <li data-i18n="about.feature2">Teka-teki taktik</li>
+                        <li data-i18n="about.feature3">Pembelajaran terstruktur</li>
+                        <li data-i18n="about.feature4">Bilingual (Indonesia &amp; English)</li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ============================================================
+         BOTTOM NAV (MOBILE)
+         ============================================================ -->
+    <nav class="app-bottomnav" aria-label="Navigasi utama" data-i18n-attr="aria-label:navigation.mainNavigation">
+        <div class="app-bottomnav-inner">
+
+            <a href="#game" data-route="game">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon points="6 3 18 3 16 9 8 9 6 3"/>
+                    <rect x="8" y="9" width="8" height="3"/>
+                    <rect x="7" y="12" width="10" height="3"/>
+                    <rect x="6" y="15" width="12" height="3"/>
+                    <rect x="5" y="18" width="14" height="3"/>
+                </svg>
+                <span data-i18n="navigation.play">Main</span>
+            </a>
+
+            <a href="#puzzle" data-route="puzzle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/>
+                </svg>
+                <span data-i18n="navigation.puzzles">Teka-teki</span>
+            </a>
+
+            <a href="#learn" data-route="learn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span data-i18n="navigation.learning">Pembelajaran</span>
+            </a>
+
+            <a href="#settings" data-route="settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span data-i18n="navigation.settings">Pengaturan</span>
+            </a>
+
         </div>
-      </div>
-    </section>
+    </nav>
+    
+    <script type="module" src="js/main.js"></script>
 
-    <section class="app-page" id="page-learn" data-page="learn">
-      <h1 class="app-page-title" data-i18n="learning.title">Pembelajaran</h1>
-      <p class="app-page-subtitle" data-i18n="learning.subtitle">Pelajari dasar hingga mahir</p>
-      <div class="app-card"><div id="learn-progress" aria-live="polite" style="margin-bottom:12px;color:var(--app-muted);"></div><div id="learn-content"></div></div>
-      <div class="app-card"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;"><button type="button" id="btn-learn-prev" data-i18n="learning.previous">Sebelumnya</button><button type="button" id="btn-learn-next" data-i18n="learning.next">Berikutnya</button></div></div>
-    </section>
-
-    <section class="app-page" id="page-settings" data-page="settings">
-      <h1 class="app-page-title" data-i18n="settings.title">Pengaturan</h1>
-      <div class="app-card"><h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="settings.language">Bahasa</h2><div id="lang-slot-settings"></div></div>
-      <div class="app-card"><h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="settings.theme">Tema</h2><select id="setting-theme" style="min-height:44px;width:100%;max-width:280px;"><option value="light" data-i18n="settings.themeLight">Terang</option><option value="dark" data-i18n="settings.themeDark">Gelap</option><option value="system" data-i18n="settings.themeSystem">Ikuti Sistem</option></select></div>
-      <div class="app-card"><h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="settings.boardTheme">Tema Papan</h2><select id="setting-board-theme" style="min-height:44px;width:100%;max-width:280px;"><option value="classic" data-i18n="settings.boardThemes.classic">Klasik</option><option value="emerald" data-i18n="settings.boardThemes.emerald">Emerald</option><option value="midnight" data-i18n="settings.boardThemes.midnight">Midnight</option><option value="rose" data-i18n="settings.boardThemes.rose">Rose</option><option value="bw" data-i18n="settings.boardThemes.bw">Hitam Putih</option><option value="neon" data-i18n="settings.boardThemes.neon">Neon</option></select></div>
-      <div class="app-card"><button type="button" id="btn-reset-all" data-i18n="settings.resetAll">Atur Ulang Semua</button></div>
-    </section>
-
-    <section class="app-page" id="page-about" data-page="about">
-      <h1 class="app-page-title" data-i18n="about.title">Tentang</h1>
-      <p class="app-page-subtitle" data-i18n="about.description">Aplikasi catur modern</p>
-      <div class="app-card"><h2 style="margin:0 0 12px;font-size:1rem;" data-i18n="about.features">Fitur</h2><ul style="margin:0;padding-left:20px;line-height:1.8;"><li data-i18n="about.feature1">Main lawan komputer atau teman</li><li data-i18n="about.feature2">Teka-teki taktik</li><li data-i18n="about.feature3">Pembelajaran terstruktur</li><li data-i18n="about.feature4">Bilingual</li></ul></div>
-    </section>
-  </main>
-</div>
-
-<nav class="app-bottomnav" aria-label="Navigasi utama" data-i18n-attr="aria-label:navigation.mainNavigation">
-  <div class="app-bottomnav-inner">
-    <a href="#game" data-route="game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 18 3 16 9 8 9 6 3"/><rect x="8" y="9" width="8" height="3"/><rect x="7" y="12" width="10" height="3"/><rect x="6" y="15" width="12" height="3"/><rect x="5" y="18" width="14" height="3"/></svg><span data-i18n="navigation.play">Main</span></a>
-    <a href="#puzzle" data-route="puzzle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/></svg><span data-i18n="navigation.puzzles">Teka-teki</span></a>
-    <a href="#learn" data-route="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span data-i18n="navigation.learning">Pembelajaran</span></a>
-    <a href="#settings" data-route="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span data-i18n="navigation.settings">Pengaturan</span></a>
-  </div>
-</nav>
-
-<!-- SATU-SATUNYA entry point -->
-<script type="module" src="js/main.js"></script>
 </body>
 	</html>
