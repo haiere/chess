@@ -1,18 +1,18 @@
 /**
- * js/main.js — Entry ESM v3.
- * Kontrol bridge secara eksplisit. TIDAK mengandalkan bridge/index.js.
- * Alasan: bridge/index.js pernah hilang/mismatch, menyebabkan GameBridge.init()
- * tidak pernah dipanggil.
+ * js/main.js — v4 DEFENSIVE.
+ * Semua bridge dimuat sebagai side-effect import, tapi diberi fallback
+ * kalau file tidak ada. Error-tracer dimuat via dynamic import (optional).
  */
 import "./i18n.js";
 import "./components/LanguageSwitcher.js";
-import "./bridge/i18n-extend.js";
-import "./bridge/game-bridge.js";
 import "./bridge/visual-polish.js";
 import "./bridge/id-shim.js";
+import "./bridge/game-bridge.js";
 import "./bridge/puzzle-bridge.js";
 import "./bridge/learn-bridge.js";
-import "./bridge/error-tracer.js";
+
+// error-tracer OPTIONAL — tidak crash kalau file belum ada
+import("./bridge/error-tracer.js").catch(function () {});
 
 /* ---------- helpers ---------- */
 async function safeImport(path) {
@@ -92,7 +92,7 @@ function showRoute(route) {
   if (main && main.focus) { try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); } }
 }
 
-/* ---------- bridge controller (MANUAL) ---------- */
+/* ---------- bridge controller ---------- */
 const bridgeInit = { game: false, puzzle: false, learn: false };
 
 function initBridgeForRoute(route) {
@@ -102,8 +102,6 @@ function initBridgeForRoute(route) {
     if (window.GameBridge && typeof window.GameBridge.init === "function") {
       try { window.GameBridge.init(); }
       catch (e) { console.error("[main] GameBridge.init() throw:", e); }
-    } else {
-      console.warn("[main] window.GameBridge tidak tersedia.");
     }
   }
   if (route === "puzzle" && !bridgeInit.puzzle) {
@@ -112,8 +110,6 @@ function initBridgeForRoute(route) {
     if (window.PuzzleBridge && typeof window.PuzzleBridge.init === "function") {
       try { window.PuzzleBridge.init(); }
       catch (e) { console.error("[main] PuzzleBridge.init() throw:", e); }
-    } else {
-      console.warn("[main] window.PuzzleBridge tidak tersedia.");
     }
   }
   if (route === "learn" && !bridgeInit.learn) {
@@ -122,8 +118,6 @@ function initBridgeForRoute(route) {
     if (window.LearnBridge && typeof window.LearnBridge.init === "function") {
       try { window.LearnBridge.init(); }
       catch (e) { console.error("[main] LearnBridge.init() throw:", e); }
-    } else {
-      console.warn("[main] window.LearnBridge tidak tersedia.");
     }
   }
 }
@@ -205,13 +199,11 @@ async function boot() {
     await new Promise(r => document.addEventListener("DOMContentLoaded", r, { once: true }));
   }
 
-  // 1. i18n
   if (window.I18n && window.I18n.init) {
     try { window.I18n.init(); }
     catch (e) { console.warn("[main] I18n.init gagal:", e); }
   }
 
-  // 2. muat modul user
   await loadUserModules();
 
   console.info("[main] window map:", {
@@ -222,18 +214,16 @@ async function boot() {
     LessonsMode: typeof window.LessonsMode,
     AppStorage:  typeof window.AppStorage,
     CompatShell: typeof window.CompatShell,
+    IDShim:      typeof window.IDShim,
     GameBridge:  typeof window.GameBridge,
     PuzzleBridge: typeof window.PuzzleBridge,
-    LearnBridge: typeof window.LearnBridge,
-    GameBridgeV: window.__GAME_BRIDGE_V__ || "(none)"
+    LearnBridge: typeof window.LearnBridge
   });
 
-  // 3. theme + settings
   restoreTheme();
   initThemeToggle();
   bindSettings();
 
-  // 4. router
   window.addEventListener("hashchange", () => showRoute(normalize(location.hash)));
   if (!location.hash) {
     try { history.replaceState(null, "", "#game"); }
@@ -241,13 +231,9 @@ async function boot() {
   }
   showRoute(normalize(location.hash));
 
-  // 5. language switcher
   initLangSwitcher();
-
-  // 6. bridge untuk route awal (MANUAL, eksplisit)
   initBridgeForRoute(normalize(location.hash));
 
-  // 7. bridge untuk route selanjutnya
   document.addEventListener("route:change", e => {
     if (e && e.detail && e.detail.route) initBridgeForRoute(e.detail.route);
   });
