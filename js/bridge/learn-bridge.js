@@ -1,26 +1,20 @@
 /**
- * js/bridge/learn-bridge.js — v7 FINAL.
- * Perubahan:
- *  - Polling berhenti setelah init dipanggil sekali (sukses atau gagal).
- *  - Tidak spam log.
- *  - Persist patch aktif untuk klik lesson.
- *  - Auto-select lesson pertama.
+ * js/bridge/learn-bridge.js — v8 FINAL.
+ * - Poll tidak spam (max 10 attempts, berhenti setelahnya)
+ * - Init hanya sekali (INIT_ATTEMPTED flag)
+ * - Persistent patch untuk lesson runtime IDs
  */
 import { IDShim } from "./id-shim.js";
 
-let MOUNTED = false;
-let instance = null;
 let INIT_ATTEMPTED = false;
+let instance = null;
 const $ = id => document.getElementById(id);
 
-/* ---------- Helpers ---------- */
-function placeholderText(key) {
+function placeholderText() {
   const lang = window.I18n ? window.I18n.getLang() : "id";
-  const texts = {
-    id: { noLessonsMode: "Modul pembelajaran belum tersedia." },
-    en: { noLessonsMode: "Learning module not available." }
-  };
-  return (texts[lang] || texts.id)[key];
+  return lang === "en"
+    ? "Learning module not available."
+    : "Modul pembelajaran belum tersedia.";
 }
 
 function showPlaceholder(msg) {
@@ -48,204 +42,119 @@ function lessonContainerFor(id) {
   if (lower.startsWith("lesson")) {
     const detail = $("lessonDetail");
     if (detail) return detail;
-    return $("learn-content");
   }
   return null;
 }
 
-function withQuietConsole(fn, ms) {
-  ms = ms || 1500;
-  const orig = {
-    log: console.log, warn: console.warn, info: console.info,
-    debug: console.debug, trace: console.trace
-  };
-  function filter(origFn) {
-    return function () {
-      try {
-        const args = Array.prototype.slice.call(arguments);
-        const str = args.map(function (a) {
-          try { return typeof a === "string" ? a : JSON.stringify(a); }
-          catch (e) { return String(a); }
-        }).join(" ");
-        if (str.length > 200) return;
-        if (/\bdebug\b|\btrace\b|\bstack\b/i.test(str)) return;
-      } catch (e) {}
-      return origFn.apply(console, arguments);
-    };
-  }
-  console.log = filter(orig.log);
-  console.warn = filter(orig.warn);
-  console.info = filter(orig.info);
-  console.debug = function () {};
-  console.trace = function () {};
-  try { fn(); }
-  finally {
-    setTimeout(function () {
-      console.log = orig.log;
-      console.warn = orig.warn;
-      console.info = orig.info;
-      console.debug = orig.debug;
-      console.trace = orig.trace;
-    }, ms);
-  }
-}
-
-function bindNewButtonsToOld() {
+function bindNavButtons() {
   const map = [
     ["btn-learn-prev", "btnLessonPrev"],
     ["btn-learn-next", "btnLessonNext"]
   ];
   for (const [newId, oldId] of map) {
     const btn = $(newId);
-    if (!btn || btn.__bridgeBound) continue;
-    btn.__bridgeBound = true;
-    btn.addEventListener("click", function () {
+    if (!btn || btn.__bound) continue;
+    btn.__bound = true;
+    btn.addEventListener("click", () => {
       const target = $(oldId);
-      if (target) {
-        withQuietConsole(function () {
-          try { target.click(); } catch (e) {}
-        }, 800);
-      }
+      if (target) { try { target.click(); } catch (e) {} }
     });
   }
 }
 
-function clickLessonSafely(el) {
-  if (!el) return;
-  withQuietConsole(function () {
-    try {
-      const ev = new MouseEvent("click", {
-        bubbles: true, cancelable: true, view: window
-      });
-      el.dispatchEvent(ev);
-    } catch (e) {
-      console.warn("[LearnBridge] klik lesson gagal:", e);
-    }
-  }, 2000);
-}
-
-function autoSelectFirstLesson() {
+function autoSelectFirst() {
   const detail = $("lessonDetail");
   if (detail && detail.children.length > 0) return;
-
   const list = $("lessonList");
-  if (!list || list.children.length === 0) {
-    console.warn("[LearnBridge] #lessonList kosong.");
-    return;
+  if (!list || list.children.length === 0) return;
+
+  try {
+    const ev = new MouseEvent("click", { bubbles: true, cancelable: true, view: window });
+    list.children[0].dispatchEvent(ev);
+  } catch (e) {
+    console.warn("[LearnBridge] auto-select gagal:", e);
   }
 
-  const first = list.children[0];
-  console.info("[LearnBridge] auto-select lesson pertama");
-  clickLessonSafely(first);
-
-  setTimeout(function () {
+  setTimeout(() => {
     const d = $("lessonDetail");
-    console.info("[LearnBridge] setelah auto-select, #lessonDetail children:",
+    console.info("[LearnBridge] #lessonDetail children after select:",
       d ? d.children.length : "no el");
   }, 400);
 }
 
-/* ---------- Main init (hanya dijalankan sekali) ---------- */
 function doInit() {
-  console.info("[LearnBridge] ---- init ----");
+  console.info("[LearnBridge v8] ---- init ----");
 
   const container = $("learn-content");
   if (!container) {
-    console.warn("[LearnBridge] #learn-content tidak ada. Init dibatalkan.");
+    console.warn("[LearnBridge v8] #learn-content tidak ada.");
     return null;
   }
 
   const LM = window.LessonsMode;
   if (!LM || typeof LM.init !== "function") {
-    showPlaceholder(placeholderText("noLessonsMode"));
+    showPlaceholder(placeholderText());
     return null;
   }
 
   const old = container.querySelector(".app-placeholder");
   if (old) old.remove();
 
-  let result;
-  withQuietConsole(function () {
-    result = IDShim.runWithShim(function () {
-      try { LM.init(); }
-      catch (e) {
-        console.warn("[LearnBridge] LessonsMode.init() threw:",
-          e && e.message ? e.message : e);
-      }
-    }, {
-      visibleContainerId: "learn-content",
-      containerFor: function (id) {
-        const r = lessonContainerFor(id);
-        if (r) return r;
-        if (id === "lessonProgressText") return $("learn-progress") || null;
-        return null;
-      }
-    });
-  }, 2000);
+  const result = IDShim.runWithShim(() => {
+    try { LM.init(); }
+    catch (e) { console.warn("[LearnBridge v8] init threw:", e && e.message); }
+  }, {
+    visibleContainerId: "learn-content",
+    containerFor: lessonContainerFor
+  });
 
-  if (result) {
-    console.info("[LearnBridge] ID di-shim saat init:", result.createdIds);
-  }
+  console.info("[LearnBridge v8] ID shimmed:", result.createdIds);
 
-  // Persistent patch — supaya klik lesson tidak error
   try {
-    IDShim.persistentPatch(
-      [/^lesson/i, /^btnLesson/, /^learn-/i],
-      {
-        visibleContainer: container,
-        containerFor: function (id) {
-          if (/^btn/i.test(id)) return null;
-          if (/progress/i.test(id)) return $("learn-progress") || container;
-          const lower = id.toLowerCase();
-          if (lower === "lessonlist" || lower === "lessondetail") return container;
-          const detail = $("lessonDetail");
-          if (detail) return detail;
-          return container;
-        },
-        verbose: true
-      }
-    );
-    console.info("[LearnBridge] v7 — persistent patch aktif.");
-  } catch (e) {
-    console.warn("[LearnBridge] persistentPatch gagal:", e);
-  }
+    IDShim.persistentPatch([/^lesson/i, /^btnLesson/, /^learn-/i], {
+      visibleContainer: container,
+      containerFor: function (id) {
+        if (/^btn/i.test(id)) return null;
+        if (/progress/i.test(id)) return $("learn-progress") || container;
+        const lower = id.toLowerCase();
+        if (lower === "lessonlist" || lower === "lessondetail") return container;
+        const detail = $("lessonDetail");
+        if (detail) return detail;
+        return container;
+      },
+      verbose: false
+    });
+  } catch (e) {}
 
   const list = $("lessonList");
-  const detail = $("lessonDetail");
-  console.info("[LearnBridge] #lessonList children:", list ? list.children.length : "no el");
-  console.info("[LearnBridge] #lessonDetail children:", detail ? detail.children.length : "no el");
+  console.info("[LearnBridge v8] #lessonList children:", list ? list.children.length : "no el");
 
-  bindNewButtonsToOld();
-  setTimeout(autoSelectFirstLesson, 200);
+  bindNavButtons();
+  setTimeout(autoSelectFirst, 200);
 
   instance = LM;
-  console.info("[LearnBridge] ✓ selesai.");
+  console.info("[LearnBridge v8] ✓ selesai.");
   return instance;
 }
 
-/* ---------- Public API ---------- */
 export const LearnBridge = {
   init() {
     if (INIT_ATTEMPTED) return instance;
     INIT_ATTEMPTED = true;
-    MOUNTED = true;
     return doInit();
   },
   getInstance() { return instance; },
-  _reset() {
-    MOUNTED = false;
-    INIT_ATTEMPTED = false;
-    instance = null;
-  }
+  _reset() { INIT_ATTEMPTED = false; instance = null; }
 };
 
 if (typeof window !== "undefined") window.LearnBridge = LearnBridge;
+window.__LearnBridgeV8 = true;
 
-/* ---------- Auto-init (poll sekali saja, lalu berhenti) ---------- */
-(function autoInitLearnBridge() {
+/* Auto-init: 1x percobaan saja, tanpa spam */
+(function () {
   if (typeof window === "undefined") return;
-  if (window.__LearnBridgeAutoInitV7) return;
-  window.__LearnBridgeAutoInitV7 = true;
+  if (window.__LearnAutoV8) return;
+  window.__LearnAutoV8 = true;
 
   function routeIsLearn() {
     return (location.hash || "").replace(/^#\/?/, "").trim() === "learn";
@@ -254,39 +163,27 @@ if (typeof window !== "undefined") window.LearnBridge = LearnBridge;
   function tryOnce(reason) {
     if (INIT_ATTEMPTED) return true;
     if (!routeIsLearn()) return false;
-    console.info("[LearnBridge] AUTO-INIT:", reason);
+    console.info("[LearnBridge v8] AUTO-INIT:", reason);
     LearnBridge.init();
-    return true; // apapun hasilnya, kita sudah coba
+    return true;
   }
 
-  // Coba saat DOM siap
   if (document.readyState === "complete" || document.readyState === "interactive") {
-    tryOnce("document-ready");
+    tryOnce("ready");
   } else {
-    document.addEventListener("DOMContentLoaded", function () {
-      tryOnce("DOMContentLoaded");
-    }, { once: true });
+    document.addEventListener("DOMContentLoaded", () => tryOnce("DOMContentLoaded"), { once: true });
   }
 
-  // Polling singkat — 10 kali saja, bukan 120
-  let attempts = 0;
-  const interval = setInterval(function () {
-    attempts++;
-    if (INIT_ATTEMPTED) { clearInterval(interval); return; }
-    if (routeIsLearn()) {
-      tryOnce("poll #" + attempts);
-      clearInterval(interval);
-    } else if (attempts > 10) {
-      clearInterval(interval);
-    }
+  let tries = 0;
+  const iv = setInterval(() => {
+    tries++;
+    if (INIT_ATTEMPTED) { clearInterval(iv); return; }
+    if (routeIsLearn()) { tryOnce("poll #" + tries); clearInterval(iv); return; }
+    if (tries >= 10) clearInterval(iv);
   }, 500);
 
-  // Trigger saat hashchange ke learn (sekali saja)
-  window.addEventListener("hashchange", function () {
-    if (INIT_ATTEMPTED) return;
-    if (routeIsLearn()) {
-      setTimeout(function () { tryOnce("hashchange"); }, 100);
-    }
+  window.addEventListener("hashchange", () => {
+    if (!INIT_ATTEMPTED && routeIsLearn()) setTimeout(() => tryOnce("hashchange"), 100);
   });
 })();
 
