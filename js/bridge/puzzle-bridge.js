@@ -97,6 +97,17 @@ function bindDifficulty() {
   });
 }
 
+// Persistent patch untuk puzzle IDs
+IDShim.persistentPatch(
+  [/^pz/i, /^puzzle/, /^btnPz/],
+  {
+    visibleContainer: document.getElementById("puzzle-board-container"),
+    containerFor: containerFor,
+    verbose: true
+  }
+);
+console.info("[PuzzleBridge] persistent patch aktif untuk pola pz*/puzzle*.");
+
 /** Auto-load puzzle pertama setelah init. */
 function autoLoadFirstPuzzle() {
   const pBoard = $("puzzleBoard");
