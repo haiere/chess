@@ -1,8 +1,8 @@
 (function () {
   "use strict";
   if (typeof window === "undefined") return;
-  if (window.__I18nExtendV4) return;
-  window.__I18nExtendV4 = true;
+  if (window.__I18nExtendV5) return;
+  window.__I18nExtendV5 = true;
 
   const SUPP = {
     id: {
@@ -15,10 +15,13 @@
         completed: "Selesai!"
       },
       learning: {
+        goal: "Tujuan",
+        stepCounter: "Langkah {current} dari {total}",
         stepsCount: "{count} langkah",
         steps: "{count} langkah",
         done: "Selesai",
-        completed: "Selesai"
+        completed: "Selesai",
+        lessonProgress: "Progres: {done} dari {total}"
       },
       common: { done: "Selesai", completed: "Selesai" }
     },
@@ -32,10 +35,13 @@
         completed: "Completed!"
       },
       learning: {
+        goal: "Goal",
+        stepCounter: "Step {current} of {total}",
         stepsCount: "{count} steps",
         steps: "{count} steps",
         done: "Completed",
-        completed: "Completed"
+        completed: "Completed",
+        lessonProgress: "Progress: {done} of {total}"
       },
       common: { done: "Done", completed: "Completed" }
     }
@@ -62,7 +68,7 @@
   function install() {
     const I18n = window.I18n;
     if (!I18n || typeof I18n.t !== "function") return false;
-    if (I18n.__extendedV4) return true;
+    if (I18n.__extendedV5) return true;
 
     const origT = I18n.t.bind(I18n);
     I18n.t = function (key, params) {
@@ -74,10 +80,13 @@
           if (key.indexOf("statsLine") !== -1) {
             params = Object.assign({ solved: 0, failed: 0, streak: 0 }, params || {});
           }
+          if (key.indexOf("stepCounter") !== -1) {
+            params = Object.assign({ current: 1, total: 1 }, params || {});
+          }
           if (key.indexOf("stepsCount") !== -1 || key.indexOf("steps") !== -1) {
             params = Object.assign({ count: 0 }, params || {});
           }
-          if (key.indexOf("puzzle.info") !== -1) {
+          if (key === "puzzle.info") {
             params = Object.assign({ move: 1, total: 1, side: "White" }, params || {});
           }
           return interpolate(val, params);
@@ -86,8 +95,8 @@
       }
       return origT(key, params);
     };
-    I18n.__extendedV4 = true;
-    console.info("[I18n-extend v4] terpasang.");
+    I18n.__extendedV5 = true;
+    console.info("[I18n-extend v5] terpasang.");
     return true;
   }
 
