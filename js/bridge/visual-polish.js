@@ -1,19 +1,6 @@
 /**
- * js/bridge/visual-polish.js — v3 FINAL.
- * Semua CSS polish dalam satu file:
- *   1. Board aesthetics (game + puzzle)
- *   2. Highlight states (selected, legal, last-move, check)
- *   3. Buttons (primary, destructive, hover)
- *   4. Cards & page headings
- *   5. Move history
- *   6. Lesson list & detail
- *   7. Puzzle stats/info/status
- *   8. Toast, modal, header, nav polish
- *   9. Responsive tweaks
- *  10. Reduced motion
- *
- * Tidak mengubah DOM. Semua via <style> injection.
- * Idempotent: aman diimpor berulang.
+ * js/bridge/visual-polish.js — v4 FINAL.
+ * Semua polish CSS. Termasuk #puzzleBoard (camelCase) — sebelumnya hilang.
  */
 (function () {
   "use strict";
@@ -22,10 +9,9 @@
 
   const css = `
     /* ============================================================
-       1. BOARD AESTHETICS
+       1. BOARD AESTHETICS (game + puzzle)
        ============================================================ */
-    #board,
-    #puzzleBoard {
+    #board, #puzzleBoard {
       border: 1px solid rgba(255,255,255,0.10);
       border-radius: 12px;
       box-shadow:
@@ -35,7 +21,6 @@
       position: relative;
       transition: box-shadow 0.2s ease;
     }
-
     [data-theme="light"] #board,
     [data-theme="light"] #puzzleBoard {
       border-color: rgba(0,0,0,0.10);
@@ -44,29 +29,92 @@
         0 12px 40px rgba(0,0,0,0.14);
     }
 
-    /* Piece shadow + hover scale */
-    #board img,
-    #puzzleBoard img {
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.38));
-      transition: transform 0.12s ease;
+    /* ============================================================
+       2. PUZZLE BOARD — GRID FORCE (camelCase id)
+       ============================================================ */
+    #puzzleBoard {
+      display: grid !important;
+      grid-template-columns: repeat(8, 1fr) !important;
+      grid-template-rows: repeat(8, 1fr) !important;
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      gap: 0;
+      overflow: hidden;
+    }
+    #puzzleBoard > * {
+      position: relative;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+      box-sizing: border-box;
+      cursor: pointer;
+      margin: 0 !important;
+      padding: 0 !important;
+      grid-column: auto !important;
+      grid-row: auto !important;
+    }
+    #puzzleBoard > *.light,
+    #puzzleBoard > *[data-color="light"],
+    #puzzleBoard > *.sq-light { background: #f0d9b5; }
+    #puzzleBoard > *.dark,
+    #puzzleBoard > *[data-color="dark"],
+    #puzzleBoard > *.sq-dark  { background: #b58863; }
+
+    /* ============================================================
+       3. BOARD — GAME (dash id) grid juga
+       ============================================================ */
+    #board {
+      display: grid !important;
+      grid-template-columns: repeat(8, 1fr) !important;
+      grid-template-rows: repeat(8, 1fr) !important;
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      gap: 0;
+    }
+    #board > * {
+      position: relative;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 100% !important;
+      height: 100% !important;
+      box-sizing: border-box;
+      cursor: pointer;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    #board > *.light,
+    #board > *[data-color="light"] { background: #f0d9b5; }
+    #board > *.dark,
+    #board > *[data-color="dark"]  { background: #b58863; }
+
+    /* Pieces */
+    #board img, #puzzleBoard img {
+      width: 92% !important;
+      height: 92% !important;
+      max-width: 92% !important;
+      max-height: 92% !important;
+      object-fit: contain;
       pointer-events: none;
       user-select: none;
       -webkit-user-drag: none;
       display: block;
-      width: 92%;
-      height: 92%;
-      object-fit: contain;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.38));
+      transition: transform 0.12s ease;
     }
-    #board > *:hover img,
-    #puzzleBoard > *:hover img { transform: scale(1.03); }
+    #board > *:hover img, #puzzleBoard > *:hover img { transform: scale(1.03); }
 
-    /* Coordinate labels */
-    #board .coord,
-    #board .coord-rank,
-    #board .coord-file,
-    #puzzleBoard .coord,
-    #puzzleBoard .coord-rank,
-    #puzzleBoard .coord-file {
+    /* Coordinates */
+    #board .coord, #board .coord-rank, #board .coord-file,
+    #puzzleBoard .coord, #puzzleBoard .coord-rank, #puzzleBoard .coord-file {
       font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 0.02em;
@@ -77,101 +125,50 @@
       user-select: none;
     }
 
-    /* Square base layout (jaga-jaga kalau CSS eksternal override) */
-    #board > *,
-    #puzzleBoard > * {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-      cursor: pointer;
-    }
-
-    /* ============================================================
-       2. HIGHLIGHT STATES
-       ============================================================ */
-
-    /* Selected square — blue glow */
-    #board > *.selected,
-    #board > *[data-selected="1"],
-    #puzzleBoard > *.selected,
-    #puzzleBoard > *[data-selected="1"] {
+    /* Highlight states */
+    #board > *.selected, #board > *[data-selected="1"],
+    #puzzleBoard > *.selected, #puzzleBoard > *[data-selected="1"] {
       box-shadow:
         inset 0 0 0 3px #3b82f6,
         inset 0 0 24px rgba(59,130,246,0.35) !important;
     }
-
-    /* Legal move (empty) — centered dot */
-    #board > *.legal::before,
-    #board > *[data-legal="1"]::before,
-    #puzzleBoard > *.legal::before,
-    #puzzleBoard > *[data-legal="1"]::before {
+    #board > *.legal::before, #board > *[data-legal="1"]::before,
+    #puzzleBoard > *.legal::before, #puzzleBoard > *[data-legal="1"]::before {
       content: "";
       position: absolute;
-      width: 26%;
-      height: 26%;
-      left: 50%;
-      top: 50%;
+      width: 26%; height: 26%;
+      left: 50%; top: 50%;
       border-radius: 50%;
       background: rgba(15,20,25,0.42);
       transform: translate(-50%, -50%);
       pointer-events: none;
     }
-
     [data-theme="dark"] #board > *.legal::before,
-    [data-theme="dark"] #board > *[data-legal="1"]::before,
-    [data-theme="dark"] #puzzleBoard > *.legal::before,
-    [data-theme="dark"] #puzzleBoard > *[data-legal="1"]::before {
+    [data-theme="dark"] #puzzleBoard > *.legal::before {
       background: rgba(255,255,255,0.35);
     }
-
-    /* Legal capture — red ring */
     #board > *.legal-capture::before,
-    #board > *.legal.capture::before,
-    #puzzleBoard > *.legal-capture::before,
-    #puzzleBoard > *.legal.capture::before {
+    #puzzleBoard > *.legal-capture::before {
       content: "";
       position: absolute;
       inset: 6%;
-      left: 6%;
-      top: 6%;
-      width: auto;
-      height: auto;
       border-radius: 50%;
       border: 4px solid rgba(220,38,38,0.55);
       background: transparent;
-      transform: none;
     }
-
-    /* Last move — soft yellow wash */
-    #board > *.last-move,
-    #board > *[data-last-move="1"],
-    #puzzleBoard > *.last-move,
-    #puzzleBoard > *[data-last-move="1"] {
-      background-image: linear-gradient(
-        rgba(250,204,21,0.28),
-        rgba(250,204,21,0.28)
-      );
+    #board > *.last-move, #board > *[data-last-move="1"],
+    #puzzleBoard > *.last-move, #puzzleBoard > *[data-last-move="1"] {
+      background-image: linear-gradient(rgba(250,204,21,0.28),rgba(250,204,21,0.28));
       background-blend-mode: multiply;
     }
-
-    /* Check — radial red pulse */
-    #board > *.check,
-    #board > *[data-check="1"],
-    #puzzleBoard > *.check,
-    #puzzleBoard > *[data-check="1"] {
-      background-image:
-        radial-gradient(circle at 50% 50%,
-          rgba(239,68,68,0.75) 22%,
-          rgba(239,68,68,0.30) 52%,
-          transparent 78%);
+    #board > *.check, #board > *[data-check="1"],
+    #puzzleBoard > *.check, #puzzleBoard > *[data-check="1"] {
+      background-image: radial-gradient(circle at 50% 50%,
+        rgba(239,68,68,0.75) 22%, rgba(239,68,68,0.30) 52%, transparent 78%);
     }
 
     /* ============================================================
-       3. BUTTONS
+       4. BUTTONS
        ============================================================ */
     .app-main button:not(.compat-close):not(#btn-theme) {
       padding: 10px 16px;
@@ -184,45 +181,31 @@
       font-size: 0.9rem;
       cursor: pointer;
       min-height: 42px;
-      transition:
-        background 0.15s ease,
-        border-color 0.15s ease,
-        transform 0.06s ease,
-        box-shadow 0.15s ease;
+      transition: background 0.15s ease, border-color 0.15s ease,
+                  transform 0.06s ease, box-shadow 0.15s ease;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
-
     .app-main button:not(.compat-close):not(#btn-theme):hover {
       background: color-mix(in srgb, var(--app-surface) 88%, var(--app-accent));
       border-color: color-mix(in srgb, var(--app-border) 65%, var(--app-accent));
       box-shadow: 0 2px 8px rgba(0,0,0,0.10);
     }
-
-    .app-main button:not(.compat-close):not(#btn-theme):active {
-      transform: translateY(1px);
-    }
-
+    .app-main button:not(.compat-close):not(#btn-theme):active { transform: translateY(1px); }
     .app-main button:not(.compat-close):not(#btn-theme):focus-visible {
       outline: 2px solid var(--app-accent);
       outline-offset: 2px;
     }
-
-    /* Primary — New Game & puzzle next */
-    #btn-new-game,
-    #btn-puzzle-next {
+    #btn-new-game, #btn-puzzle-next {
       background: var(--app-accent) !important;
       border-color: var(--app-accent) !important;
-      color: #ffffff !important;
+      color: #fff !important;
       font-weight: 600 !important;
       box-shadow: 0 2px 12px rgba(59,130,246,0.35) !important;
     }
-    #btn-new-game:hover,
-    #btn-puzzle-next:hover {
-      background: color-mix(in srgb, var(--app-accent) 88%, #ffffff) !important;
+    #btn-new-game:hover, #btn-puzzle-next:hover {
+      background: color-mix(in srgb, var(--app-accent) 88%, #fff) !important;
       box-shadow: 0 4px 16px rgba(59,130,246,0.45) !important;
     }
-
-    /* Destructive — Resign */
     #btn-resign {
       color: #ef4444 !important;
       border-color: color-mix(in srgb, var(--app-border) 55%, #ef4444) !important;
@@ -232,7 +215,7 @@
     }
 
     /* ============================================================
-       4. PAGE HEADINGS & CARDS
+       5. CARDS & HEADINGS
        ============================================================ */
     .app-page-title {
       font-size: 1.5rem;
@@ -245,29 +228,22 @@
       font-weight: 400;
       margin-bottom: 22px;
     }
-
-    .app-card {
-      padding: 20px;
-      transition: border-color 0.15s ease;
-    }
+    .app-card { padding: 20px; transition: border-color 0.15s ease; }
     .app-card:hover {
       border-color: color-mix(in srgb, var(--app-border) 70%, var(--app-accent));
     }
 
     /* ============================================================
-       5. MOVE HISTORY
+       6. MOVE HISTORY
        ============================================================ */
     #moveHistory {
       display: flex;
       flex-direction: column;
-      gap: 0;
       max-height: 260px;
       overflow-y: auto;
       padding: 4px 0;
       font-family: Inter, system-ui, sans-serif;
-      scrollbar-width: thin;
     }
-
     #moveHistory .move-row {
       display: grid;
       grid-template-columns: 44px 1fr 1fr;
@@ -276,43 +252,27 @@
       border-radius: 6px;
       font-size: 0.9rem;
       align-items: center;
-      transition: background 0.1s ease;
     }
-
-    #moveHistory .move-row:nth-child(even) {
-      background: rgba(255,255,255,0.025);
-    }
-    [data-theme="light"] #moveHistory .move-row:nth-child(even) {
-      background: rgba(0,0,0,0.025);
-    }
-
+    #moveHistory .move-row:nth-child(even) { background: rgba(255,255,255,0.025); }
+    [data-theme="light"] #moveHistory .move-row:nth-child(even) { background: rgba(0,0,0,0.025); }
     #moveHistory .move-row:last-child {
       background: color-mix(in srgb, var(--app-accent) 12%, transparent);
       font-weight: 600;
     }
-
     #moveHistory .move-number {
       color: var(--app-muted);
       font-variant-numeric: tabular-nums;
       font-size: 0.82rem;
-      font-weight: 500;
     }
-
-    #moveHistory .move-white,
-    #moveHistory .move-black {
+    #moveHistory .move-white, #moveHistory .move-black {
       font-weight: 500;
       font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-      letter-spacing: -0.01em;
     }
 
     /* ============================================================
-       6. LESSON LIST
+       7. LESSON LIST
        ============================================================ */
-    #lessonList {
-      display: block !important;
-      margin-bottom: 20px;
-    }
-
+    #lessonList { display: block !important; margin-bottom: 20px; }
     #lessonList > * {
       display: block !important;
       padding: 14px 16px !important;
@@ -328,24 +288,16 @@
       hyphens: none !important;
       white-space: normal !important;
       grid-template-columns: none !important;
-      grid-template-rows: none !important;
       flex-direction: row !important;
-      gap: 0 !important;
     }
-
     #lessonList > *:hover {
       border-color: color-mix(in srgb, var(--app-border) 55%, var(--app-accent)) !important;
       background: color-mix(in srgb, var(--app-bg) 92%, var(--app-accent)) !important;
     }
-
-    #lessonList > *.active,
-    #lessonList > *[aria-current="true"],
-    #lessonList > *[aria-selected="true"] {
+    #lessonList > *.active, #lessonList > *[aria-current="true"] {
       background: var(--app-accent-soft) !important;
       border-color: var(--app-accent) !important;
     }
-
-    /* Reset children — inline flow natural */
     #lessonList > * > * {
       display: inline !important;
       width: auto !important;
@@ -353,8 +305,6 @@
       min-width: 0 !important;
       max-width: 100% !important;
       position: static !important;
-      grid-column: auto !important;
-      grid-row: auto !important;
       flex: none !important;
       float: none !important;
       margin: 0 !important;
@@ -364,14 +314,10 @@
       font-size: inherit !important;
       font-weight: inherit !important;
       color: inherit !important;
-      line-height: inherit !important;
       vertical-align: middle !important;
     }
-
-    /* Level badge */
     #lessonList > * [class*="badge" i],
     #lessonList > * [class*="level" i],
-    #lessonList > * [class*="tag" i],
     #lessonList > * [data-level] {
       display: inline-block !important;
       padding: 2px 10px !important;
@@ -380,41 +326,28 @@
       font-weight: 700 !important;
       text-transform: uppercase !important;
       letter-spacing: 0.03em !important;
-      background: rgba(16, 185, 129, 0.18) !important;
+      background: rgba(16,185,129,0.18) !important;
       color: #10b981 !important;
       margin-right: 8px !important;
-      vertical-align: middle !important;
     }
-
-    /* Lesson title */
-    #lessonList > * h3,
-    #lessonList > * h4,
-    #lessonList > * [class*="title" i],
-    #lessonList > * strong {
+    #lessonList > * h3, #lessonList > * h4, #lessonList > * strong {
       display: inline !important;
       font-size: 1rem !important;
       font-weight: 600 !important;
       color: var(--app-text) !important;
       vertical-align: middle !important;
     }
-
-    /* Lesson description & steps */
-    #lessonList > * p,
-    #lessonList > * [class*="desc" i],
-    #lessonList > * [class*="steps" i],
-    #lessonList > * small {
+    #lessonList > * p, #lessonList > * small {
       display: block !important;
       margin-top: 6px !important;
       font-size: 0.85rem !important;
       color: var(--app-muted) !important;
-      font-weight: 400 !important;
       line-height: 1.55 !important;
     }
-
     #lessonList:empty { display: none; }
 
     /* ============================================================
-       7. LESSON DETAIL
+       8. LESSON DETAIL
        ============================================================ */
     #lessonDetail {
       display: block;
@@ -423,23 +356,17 @@
       color: var(--app-text);
       padding: 4px 0;
     }
-    #lessonDetail h1,
-    #lessonDetail h2,
-    #lessonDetail h3 {
+    #lessonDetail h1, #lessonDetail h2, #lessonDetail h3 {
       margin: 20px 0 10px;
       font-size: 1.1rem;
       font-weight: 700;
       color: var(--app-text);
     }
-    #lessonDetail h1:first-child,
-    #lessonDetail h2:first-child,
-    #lessonDetail h3:first-child { margin-top: 0; }
-    #lessonDetail p { margin: 10px 0; color: var(--app-text); }
-    #lessonDetail ul,
-    #lessonDetail ol { margin: 10px 0; padding-left: 22px; }
-    #lessonDetail li { margin: 6px 0; color: var(--app-text); }
-    #lessonDetail strong { color: var(--app-text); font-weight: 600; }
-    #lessonDetail em { color: var(--app-muted); font-style: italic; }
+    #lessonDetail h1:first-child, #lessonDetail h2:first-child, #lessonDetail h3:first-child { margin-top: 0; }
+    #lessonDetail p { margin: 10px 0; }
+    #lessonDetail ul, #lessonDetail ol { margin: 10px 0; padding-left: 22px; }
+    #lessonDetail li { margin: 6px 0; }
+    #lessonDetail strong { font-weight: 600; }
     #lessonDetail code {
       background: var(--app-bg);
       padding: 2px 6px;
@@ -454,14 +381,8 @@
       background: var(--app-accent-soft);
       border-radius: 0 8px 8px 0;
       color: var(--app-muted);
-      font-style: italic;
     }
-    #lessonDetail img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
+    #lessonDetail img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
     #lessonDetail:empty { display: none; }
 
     #lessonProgressText {
@@ -472,24 +393,16 @@
     }
 
     /* ============================================================
-       8. PUZZLE STATUS / STATS / INFO
+       9. PUZZLE STATUS / STATS / INFO
        ============================================================ */
-    #puzzle-status {
+    #puzzle-status, #pzStatus {
       font-size: 0.95rem;
       font-weight: 500;
       color: var(--app-text);
-    }
-    #puzzle-status:empty { display: none; }
-
-    #pzStatus {
       display: block;
       margin-top: 10px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--app-text);
     }
-    #pzStatus:empty { display: none; }
-
+    #puzzle-status:empty, #pzStatus:empty { display: none; }
     #pzStats, #pzInfo {
       display: flex;
       flex-wrap: wrap;
@@ -500,18 +413,19 @@
       font-size: 0.82rem;
       color: var(--app-muted);
     }
-    #pzStats:empty, #pzInfo:empty {
-      display: none;
-      border: 0;
-      padding: 0;
-      margin: 0;
+    #pzStats:empty, #pzInfo:empty { display: none; border: 0; padding: 0; margin: 0; }
+    #pzDifficulty {
+      position: absolute !important;
+      left: -9999px !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     /* ============================================================
-       9. PUZZLE BOARD CONTAINER
+       10. PUZZLE CONTAINER
        ============================================================ */
     #puzzle-board-container {
-      display: flex;
+      display: flex !important;
       flex-direction: column;
       gap: 12px;
     }
@@ -521,16 +435,8 @@
       margin: 0 auto;
     }
 
-    /* Difficulty shim hidden */
-    #pzDifficulty {
-      position: absolute !important;
-      left: -9999px !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
-
     /* ============================================================
-       10. TOAST
+       11. TOAST / MODAL / HEADER / NAV
        ============================================================ */
     #toastContainer .toast {
       backdrop-filter: blur(10px);
@@ -539,15 +445,10 @@
       animation: toastIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       font-weight: 500;
     }
-
     @keyframes toastIn {
       from { opacity: 0; transform: translateY(8px) scale(0.98); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-
-    /* ============================================================
-       11. MODAL POLISH
-       ============================================================ */
     .modal-overlay[data-compat="1"] > .compat-inner {
       animation: modalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -555,64 +456,36 @@
       from { opacity: 0; transform: translateY(10px) scale(0.98); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-
-    /* ============================================================
-       12. HEADER
-       ============================================================ */
     .app-header {
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       background: color-mix(in srgb, var(--app-surface) 92%, transparent);
     }
-
-    .app-brand {
-      transition: opacity 0.15s ease;
-    }
+    .app-brand { transition: opacity 0.15s ease; }
     .app-brand:hover { opacity: 0.85; }
-
-    .lang-switcher__select {
-      border-radius: 10px;
-      transition: border-color 0.15s ease;
-    }
+    .lang-switcher__select { border-radius: 10px; transition: border-color 0.15s ease; }
     .lang-switcher__select:hover {
       border-color: color-mix(in srgb, var(--app-border) 60%, var(--app-accent));
     }
-
-    /* ============================================================
-       13. NAV
-       ============================================================ */
-    .app-nav a {
-      transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        transform 0.1s ease;
-    }
+    .app-nav a { transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease; }
     .app-nav a:hover { transform: translateX(2px); }
-
-    .app-bottomnav a {
-      transition: color 0.15s ease, transform 0.1s ease;
-    }
+    .app-bottomnav a { transition: color 0.15s ease, transform 0.1s ease; }
     .app-bottomnav a:active { transform: scale(0.94); }
 
     /* ============================================================
-       14. RESPONSIVE
+       12. RESPONSIVE
        ============================================================ */
     @media (max-width: 480px) {
       .app-page-title { font-size: 1.3rem; }
       .app-main { padding: 14px 10px; }
       .app-card { padding: 14px; }
       #moveHistory { max-height: 200px; }
-      #moveHistory .move-row {
-        padding: 5px 8px;
-        font-size: 0.85rem;
-        grid-template-columns: 38px 1fr 1fr;
-      }
-      #board .coord,
-      #puzzleBoard .coord { font-size: 0.55rem; }
+      #moveHistory .move-row { padding: 5px 8px; font-size: 0.85rem; grid-template-columns: 38px 1fr 1fr; }
+      #board .coord, #puzzleBoard .coord { font-size: 0.55rem; }
     }
 
     /* ============================================================
-       15. REDUCED MOTION
+       13. REDUCED MOTION
        ============================================================ */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -625,111 +498,6 @@
       #puzzleBoard img, #puzzleBoard > *:hover img { transform: none !important; }
       .app-nav a:hover { transform: none !important; }
     }
-
-    /* ============================================================
-   PUZZLE BOARD (camelCase id) — GRID FORCE
-   ============================================================ */
-#puzzleBoard {
-  display: grid !important;
-  grid-template-columns: repeat(8, 1fr) !important;
-  grid-template-rows: repeat(8, 1fr) !important;
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
-  gap: 0;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    0 12px 40px rgba(0,0,0,0.38);
-  border: 1px solid rgba(255,255,255,0.10);
-}
-[data-theme="light"] #puzzleBoard {
-  border-color: rgba(0,0,0,0.10);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.9),
-    0 12px 40px rgba(0,0,0,0.14);
-}
-
-#puzzleBoard > * {
-  position: relative;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  box-sizing: border-box;
-  cursor: pointer;
-  margin: 0 !important;
-  padding: 0 !important;
-  grid-column: auto !important;
-  grid-row: auto !important;
-}
-
-#puzzleBoard > *.light,
-#puzzleBoard > *[data-color="light"],
-#puzzleBoard > *.sq-light { background: #f0d9b5; }
-#puzzleBoard > *.dark,
-#puzzleBoard > *[data-color="dark"],
-#puzzleBoard > *.sq-dark  { background: #b58863; }
-
-#puzzleBoard img {
-  width: 92% !important;
-  height: 92% !important;
-  max-width: 92% !important;
-  max-height: 92% !important;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.38));
-}
-
-#puzzleBoard > *.selected {
-  box-shadow:
-    inset 0 0 0 3px #3b82f6,
-    inset 0 0 24px rgba(59,130,246,0.35) !important;
-}
-#puzzleBoard > *.legal::before {
-  content: "";
-  position: absolute;
-  width: 26%; height: 26%;
-  left: 50%; top: 50%;
-  border-radius: 50%;
-  background: rgba(15,20,25,0.42);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-[data-theme="dark"] #puzzleBoard > *.legal::before {
-  background: rgba(255,255,255,0.35);
-}
-#puzzleBoard > *.last-move {
-  background-image: linear-gradient(rgba(250,204,21,0.28),rgba(250,204,21,0.28));
-}
-#puzzleBoard > *.check {
-  background-image: radial-gradient(circle, rgba(239,68,68,0.75) 22%, transparent 78%);
-}
-#puzzleBoard .coord,
-#puzzleBoard .coord-rank,
-#puzzleBoard .coord-file {
-  font-size: 0.6rem;
-  font-weight: 700;
-  opacity: 0.75;
-  color: rgba(0,0,0,0.85);
-  text-shadow: 0 1px 1px rgba(255,255,255,0.45);
-  pointer-events: none;
-}
-
-/* Container puzzle: flex column */
-#puzzle-board-container {
-  display: flex !important;
-  flex-direction: column;
-  gap: 12px;
-}
   `;
 
   const style = document.createElement("style");
@@ -744,7 +512,7 @@
     }, { once: true });
   }
 
-  console.info("[VisualPolish] CSS polish v3 FINAL diterapkan (" + css.length + " bytes).");
+  console.info("[VisualPolish] v4 FINAL diterapkan (" + css.length + " bytes).");
 })();
 
 export {};
