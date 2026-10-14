@@ -1,36 +1,24 @@
 /**
- * js/bridge/learn-bridge.js — v6 FINAL.
- *
- * Fitur:
- *  - IDShim untuk init (auto-create 8 ID yang lessons.js butuh)
- *  - Persistent patch setelah init: setiap ID pola lesson* yang diminta
- *    saat runtime akan di-auto-create, diarahkan ke #lessonDetail (bukan
- *    #learn-content) supaya tidak tumpang tindih dengan lessonList.
- *  - Auto-select lesson pertama setelah init.
- *  - Proxy tombol #btn-learn-prev / #btn-learn-next ke tombol lama.
- *  - Filter console noise dari lessons.js (kalau ada spam log).
+ * js/bridge/learn-bridge.js — v7 FINAL.
+ * Perubahan:
+ *  - Polling berhenti setelah init dipanggil sekali (sukses atau gagal).
+ *  - Tidak spam log.
+ *  - Persist patch aktif untuk klik lesson.
+ *  - Auto-select lesson pertama.
  */
 import { IDShim } from "./id-shim.js";
 
 let MOUNTED = false;
 let instance = null;
+let INIT_ATTEMPTED = false;
 const $ = id => document.getElementById(id);
 
-/* ============================================================
-   Helpers
-   ============================================================ */
-
+/* ---------- Helpers ---------- */
 function placeholderText(key) {
   const lang = window.I18n ? window.I18n.getLang() : "id";
   const texts = {
-    id: {
-      noLessonsMode: "Modul pembelajaran belum tersedia. Buka Console untuk detail.",
-      initFailed: "Modul pembelajaran gagal diinisialisasi. Buka Console untuk detail."
-    },
-    en: {
-      noLessonsMode: "Learning module not available. Check Console.",
-      initFailed: "Learning module failed to initialize. Check Console."
-    }
+    id: { noLessonsMode: "Modul pembelajaran belum tersedia." },
+    en: { noLessonsMode: "Learning module not available." }
   };
   return (texts[lang] || texts.id)[key];
 }
@@ -51,57 +39,25 @@ function showPlaceholder(msg) {
   container.appendChild(ph);
 }
 
-/**
- * Container mapping untuk ID pelajaran.
- *
- * Aturan:
- *  - btnLesson* / btn* → null (hidden)
- *  - *progress* → #learn-progress
- *  - lessonList → #learn-content (list tetap di parent)
- *  - lessonDetail → #learn-content (parent dari detail)
- *  - lesson* lain (lessonTitle, lessonBody, dll) → #lessonDetail (agar tidak
- *    tumpang tindih dengan list; mereka memang anak dari detail panel)
- *  - default → null (hidden)
- */
 function lessonContainerFor(id) {
   if (!id) return null;
   const lower = id.toLowerCase();
-
-  // Tombol → hidden
   if (lower.startsWith("btn")) return null;
-
-  // Progress text → taruh di #learn-progress
-  if (lower.includes("progress")) {
-    return $("learn-progress") || $("learn-content");
-  }
-
-  // lessonList & lessonDetail → parent container
-  if (lower === "lessonlist" || lower === "lessondetail") {
-    return $("learn-content");
-  }
-
-  // lesson* lain → jadikan anak dari #lessonDetail (visible)
+  if (lower.includes("progress")) return $("learn-progress") || $("learn-content");
+  if (lower === "lessonlist" || lower === "lessondetail") return $("learn-content");
   if (lower.startsWith("lesson")) {
     const detail = $("lessonDetail");
     if (detail) return detail;
     return $("learn-content");
   }
-
   return null;
 }
-
-/* ============================================================
-   Console noise filter — untuk lessons.js yang mungkin spam log
-   ============================================================ */
 
 function withQuietConsole(fn, ms) {
   ms = ms || 1500;
   const orig = {
-    log: console.log,
-    warn: console.warn,
-    info: console.info,
-    debug: console.debug,
-    trace: console.trace
+    log: console.log, warn: console.warn, info: console.info,
+    debug: console.debug, trace: console.trace
   };
   function filter(origFn) {
     return function () {
@@ -113,7 +69,7 @@ function withQuietConsole(fn, ms) {
         }).join(" ");
         if (str.length > 200) return;
         if (/\bdebug\b|\btrace\b|\bstack\b/i.test(str)) return;
-      } catch (e) { /* ignore */ }
+      } catch (e) {}
       return origFn.apply(console, arguments);
     };
   }
@@ -133,10 +89,6 @@ function withQuietConsole(fn, ms) {
     }, ms);
   }
 }
-
-/* ============================================================
-   Bindings
-   ============================================================ */
 
 function bindNewButtonsToOld() {
   const map = [
@@ -158,15 +110,12 @@ function bindNewButtonsToOld() {
   }
 }
 
-/** Klik lesson card dengan console filter. */
 function clickLessonSafely(el) {
   if (!el) return;
   withQuietConsole(function () {
     try {
       const ev = new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window
+        bubbles: true, cancelable: true, view: window
       });
       el.dispatchEvent(ev);
     } catch (e) {
@@ -175,7 +124,6 @@ function clickLessonSafely(el) {
   }, 2000);
 }
 
-/** Auto-select lesson pertama. */
 function autoSelectFirstLesson() {
   const detail = $("lessonDetail");
   if (detail && detail.children.length > 0) return;
@@ -197,166 +145,147 @@ function autoSelectFirstLesson() {
   }, 400);
 }
 
-/* ============================================================
-   LearnBridge
-   ============================================================ */
+/* ---------- Main init (hanya dijalankan sekali) ---------- */
+function doInit() {
+  console.info("[LearnBridge] ---- init ----");
 
+  const container = $("learn-content");
+  if (!container) {
+    console.warn("[LearnBridge] #learn-content tidak ada. Init dibatalkan.");
+    return null;
+  }
+
+  const LM = window.LessonsMode;
+  if (!LM || typeof LM.init !== "function") {
+    showPlaceholder(placeholderText("noLessonsMode"));
+    return null;
+  }
+
+  const old = container.querySelector(".app-placeholder");
+  if (old) old.remove();
+
+  let result;
+  withQuietConsole(function () {
+    result = IDShim.runWithShim(function () {
+      try { LM.init(); }
+      catch (e) {
+        console.warn("[LearnBridge] LessonsMode.init() threw:",
+          e && e.message ? e.message : e);
+      }
+    }, {
+      visibleContainerId: "learn-content",
+      containerFor: function (id) {
+        const r = lessonContainerFor(id);
+        if (r) return r;
+        if (id === "lessonProgressText") return $("learn-progress") || null;
+        return null;
+      }
+    });
+  }, 2000);
+
+  if (result) {
+    console.info("[LearnBridge] ID di-shim saat init:", result.createdIds);
+  }
+
+  // Persistent patch — supaya klik lesson tidak error
+  try {
+    IDShim.persistentPatch(
+      [/^lesson/i, /^btnLesson/, /^learn-/i],
+      {
+        visibleContainer: container,
+        containerFor: function (id) {
+          if (/^btn/i.test(id)) return null;
+          if (/progress/i.test(id)) return $("learn-progress") || container;
+          const lower = id.toLowerCase();
+          if (lower === "lessonlist" || lower === "lessondetail") return container;
+          const detail = $("lessonDetail");
+          if (detail) return detail;
+          return container;
+        },
+        verbose: true
+      }
+    );
+    console.info("[LearnBridge] v7 — persistent patch aktif.");
+  } catch (e) {
+    console.warn("[LearnBridge] persistentPatch gagal:", e);
+  }
+
+  const list = $("lessonList");
+  const detail = $("lessonDetail");
+  console.info("[LearnBridge] #lessonList children:", list ? list.children.length : "no el");
+  console.info("[LearnBridge] #lessonDetail children:", detail ? detail.children.length : "no el");
+
+  bindNewButtonsToOld();
+  setTimeout(autoSelectFirstLesson, 200);
+
+  instance = LM;
+  console.info("[LearnBridge] ✓ selesai.");
+  return instance;
+}
+
+/* ---------- Public API ---------- */
 export const LearnBridge = {
   init() {
-    if (MOUNTED) return instance;
+    if (INIT_ATTEMPTED) return instance;
+    INIT_ATTEMPTED = true;
     MOUNTED = true;
-    console.info("[LearnBridge] ---- init ----");
-
-    const container = $("learn-content");
-    if (!container) {
-      console.warn("[LearnBridge] #learn-content tidak ada.");
-      return null;
-    }
-
-    const LM = window.LessonsMode;
-    console.info("[LearnBridge] LessonsMode:", typeof LM, "init:", typeof (LM && LM.init));
-    if (!LM || typeof LM.init !== "function") {
-      showPlaceholder(placeholderText("noLessonsMode"));
-      return null;
-    }
-
-    // Bersihkan placeholder lama
-    const old = container.querySelector(".app-placeholder");
-    if (old) old.remove();
-
-    // 1. Init dengan shim (quiet console agar noise lessons.js tersaring)
-    let result;
-    withQuietConsole(function () {
-      result = IDShim.runWithShim(function () {
-        try { LM.init(); }
-        catch (e) {
-          console.warn("[LearnBridge] LessonsMode.init() threw:",
-            e && e.message ? e.message : e);
-        }
-      }, {
-        visibleContainerId: "learn-content",
-        containerFor: function (id) {
-          // Panggil helper umum
-          const r = lessonContainerFor(id);
-          if (r) return r;
-          // Khusus lessonProgressText → #learn-progress
-          if (id === "lessonProgressText") {
-            return $("learn-progress") || null;
-          }
-          return null;
-        }
-      });
-    }, 2000);
-
-    if (result) {
-      console.info("[LearnBridge] ID di-shim saat init:", result.createdIds);
-      if (result.error) {
-        console.warn("[LearnBridge] init error:", result.error);
-      }
-    }
-
-    // 2. Persistent patch — runtime klik lesson akan auto-create ID
-    //    dengan mapping ke #lessonDetail (bukan #learn-content)
-    try {
-      IDShim.persistentPatch(
-        [/^lesson/i, /^btnLesson/, /^learn-/i],
-        {
-          visibleContainer: container,
-          containerFor: function (id) {
-            // Tombol → hidden
-            if (/^btn/i.test(id)) return null;
-            // Progress → #learn-progress
-            if (/progress/i.test(id)) {
-              return $("learn-progress") || container;
-            }
-            // lessonList / lessonDetail → parent
-            const lower = id.toLowerCase();
-            if (lower === "lessonlist" || lower === "lessondetail") {
-              return container;
-            }
-            // lesson* lain → jadikan anak dari #lessonDetail
-            const detail = $("lessonDetail");
-            if (detail) return detail;
-            return container;
-          },
-          verbose: true
-        }
-      );
-      console.info("[LearnBridge] v6 FINAL — persistent patch aktif."); 
-    } catch (e) {
-      console.warn("[LearnBridge] persistentPatch gagal:", e);
-    }
-
-    // 3. Cek hasil init
-    const list = $("lessonList");
-    const detail = $("lessonDetail");
-    console.info("[LearnBridge] #lessonList children:", list ? list.children.length : "no el");
-    console.info("[LearnBridge] #lessonDetail children:", detail ? detail.children.length : "no el");
-
-    // 4. Bind tombol navigasi baru → lama
-    bindNewButtonsToOld();
-
-    // 5. Auto-select lesson pertama
-    setTimeout(autoSelectFirstLesson, 200);
-
-    instance = LM;
-    console.info("[LearnBridge] ✓ selesai.");
-    return instance;
+    return doInit();
   },
-
   getInstance() { return instance; },
-
   _reset() {
     MOUNTED = false;
+    INIT_ATTEMPTED = false;
     instance = null;
   }
 };
 
 if (typeof window !== "undefined") window.LearnBridge = LearnBridge;
 
-/* ============================================================
-   AUTO-INIT — trigger saat route #learn
-   ============================================================ */
+/* ---------- Auto-init (poll sekali saja, lalu berhenti) ---------- */
 (function autoInitLearnBridge() {
   if (typeof window === "undefined") return;
-  if (window.__LearnBridgeAutoInit) return;
-  window.__LearnBridgeAutoInit = true;
+  if (window.__LearnBridgeAutoInitV7) return;
+  window.__LearnBridgeAutoInitV7 = true;
 
   function routeIsLearn() {
     return (location.hash || "").replace(/^#\/?/, "").trim() === "learn";
   }
 
-  function tryInit(reason) {
+  function tryOnce(reason) {
+    if (INIT_ATTEMPTED) return true;
     if (!routeIsLearn()) return false;
-    if (LearnBridge.getInstance()) return true;
-    console.info("[LearnBridge] AUTO-INIT trigger:", reason);
-    return !!LearnBridge.init();
+    console.info("[LearnBridge] AUTO-INIT:", reason);
+    LearnBridge.init();
+    return true; // apapun hasilnya, kita sudah coba
   }
 
-  // Coba langsung kalau DOM siap
+  // Coba saat DOM siap
   if (document.readyState === "complete" || document.readyState === "interactive") {
-    tryInit("document-ready");
+    tryOnce("document-ready");
   } else {
     document.addEventListener("DOMContentLoaded", function () {
-      tryInit("DOMContentLoaded");
-    });
+      tryOnce("DOMContentLoaded");
+    }, { once: true });
   }
 
-  // Polling fallback
+  // Polling singkat — 10 kali saja, bukan 120
   let attempts = 0;
   const interval = setInterval(function () {
     attempts++;
-    if (tryInit("poll #" + attempts)) {
+    if (INIT_ATTEMPTED) { clearInterval(interval); return; }
+    if (routeIsLearn()) {
+      tryOnce("poll #" + attempts);
       clearInterval(interval);
-    } else if (attempts > 120) {
+    } else if (attempts > 10) {
       clearInterval(interval);
     }
   }, 500);
 
-  // Trigger ulang saat pindah ke route learn
+  // Trigger saat hashchange ke learn (sekali saja)
   window.addEventListener("hashchange", function () {
-    if (routeIsLearn() && !LearnBridge.getInstance()) {
-      setTimeout(function () { tryInit("hashchange"); }, 100);
+    if (INIT_ATTEMPTED) return;
+    if (routeIsLearn()) {
+      setTimeout(function () { tryOnce("hashchange"); }, 100);
     }
   });
 })();
