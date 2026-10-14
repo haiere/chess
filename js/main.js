@@ -12,6 +12,7 @@ import "./bridge/visual-polish.js";
 import "./bridge/id-shim.js";
 import "./bridge/puzzle-bridge.js";
 import "./bridge/learn-bridge.js";
+import "./bridge/error-tracer.js";
 
 /* ---------- helpers ---------- */
 async function safeImport(path) {
