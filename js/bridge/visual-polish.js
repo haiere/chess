@@ -363,6 +363,102 @@
       #board img, #board > *:hover img { transform: none !important; }
       .app-nav a:hover { transform: none !important; }
     }
+    /* ============================================================
+   LESSON LIST & DETAIL
+   ============================================================ */
+#lessonList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+#lessonList > * {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+#lessonList > *:hover {
+  border-color: color-mix(in srgb, var(--app-border) 55%, var(--app-accent));
+  background: color-mix(in srgb, var(--app-bg) 92%, var(--app-accent));
+}
+#lessonList > *.active,
+#lessonList > *[aria-current="true"],
+#lessonList > *[aria-selected="true"] {
+  background: var(--app-accent-soft);
+  border-color: var(--app-accent);
+  color: var(--app-accent);
+  font-weight: 600;
+}
+#lessonList:empty { display: none; }
+
+#lessonDetail {
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+#lessonDetail h2,
+#lessonDetail h3 {
+  margin: 16px 0 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+#lessonDetail h2:first-child,
+#lessonDetail h3:first-child { margin-top: 0; }
+#lessonDetail p { margin: 8px 0; }
+#lessonDetail ul,
+#lessonDetail ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+#lessonDetail li { margin: 4px 0; }
+#lessonDetail img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+#lessonDetail code {
+  background: var(--app-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.9em;
+}
+#lessonDetail:empty { display: none; }
+
+#lessonProgressText {
+  font-size: 0.85rem;
+  color: var(--app-muted);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+/* Puzzle status / progress */
+#puzzle-status {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--app-text);
+}
+#puzzle-status:empty { display: none; }
+
+/* Puzzle board container match game board */
+#puzzle-board-container .board,
+#puzzle-board-container #puzzle-board {
+  display: grid !important;
+  grid-template-columns: repeat(8, 1fr) !important;
+  grid-template-rows: repeat(8, 1fr) !important;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.38);
+}
   `;
 
   const style = document.createElement("style");
