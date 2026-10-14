@@ -1,15 +1,15 @@
 /**
- * js/bridge/id-shim.js — v4.
- * Perubahan kunci: persistentPatch() sekarang STACKABLE.
- * Setiap pemanggil menambah pattern, tidak menimpa.
- * Juga patch document.querySelector('#id').
+ * js/bridge/id-shim.js — v5.
+ * - persistentPatch stackable, merge benar
+ * - Logging unconditional (tidak tertelan try/catch)
+ * - Patch querySelector #id juga
  */
 
 const CREATED = new Set();
 const LOG = [];
 
 let _persistentActive = false;
-let _persistentOrig = null;
+let _persistentOrigGet = null;
 let _persistentOrigQS = null;
 let _persistentPatterns = [];
 let _persistentOpts = { containerFor: null, visibleContainer: null, verbose: false };
@@ -71,6 +71,14 @@ function createShim(id, container) {
   return el;
 }
 
+function idMatchesAny(id, patterns) {
+  if (!id) return false;
+  for (const re of patterns) {
+    try { if (re.test(id)) return true; } catch (e) {}
+  }
+  return false;
+}
+
 export const IDShim = {
   runWithShim(fn, opts) {
     opts = opts || {};
@@ -119,18 +127,22 @@ export const IDShim = {
   },
 
   /**
-   * STACKABLE persistent patch.
-   * Pemanggil kedua dst hanya MENAMBAH pattern + containerFor, tidak menimpa.
+   * STACKABLE persistent patch — v5.
+   * Setiap pemanggil menambah pattern. Tidak pernah menimpa.
    */
   persistentPatch(patterns, opts) {
     opts = opts || {};
+    patterns = Array.isArray(patterns) ? patterns.filter(Boolean) : [];
 
-    // Kalau sudah aktif — merge patterns & containerFor
+    console.info("[IDShim v5] persistentPatch dipanggil dengan",
+      patterns.length, "patterns. Sudah aktif:", _persistentActive);
+
+    // Sudah aktif — merge
     if (_persistentActive) {
+      let added = 0;
       for (const p of patterns) {
-        if (!_persistentPatterns.some(e => e.source === p.source)) {
-          _persistentPatterns.push(p);
-        }
+        const already = _persistentPatterns.some(e => e.source === p.source);
+        if (!already) { _persistentPatterns.push(p); added++; }
       }
       if (typeof opts.containerFor === "function") {
         const oldCF = _persistentOpts.containerFor;
@@ -140,29 +152,23 @@ export const IDShim = {
           return oldCF ? oldCF(id) : null;
         };
       }
-      console.info("[IDShim] persistent patterns stacked. Total:",
-        _persistentPatterns.length);
+      console.info("[IDShim v5] patterns stacked: +" + added +
+        ", total=" + _persistentPatterns.length);
       return;
     }
 
-    // Pertama kali — init
+    // Pertama kali
     _persistentActive = true;
     _persistentPatterns = patterns.slice();
     _persistentOpts = {
       containerFor: opts.containerFor || null,
       visibleContainer: opts.visibleContainer || null,
-      verbose: !!opts.verbose
+      verbose: opts.verbose !== false
     };
 
-    _persistentOrig = document.getElementById;
+    _persistentOrigGet = document.getElementById;
     _persistentOrigQS = document.querySelector;
     const hidden = getHiddenContainer();
-
-    function idMatches(id) {
-      if (!id) return false;
-      for (const re of _persistentPatterns) if (re.test(id)) return true;
-      return false;
-    }
 
     function pickContainer(id) {
       if (typeof _persistentOpts.containerFor === "function") {
@@ -175,33 +181,32 @@ export const IDShim = {
       return _persistentOpts.visibleContainer || hidden;
     }
 
-    // Patch getElementById
     document.getElementById = function (id) {
-      const el = _persistentOrig.call(document, id);
+      const el = _persistentOrigGet.call(document, id);
       if (el) return el;
-      if (idMatches(id)) {
+      if (idMatchesAny(id, _persistentPatterns)) {
         const newEl = createShim(id, pickContainer(id));
         if (_persistentOpts.verbose) {
-          console.info("[IDShim] auto-create (getById):", id);
+          console.info("[IDShim v5] auto-create (getById):", id);
         }
         return newEl;
       }
-      return el;
+      return null;
     };
 
-    // Patch querySelector — handle #id
     document.querySelector = function (sel) {
       try {
         const el = _persistentOrigQS.call(document, sel);
         if (el) return el;
-      } catch (e) { /* invalid selector */ }
-      if (typeof sel === "string" && sel.charAt(0) === "#") {
-        const rest = sel.slice(1);
-        if (rest.indexOf(" ") === -1 && rest.indexOf(".") === -1 &&
-            rest.indexOf(":") === -1 && idMatches(rest)) {
-          const newEl = createShim(rest, pickContainer(rest));
+      } catch (e) {}
+      if (typeof sel === "string" && sel.charAt(0) === "#" &&
+          sel.indexOf(" ") === -1 && sel.indexOf(".") === -1 &&
+          sel.indexOf(":") === -1 && sel.indexOf("[") === -1) {
+        const id = sel.slice(1);
+        if (idMatchesAny(id, _persistentPatterns)) {
+          const newEl = createShim(id, pickContainer(id));
           if (_persistentOpts.verbose) {
-            console.info("[IDShim] auto-create (querySelector):", rest);
+            console.info("[IDShim v5] auto-create (querySelector):", id);
           }
           return newEl;
         }
@@ -209,20 +214,19 @@ export const IDShim = {
       return null;
     };
 
-    console.info("[IDShim] persistent patch INIT dengan patterns:",
+    console.info("[IDShim v5] persistent patch INIT. Patterns:",
       _persistentPatterns.map(p => p.source));
   },
 
   persistentUnpatch() {
     if (!_persistentActive) return;
-    document.getElementById = _persistentOrig;
+    document.getElementById = _persistentOrigGet;
     document.querySelector = _persistentOrigQS;
     _persistentActive = false;
-    _persistentOrig = null;
+    _persistentOrigGet = null;
     _persistentOrigQS = null;
     _persistentPatterns = [];
     _persistentOpts = { containerFor: null, visibleContainer: null, verbose: false };
-    console.info("[IDShim] persistent patch unpatched.");
   },
 
   ensure(id, container) {
@@ -233,11 +237,7 @@ export const IDShim = {
 
   list() { return Array.from(CREATED); },
   log() { return LOG.slice(); },
-  _reset() {
-    CREATED.clear();
-    LOG.length = 0;
-    this.persistentUnpatch();
-  }
+  _reset() { CREATED.clear(); LOG.length = 0; this.persistentUnpatch(); }
 };
 
 if (typeof window !== "undefined") window.IDShim = IDShim;
