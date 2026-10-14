@@ -1,10 +1,9 @@
 /**
- * js/bridge/id-shim.js — Universal ID shim.
- * Menyediakan API untuk menjalankan fungsi init dengan auto-injection
- * elemen DOM untuk ID yang diminta tapi tidak ada.
- *
- * Berguna untuk modul lama (puzzle.js, lessons.js) yang mengasumsikan
- * struktur HTML tertentu tanpa null-check.
+ * js/bridge/id-shim.js — v2.
+ * Sekarang mendukung per-ID container mapping:
+ *   - Default: ke visible container (jika diset)
+ *   - Tombol (btn*) dan Modal (*Modal): ke hidden container
+ *   - Bisa override per-ID via containerFor callback.
  */
 
 const CREATED = new Set();
@@ -19,40 +18,58 @@ function inferTag(id) {
   return "div";
 }
 
-function createShim(id) {
+function createShim(id, container) {
   const tag = inferTag(id);
   const el = document.createElement(tag);
   el.id = id;
   el.setAttribute("data-shim", "1");
-  el.setAttribute("aria-hidden", "true");
   el.tabIndex = -1;
-  el.style.cssText =
-    "position:absolute;width:0;height:0;overflow:hidden;" +
-    "left:-9999px;top:-9999px;pointer-events:none;";
+
+  const isHidden = container && container.dataset && container.dataset.hidden === "1";
+  if (isHidden) {
+    el.setAttribute("aria-hidden", "true");
+    el.style.cssText =
+      "position:absolute;width:0;height:0;overflow:hidden;" +
+      "left:-9999px;top:-9999px;pointer-events:none;";
+  }
 
   if (tag === "button") {
     el.type = "button";
   } else if (tag === "select") {
-    // Beberapa option default supaya select tidak crash saat .value diakses
     const o = document.createElement("option");
     o.value = "";
     o.textContent = "";
     el.appendChild(o);
-  } else if (tag === "div" && id.toLowerCase().includes("modal")) {
+  } else if (id.toLowerCase().includes("modal")) {
     el.className = "modal-overlay hidden";
     el.setAttribute("role", "dialog");
     el.setAttribute("aria-hidden", "true");
   }
 
-  document.body.appendChild(el);
+  (container || document.body).appendChild(el);
   CREATED.add(id);
   return el;
 }
 
+function getHiddenContainer() {
+  let c = document.getElementById("compat-shell");
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "compat-shell";
+    c.dataset.hidden = "1";
+    c.setAttribute("aria-hidden", "true");
+    c.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;left:-9999px;top:-9999px;pointer-events:none;";
+    document.body.appendChild(c);
+  }
+  return c;
+}
+
 export const IDShim = {
   /**
-   * Jalankan fn() dengan getElementById di-patch.
-   * Setiap ID yang diminta tapi tidak ada → auto-create.
+   * @param {Function} fn - fungsi init yang akan dijalankan
+   * @param {Object} [opts]
+   * @param {string} [opts.visibleContainerId] - container default untuk elemen non-tombol
+   * @param {Function} [opts.containerFor] - callback(id) → HTMLElement, override per-ID
    */
   runWithShim(fn, opts) {
     opts = opts || {};
@@ -60,24 +77,36 @@ export const IDShim = {
     const missing = new Set();
     const orig = document.getElementById;
 
+    const hidden = getHiddenContainer();
+    const visible = opts.visibleContainerId
+      ? document.getElementById(opts.visibleContainerId)
+      : null;
+
+    function pickContainer(id) {
+      if (typeof opts.containerFor === "function") {
+        const custom = opts.containerFor(id);
+        if (custom) return custom;
+      }
+      const lower = id.toLowerCase();
+      if (lower.startsWith("btn")) return hidden;
+      if (lower.includes("modal")) return hidden;
+      return visible || hidden;
+    }
+
     document.getElementById = function (id) {
       if (id) requested.add(id);
       let el = orig.call(document, id);
       if (!el && id && opts.autoCreate !== false) {
-        el = createShim(id);
+        el = createShim(id, pickContainer(id));
         missing.add(id);
       }
       return el;
     };
 
     let error = null;
-    try {
-      fn();
-    } catch (e) {
-      error = e;
-    } finally {
-      document.getElementById = orig;
-    }
+    try { fn(); }
+    catch (e) { error = e; }
+    finally { document.getElementById = orig; }
 
     const result = {
       requestedIds: Array.from(requested),
@@ -88,18 +117,14 @@ export const IDShim = {
     return result;
   },
 
-  /** Buat elemen untuk ID tertentu secara manual. */
-  ensure(id) {
+  ensure(id, container) {
     const existing = document.getElementById(id);
     if (existing) return existing;
-    return createShim(id);
+    return createShim(id, container);
   },
 
-  /** Daftar ID yang sudah dibuat shim-nya. */
   list() { return Array.from(CREATED); },
-
   log() { return LOG.slice(); },
-
   _reset() { CREATED.clear(); LOG.length = 0; }
 };
 
