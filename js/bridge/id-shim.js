@@ -1,13 +1,18 @@
 /**
- * js/bridge/id-shim.js — v3.
- * Tambahan: persistentPatch() — patch getElementById yang tetap aktif
- * untuk pola ID tertentu, auto-create saat diminta.
+ * js/bridge/id-shim.js — v4.
+ * Perubahan kunci: persistentPatch() sekarang STACKABLE.
+ * Setiap pemanggil menambah pattern, tidak menimpa.
+ * Juga patch document.querySelector('#id').
  */
 
 const CREATED = new Set();
 const LOG = [];
+
 let _persistentActive = false;
 let _persistentOrig = null;
+let _persistentOrigQS = null;
+let _persistentPatterns = [];
+let _persistentOpts = { containerFor: null, visibleContainer: null, verbose: false };
 
 function inferTag(id) {
   if (!id) return "div";
@@ -16,6 +21,21 @@ function inferTag(id) {
   if (lower.startsWith("set") || lower.includes("select")) return "select";
   if (lower.includes("input") || lower.includes("field")) return "input";
   return "div";
+}
+
+function getHiddenContainer() {
+  let c = document.getElementById("compat-shell");
+  if (!c) {
+    c = document.createElement("div");
+    c.id = "compat-shell";
+    c.dataset.hidden = "1";
+    c.setAttribute("aria-hidden", "true");
+    c.style.cssText =
+      "position:absolute;width:0;height:0;overflow:hidden;" +
+      "left:-9999px;top:-9999px;pointer-events:none;";
+    document.body.appendChild(c);
+  }
+  return c;
 }
 
 function createShim(id, container) {
@@ -51,26 +71,7 @@ function createShim(id, container) {
   return el;
 }
 
-function getHiddenContainer() {
-  let c = document.getElementById("compat-shell");
-  if (!c) {
-    c = document.createElement("div");
-    c.id = "compat-shell";
-    c.dataset.hidden = "1";
-    c.setAttribute("aria-hidden", "true");
-    c.style.cssText =
-      "position:absolute;width:0;height:0;overflow:hidden;" +
-      "left:-9999px;top:-9999px;pointer-events:none;";
-    document.body.appendChild(c);
-  }
-  return c;
-}
-
 export const IDShim = {
-  /**
-   * Patch getElementById selama fn() dijalankan.
-   * Semua ID yang diminta akan di-auto-create jika tidak ada.
-   */
   runWithShim(fn, opts) {
     opts = opts || {};
     const requested = new Set();
@@ -118,53 +119,110 @@ export const IDShim = {
   },
 
   /**
-   * Patch persistent. Auto-create untuk ID yang cocok `patterns`
-   * (array of RegExp) atau yang cocok `idTest(id)`.
-   *
-   * Setiap ID yang diminta akan di-auto-create menggunakan
-   * opts.containerFor(id) untuk menentukan container.
+   * STACKABLE persistent patch.
+   * Pemanggil kedua dst hanya MENAMBAH pattern + containerFor, tidak menimpa.
    */
   persistentPatch(patterns, opts) {
     opts = opts || {};
-    if (_persistentActive) return;
-    _persistentActive = true;
-    _persistentOrig = document.getElementById;
 
+    // Kalau sudah aktif — merge patterns & containerFor
+    if (_persistentActive) {
+      for (const p of patterns) {
+        if (!_persistentPatterns.some(e => e.source === p.source)) {
+          _persistentPatterns.push(p);
+        }
+      }
+      if (typeof opts.containerFor === "function") {
+        const oldCF = _persistentOpts.containerFor;
+        _persistentOpts.containerFor = function (id) {
+          const r = opts.containerFor(id);
+          if (r) return r;
+          return oldCF ? oldCF(id) : null;
+        };
+      }
+      console.info("[IDShim] persistent patterns stacked. Total:",
+        _persistentPatterns.length);
+      return;
+    }
+
+    // Pertama kali — init
+    _persistentActive = true;
+    _persistentPatterns = patterns.slice();
+    _persistentOpts = {
+      containerFor: opts.containerFor || null,
+      visibleContainer: opts.visibleContainer || null,
+      verbose: !!opts.verbose
+    };
+
+    _persistentOrig = document.getElementById;
+    _persistentOrigQS = document.querySelector;
     const hidden = getHiddenContainer();
 
     function idMatches(id) {
       if (!id) return false;
-      if (typeof opts.idTest === "function" && opts.idTest(id)) return true;
-      for (const re of patterns) if (re.test(id)) return true;
+      for (const re of _persistentPatterns) if (re.test(id)) return true;
       return false;
     }
 
     function pickContainer(id) {
-      if (typeof opts.containerFor === "function") {
-        const custom = opts.containerFor(id);
+      if (typeof _persistentOpts.containerFor === "function") {
+        const custom = _persistentOpts.containerFor(id);
         if (custom) return custom;
       }
       const lower = id.toLowerCase();
       if (lower.startsWith("btn")) return hidden;
       if (lower.includes("modal")) return hidden;
-      return opts.visibleContainer || hidden;
+      return _persistentOpts.visibleContainer || hidden;
     }
 
+    // Patch getElementById
     document.getElementById = function (id) {
-      let el = _persistentOrig.call(document, id);
-      if (!el && idMatches(id)) {
-        el = createShim(id, pickContainer(id));
-        if (opts.verbose) console.info("[IDShim] auto-create:", id);
+      const el = _persistentOrig.call(document, id);
+      if (el) return el;
+      if (idMatches(id)) {
+        const newEl = createShim(id, pickContainer(id));
+        if (_persistentOpts.verbose) {
+          console.info("[IDShim] auto-create (getById):", id);
+        }
+        return newEl;
       }
       return el;
     };
+
+    // Patch querySelector — handle #id
+    document.querySelector = function (sel) {
+      try {
+        const el = _persistentOrigQS.call(document, sel);
+        if (el) return el;
+      } catch (e) { /* invalid selector */ }
+      if (typeof sel === "string" && sel.charAt(0) === "#") {
+        const rest = sel.slice(1);
+        if (rest.indexOf(" ") === -1 && rest.indexOf(".") === -1 &&
+            rest.indexOf(":") === -1 && idMatches(rest)) {
+          const newEl = createShim(rest, pickContainer(rest));
+          if (_persistentOpts.verbose) {
+            console.info("[IDShim] auto-create (querySelector):", rest);
+          }
+          return newEl;
+        }
+      }
+      return null;
+    };
+
+    console.info("[IDShim] persistent patch INIT dengan patterns:",
+      _persistentPatterns.map(p => p.source));
   },
 
   persistentUnpatch() {
     if (!_persistentActive) return;
     document.getElementById = _persistentOrig;
+    document.querySelector = _persistentOrigQS;
     _persistentActive = false;
     _persistentOrig = null;
+    _persistentOrigQS = null;
+    _persistentPatterns = [];
+    _persistentOpts = { containerFor: null, visibleContainer: null, verbose: false };
+    console.info("[IDShim] persistent patch unpatched.");
   },
 
   ensure(id, container) {
@@ -175,7 +233,11 @@ export const IDShim = {
 
   list() { return Array.from(CREATED); },
   log() { return LOG.slice(); },
-  _reset() { CREATED.clear(); LOG.length = 0; }
+  _reset() {
+    CREATED.clear();
+    LOG.length = 0;
+    this.persistentUnpatch();
+  }
 };
 
 if (typeof window !== "undefined") window.IDShim = IDShim;
