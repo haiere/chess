@@ -615,6 +615,103 @@
 }
 #puzzle-board > *.last-move { background-image: linear-gradient(rgba(250,204,21,0.28),rgba(250,204,21,0.28)); }
 #puzzle-board > *.check { background-image: radial-gradient(circle, rgba(239,68,68,0.75) 22%, transparent 78%); }
+
+  /* ============================================================
+   PUZZLE BOARD (camelCase id dari puzzle.js)
+   ============================================================ */
+#puzzleBoard {
+  display: grid !important;
+  grid-template-columns: repeat(8, 1fr) !important;
+  grid-template-rows: repeat(8, 1fr) !important;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 12px 40px rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+[data-theme="light"] #puzzleBoard {
+  border-color: rgba(0,0,0,0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 12px 40px rgba(0,0,0,0.14);
+}
+
+#puzzleBoard > * {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+#puzzleBoard > *.light,
+#puzzleBoard > *[data-color="light"] { background: #f0d9b5; }
+#puzzleBoard > *.dark,
+#puzzleBoard > *[data-color="dark"]  { background: #b58863; }
+#puzzleBoard img {
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.38));
+}
+#puzzleBoard > *.selected { box-shadow: inset 0 0 0 3px #3b82f6; }
+#puzzleBoard > *.legal::before {
+  content: "";
+  position: absolute;
+  width: 26%; height: 26%;
+  left: 50%; top: 50%;
+  border-radius: 50%;
+  background: rgba(15,20,25,0.42);
+  transform: translate(-50%, -50%);
+}
+[data-theme="dark"] #puzzleBoard > *.legal::before { background: rgba(255,255,255,0.35); }
+#puzzleBoard > *.last-move { background-image: linear-gradient(rgba(250,204,21,0.28),rgba(250,204,21,0.28)); }
+#puzzleBoard > *.check { background-image: radial-gradient(circle, rgba(239,68,68,0.75) 22%, transparent 78%); }
+
+/* Puzzle status/stats/info */
+#pzStatus, #pzStats, #pzInfo {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: var(--app-text);
+  line-height: 1.6;
+}
+#pzStats, #pzInfo {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+#pzStats:empty, #pzInfo:empty, #pzStatus:empty { display: none; }
+
+/* Difficulty select shim — hidden, karena kita pakai #puzzle-difficulty visible */
+#pzDifficulty {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Puzzle card container spacing */
+#puzzle-board-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#puzzle-board-container .board {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
   `;
 
   const style = document.createElement("style");
