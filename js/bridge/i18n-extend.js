@@ -1,14 +1,12 @@
 /**
- * js/bridge/i18n-extend.js — v2.
- * Wrapper I18n.t() untuk:
- *   - Keys tambahan (statsLine, available, pick, stepsCount)
- *   - Default params (failed:0 dll) saat params undefined
+ * js/bridge/i18n-extend.js — v3.
+ * Tambah keys learning.done, learning.completed, dan lain-lain.
  */
 (function () {
   "use strict";
   if (typeof window === "undefined") return;
-  if (window.__I18nExtend) return;
-  window.__I18nExtend = true;
+  if (window.__I18nExtendV3) return;
+  window.__I18nExtendV3 = true;
 
   const SUPP = {
     id: {
@@ -21,10 +19,24 @@
       },
       learning: {
         stepsCount: "{count} langkah",
+        steps: "{count} langkah",
         lessonProgress: "Progres: {done} dari {total}",
         completed: "Selesai",
+        done: "Selesai",
         notStarted: "Belum Dimulai",
-        inProgress: "Sedang Dipelajari"
+        inProgress: "Sedang Dipelajari",
+        start: "Mulai",
+        continue: "Lanjutkan",
+        restart: "Ulangi",
+        finish: "Selesaikan",
+        tryAgain: "Coba Lagi",
+        previous: "Sebelumnya",
+        next: "Berikutnya"
+      },
+      common: {
+        done: "Selesai",
+        completed: "Selesai",
+        loading: "Memuat..."
       }
     },
     en: {
@@ -37,10 +49,24 @@
       },
       learning: {
         stepsCount: "{count} steps",
+        steps: "{count} steps",
         lessonProgress: "Progress: {done} of {total}",
         completed: "Completed",
+        done: "Completed",
         notStarted: "Not Started",
-        inProgress: "In Progress"
+        inProgress: "In Progress",
+        start: "Start",
+        continue: "Continue",
+        restart: "Restart",
+        finish: "Finish",
+        tryAgain: "Try Again",
+        previous: "Previous",
+        next: "Next"
+      },
+      common: {
+        done: "Done",
+        completed: "Completed",
+        loading: "Loading..."
       }
     }
   };
@@ -67,7 +93,7 @@
   function install() {
     const I18n = window.I18n;
     if (!I18n || typeof I18n.t !== "function") return false;
-    if (I18n.__extended) return true;
+    if (I18n.__extendedV3) return true;
 
     const origT = I18n.t.bind(I18n);
     I18n.t = function (key, params) {
@@ -76,7 +102,6 @@
       if (val === undefined && lang !== "id") val = getNested(SUPP.id, key);
       if (val !== undefined) {
         if (typeof val === "string") {
-          // Default params untuk stats keys
           if (key.indexOf("statsLine") !== -1) {
             params = Object.assign({ solved: 0, failed: 0, streak: 0 }, params || {});
           }
@@ -86,8 +111,8 @@
       }
       return origT(key, params);
     };
-    I18n.__extended = true;
-    console.info("[I18n-extend v2] Keys tambahan terpasang.");
+    I18n.__extendedV3 = true;
+    console.info("[I18n-extend v3] Keys tambahan (learning, common) terpasang.");
     return true;
   }
 
