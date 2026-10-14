@@ -1,8 +1,8 @@
 /**
- * js/bridge/learn-bridge.js — v8 FINAL.
- * - Poll tidak spam (max 10 attempts, berhenti setelahnya)
- * - Init hanya sekali (INIT_ATTEMPTED flag)
- * - Persistent patch untuk lesson runtime IDs
+ * js/bridge/learn-bridge.js — v10.
+ * - Reorder DOM: #lessonDetail dipindah ke atas #lessonList
+ * - Auto-select dengan retry (3x)
+ * - Persistent patch broad
  */
 import { IDShim } from "./id-shim.js";
 
@@ -12,9 +12,7 @@ const $ = id => document.getElementById(id);
 
 function placeholderText() {
   const lang = window.I18n ? window.I18n.getLang() : "id";
-  return lang === "en"
-    ? "Learning module not available."
-    : "Modul pembelajaran belum tersedia.";
+  return lang === "en" ? "Learning module not available." : "Modul pembelajaran belum tersedia.";
 }
 
 function showPlaceholder(msg) {
@@ -40,10 +38,26 @@ function lessonContainerFor(id) {
   if (lower.includes("progress")) return $("learn-progress") || $("learn-content");
   if (lower === "lessonlist" || lower === "lessondetail") return $("learn-content");
   if (lower.startsWith("lesson")) {
-    const detail = $("lessonDetail");
-    if (detail) return detail;
+    return $("lessonDetail") || $("learn-content");
   }
   return null;
+}
+
+/** Pindahkan #lessonDetail ke ATAS #lessonList. */
+function reorderLearnDOM() {
+  const content = $("learn-content");
+  if (!content) return;
+  const list = $("lessonList");
+  const detail = $("lessonDetail");
+  if (!list || !detail) return;
+  if (list.parentNode !== content || detail.parentNode !== content) return;
+  // Cek kalau detail SUDAH di atas list
+  const pos = list.compareDocumentPosition(detail);
+  if (pos & Node.DOCUMENT_POSITION_FOLLOWING) {
+    // detail ada setelah list → pindah ke atas
+    content.insertBefore(detail, list);
+    console.info("[LearnBridge v10] #lessonDetail dipindah ke atas #lessonList");
+  }
 }
 
 function bindNavButtons() {
@@ -62,34 +76,31 @@ function bindNavButtons() {
   }
 }
 
-function autoSelectFirst() {
+function tryAutoSelect() {
   const detail = $("lessonDetail");
-  if (detail && detail.children.length > 0) return;
+  if (detail && detail.children.length > 0) {
+    console.info("[LearnBridge v10] detail sudah terisi:", detail.children.length);
+    return true;
+  }
   const list = $("lessonList");
-  if (!list || list.children.length === 0) return;
+  if (!list || list.children.length === 0) return false;
 
   try {
     const ev = new MouseEvent("click", { bubbles: true, cancelable: true, view: window });
     list.children[0].dispatchEvent(ev);
+    console.info("[LearnBridge v10] auto-select lesson #1 dispatched");
+    return true;
   } catch (e) {
-    console.warn("[LearnBridge] auto-select gagal:", e);
+    console.warn("[LearnBridge v10] auto-select error:", e);
+    return false;
   }
-
-  setTimeout(() => {
-    const d = $("lessonDetail");
-    console.info("[LearnBridge] #lessonDetail children after select:",
-      d ? d.children.length : "no el");
-  }, 400);
 }
 
 function doInit() {
-  console.info("[LearnBridge v8] ---- init ----");
+  console.info("[LearnBridge v10] ---- init ----");
 
   const container = $("learn-content");
-  if (!container) {
-    console.warn("[LearnBridge v8] #learn-content tidak ada.");
-    return null;
-  }
+  if (!container) { console.warn("[LearnBridge v10] #learn-content tidak ada"); return null; }
 
   const LM = window.LessonsMode;
   if (!LM || typeof LM.init !== "function") {
@@ -102,24 +113,24 @@ function doInit() {
 
   const result = IDShim.runWithShim(() => {
     try { LM.init(); }
-    catch (e) { console.warn("[LearnBridge v8] init threw:", e && e.message); }
+    catch (e) { console.warn("[LearnBridge v10] init threw:", e && e.message); }
   }, {
     visibleContainerId: "learn-content",
     containerFor: lessonContainerFor
   });
 
-  console.info("[LearnBridge v8] ID shimmed:", result.createdIds);
+  console.info("[LearnBridge v10] ID shimmed:", result.createdIds);
 
-  try {
+  // Persistent patch broad
   IDShim.persistentPatch(
     [
-      /^lesson/i,        // lessonTitle, lessonBody, etc
-      /^btnLesson/,      // btnLessonPrev, etc
-      /^learn-/i,        // learn-*
-      /^step/i,          // stepTitle, stepBody
-      /^quiz/i,          // quizQuestion, quizOptions
-      /^progress/i,      // progressText
-      /^detail/i         // detailTitle, detailBody
+      /^lesson/i,
+      /^btnLesson/i,
+      /^step/i,
+      /^quiz/i,
+      /^detail/i,
+      /^progress/i,
+      /^learn-/i
     ],
     {
       visibleContainer: container,
@@ -128,21 +139,42 @@ function doInit() {
         if (/progress/i.test(id)) return $("learn-progress") || container;
         const lower = id.toLowerCase();
         if (lower === "lessonlist" || lower === "lessondetail") return container;
-        const detail = $("lessonDetail");
-        if (detail) return detail;
-        return container;
+        return $("lessonDetail") || container;
       },
       verbose: true
     }
   );
-  console.info("[LearnBridge v9] persistent patch aktif (broad).");
-} catch (e) {}
-  
+  console.info("[LearnBridge v10] persistent patch selesai.");
+
+  // Reorder detail ke atas list
+  reorderLearnDOM();
+  setTimeout(reorderLearnDOM, 100);
+
+  const list = $("lessonList");
+  console.info("[LearnBridge v10] #lessonList children:",
+    list ? list.children.length : "no el");
+
   bindNavButtons();
-  setTimeout(autoSelectFirst, 200);
+
+  // Auto-select dengan retry
+  let tries = 0;
+  const interval = setInterval(() => {
+    tries++;
+    if (tryAutoSelect()) {
+      clearInterval(interval);
+      setTimeout(() => {
+        const d = $("lessonDetail");
+        console.info("[LearnBridge v10] #lessonDetail children:",
+          d ? d.children.length : "no el");
+      }, 400);
+    } else if (tries >= 5) {
+      clearInterval(interval);
+      console.warn("[LearnBridge v10] auto-select gagal setelah 5 percobaan");
+    }
+  }, 200);
 
   instance = LM;
-  console.info("[LearnBridge v8] ✓ selesai.");
+  console.info("[LearnBridge v10] ✓ selesai.");
   return instance;
 }
 
@@ -157,13 +189,12 @@ export const LearnBridge = {
 };
 
 if (typeof window !== "undefined") window.LearnBridge = LearnBridge;
-window.__LearnBridgeV8 = true;
+window.__LearnBridgeV10 = true;
 
-/* Auto-init: 1x percobaan saja, tanpa spam */
 (function () {
   if (typeof window === "undefined") return;
-  if (window.__LearnAutoV8) return;
-  window.__LearnAutoV8 = true;
+  if (window.__LearnAutoV10) return;
+  window.__LearnAutoV10 = true;
 
   function routeIsLearn() {
     return (location.hash || "").replace(/^#\/?/, "").trim() === "learn";
@@ -172,7 +203,7 @@ window.__LearnBridgeV8 = true;
   function tryOnce(reason) {
     if (INIT_ATTEMPTED) return true;
     if (!routeIsLearn()) return false;
-    console.info("[LearnBridge v8] AUTO-INIT:", reason);
+    console.info("[LearnBridge v10] AUTO-INIT:", reason);
     LearnBridge.init();
     return true;
   }
@@ -187,7 +218,7 @@ window.__LearnBridgeV8 = true;
   const iv = setInterval(() => {
     tries++;
     if (INIT_ATTEMPTED) { clearInterval(iv); return; }
-    if (routeIsLearn()) { tryOnce("poll #" + tries); clearInterval(iv); return; }
+    if (routeIsLearn()) { tryOnce("poll"); clearInterval(iv); return; }
     if (tries >= 10) clearInterval(iv);
   }, 500);
 
