@@ -111,7 +111,17 @@ function doInit() {
   console.info("[LearnBridge v8] ID shimmed:", result.createdIds);
 
   try {
-    IDShim.persistentPatch([/^lesson/i, /^btnLesson/, /^learn-/i], {
+  IDShim.persistentPatch(
+    [
+      /^lesson/i,        // lessonTitle, lessonBody, etc
+      /^btnLesson/,      // btnLessonPrev, etc
+      /^learn-/i,        // learn-*
+      /^step/i,          // stepTitle, stepBody
+      /^quiz/i,          // quizQuestion, quizOptions
+      /^progress/i,      // progressText
+      /^detail/i         // detailTitle, detailBody
+    ],
+    {
       visibleContainer: container,
       containerFor: function (id) {
         if (/^btn/i.test(id)) return null;
@@ -122,13 +132,12 @@ function doInit() {
         if (detail) return detail;
         return container;
       },
-      verbose: false
-    });
-  } catch (e) {}
-
-  const list = $("lessonList");
-  console.info("[LearnBridge v8] #lessonList children:", list ? list.children.length : "no el");
-
+      verbose: true
+    }
+  );
+  console.info("[LearnBridge v9] persistent patch aktif (broad).");
+} catch (e) {}
+  
   bindNavButtons();
   setTimeout(autoSelectFirst, 200);
 
