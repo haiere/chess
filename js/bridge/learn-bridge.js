@@ -1,8 +1,6 @@
 /**
- * js/bridge/learn-bridge.js — v3.
- * - Shim lessonList/lessonDetail ke #learn-content (visible)
- * - Shim lessonProgressText ke #learn-progress (visible)
- * - Tombol tetap hidden, diproxy dari #btn-learn-prev / #btn-learn-next
+ * js/bridge/learn-bridge.js — v4.
+ * Tambahan: setelah init, auto-select lesson pertama.
  */
 import { IDShim } from "./id-shim.js";
 
@@ -13,14 +11,8 @@ const $ = id => document.getElementById(id);
 function placeholderText(key) {
   const lang = window.I18n ? window.I18n.getLang() : "id";
   const texts = {
-    id: {
-      noLessonsMode: "Modul pembelajaran belum tersedia. Buka Console untuk detail.",
-      initFailed: "Modul pembelajaran gagal diinisialisasi. Buka Console untuk detail."
-    },
-    en: {
-      noLessonsMode: "Learning module not available. Check Console.",
-      initFailed: "Learning module failed to initialize. Check Console."
-    }
+    id: { noLessonsMode: "Modul pembelajaran belum tersedia." },
+    en: { noLessonsMode: "Learning module not available." }
   };
   return (texts[lang] || texts.id)[key];
 }
@@ -57,6 +49,31 @@ function bindNewButtonsToOld() {
   }
 }
 
+/** Auto-select lesson pertama setelah init. */
+function autoSelectFirstLesson() {
+  const detail = $("lessonDetail");
+  if (detail && detail.children.length > 0) return; // sudah ada isi
+
+  const list = $("lessonList");
+  if (!list || list.children.length === 0) {
+    console.warn("[LearnBridge] #lessonList kosong, tidak bisa auto-select.");
+    return;
+  }
+
+  const first = list.children[0];
+  console.info("[LearnBridge] auto-select lesson pertama:", first.textContent.slice(0, 40));
+  try { first.click(); } catch (e) {
+    console.warn("[LearnBridge] auto-select gagal:", e);
+  }
+
+  // Cek hasilnya
+  setTimeout(() => {
+    const d = $("lessonDetail");
+    console.info("[LearnBridge] setelah auto-select, #lessonDetail children:",
+      d ? d.children.length : "no el");
+  }, 250);
+}
+
 export const LearnBridge = {
   init() {
     if (MOUNTED) return instance;
@@ -64,48 +81,38 @@ export const LearnBridge = {
     console.info("[LearnBridge] ---- init ----");
 
     const container = $("learn-content");
-    if (!container) {
-      console.warn("[LearnBridge] #learn-content tidak ada.");
-      return null;
-    }
+    if (!container) return null;
 
     const LM = window.LessonsMode;
-    console.info("[LearnBridge] LessonsMode:", typeof LM, "init:", typeof (LM && LM.init));
     if (!LM || typeof LM.init !== "function") {
       showPlaceholder(placeholderText("noLessonsMode"));
       return null;
     }
 
-    // Bersihkan placeholder kalau ada
     const old = container.querySelector(".app-placeholder");
     if (old) old.remove();
 
-    console.info("[LearnBridge] memanggil LessonsMode.init() dengan IDShim (visible)...");
     const result = IDShim.runWithShim(function () {
       try { LM.init(); }
       catch (e) { console.warn("[LearnBridge] LessonsMode.init() threw:", e); }
     }, {
       visibleContainerId: "learn-content",
       containerFor: function (id) {
-        // progress text → taruh di #learn-progress
         if (id === "lessonProgressText") {
           return document.getElementById("learn-progress")
             || document.getElementById("learn-content");
         }
-        return null; // fallback ke default heuristic
+        return null;
       }
     });
 
-    console.info("[LearnBridge] ID diminta:", result.requestedIds);
-    console.info("[LearnBridge] ID di-shim:", result.createdIds);
-
-    // Cek hasil — apakah lessonList punya konten?
     const list = $("lessonList");
-    const detail = $("lessonDetail");
     console.info("[LearnBridge] #lessonList children:", list ? list.children.length : "no el");
-    console.info("[LearnBridge] #lessonDetail children:", detail ? detail.children.length : "no el");
 
     bindNewButtonsToOld();
+
+    // Auto-select lesson pertama
+    setTimeout(autoSelectFirstLesson, 150);
 
     instance = LM;
     console.info("[LearnBridge] ✓ selesai.");
