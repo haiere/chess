@@ -1,6 +1,10 @@
 /**
- * js/bridge/puzzle-bridge.js — ESM v2 self-contained.
- * Auto-init saat route #puzzle. Pakai IDShim universal.
+ * js/bridge/puzzle-bridge.js — v3.
+ * Sama seperti learn-bridge: shim ke container visible.
+ * Karena kita belum tahu persis struktur puzzle.js, kita pakai heuristic:
+ *   - papan/puzzle* → #puzzle-board-container (visible)
+ *   - status/progress → #puzzle-board-container juga
+ *   - btn* → hidden (diproxy dari tombol baru)
  */
 import { IDShim } from "./id-shim.js";
 
@@ -16,8 +20,8 @@ function placeholderText(key) {
       initFailed: "Modul teka-teki gagal diinisialisasi. Buka Console untuk detail."
     },
     en: {
-      noPuzzleMode: "Puzzle module not available. Check Console for details.",
-      initFailed: "Puzzle module failed to initialize. Check Console for details."
+      noPuzzleMode: "Puzzle module not available. Check Console.",
+      initFailed: "Puzzle module failed to initialize. Check Console."
     }
   };
   return (texts[lang] || texts.id)[key];
@@ -26,11 +30,6 @@ function placeholderText(key) {
 function showPlaceholder(msg) {
   const container = $("puzzle-board-container") || $("puzzle-board");
   if (!container) return;
-  const boardEl = $("puzzle-board");
-  if (boardEl) {
-    boardEl.style.visibility = "hidden";
-    boardEl.style.position = "absolute";
-  }
   const old = container.querySelector(".app-placeholder");
   if (old) old.remove();
   const ph = document.createElement("div");
@@ -44,16 +43,32 @@ function showPlaceholder(msg) {
   container.appendChild(ph);
 }
 
-function clearPlaceholder() {
-  const container = $("puzzle-board-container");
-  if (container) {
-    const old = container.querySelector(".app-placeholder");
-    if (old) old.remove();
-  }
-  const boardEl = $("puzzle-board");
-  if (boardEl) {
-    boardEl.style.visibility = "";
-    boardEl.style.position = "";
+function bindNewButtonsToOld() {
+  const map = [
+    ["btn-puzzle-hint", "btnPuzzleHint"],
+    ["btn-puzzle-hint", "btnHint"],
+    ["btn-puzzle-retry", "btnPuzzleRetry"],
+    ["btn-puzzle-retry", "btnRetry"],
+    ["btn-puzzle-next", "btnPuzzleNext"],
+    ["btn-puzzle-next", "btnNext"],
+    ["btn-puzzle-solution", "btnPuzzleSolution"],
+    ["btn-puzzle-solution", "btnShowSolution"]
+  ];
+  const bound = new Set();
+  for (const [newId, oldId] of map) {
+    if (bound.has(newId)) continue;
+    const btn = $(newId);
+    if (!btn || btn.__bridgeBound) continue;
+    // Cari target: coba semua kemungkinan oldId
+    const candidates = map.filter(m => m[0] === newId).map(m => m[1]);
+    const existing = candidates.find(c => $(c));
+    if (!existing) continue;
+    btn.__bridgeBound = true;
+    bound.add(newId);
+    btn.addEventListener("click", () => {
+      const target = $(existing);
+      if (target) target.click();
+    });
   }
 }
 
@@ -76,29 +91,32 @@ export const PuzzleBridge = {
       return null;
     }
 
-    clearPlaceholder();
+    const old = (boardEl.parentNode || boardEl).querySelector?.(".app-placeholder");
+    if (old) old.remove();
 
-    // Jalankan init dengan ID shim
-    console.info("[PuzzleBridge] memanggil PuzzleMode.init() dengan IDShim...");
+    console.info("[PuzzleBridge] memanggil PuzzleMode.init() dengan IDShim (visible)...");
     const result = IDShim.runWithShim(function () {
-      try {
-        PM.init();
-      } catch (e) {
-        console.warn("[PuzzleBridge] PuzzleMode.init() threw:", e);
+      try { PM.init(); }
+      catch (e) { console.warn("[PuzzleBridge] PuzzleMode.init() threw:", e); }
+    }, {
+      visibleContainerId: "puzzle-board-container",
+      containerFor: function (id) {
+        const lower = id.toLowerCase();
+        // Status/progress → di bawah board, atau di body
+        if (lower.includes("status")) return document.getElementById("puzzle-status");
+        if (lower.includes("progress")) return document.getElementById("puzzle-status");
+        return null;
       }
     });
 
-    console.info("[PuzzleBridge] ID yang diminta puzzle.js:", result.requestedIds);
-    console.info("[PuzzleBridge] ID yang di-shim:", result.createdIds);
+    console.info("[PuzzleBridge] ID diminta:", result.requestedIds);
+    console.info("[PuzzleBridge] ID di-shim:", result.createdIds);
+    console.info("[PuzzleBridge] puzzle-board children:", boardEl.children.length);
 
-    if (boardEl.children.length === 0) {
-      console.warn("[PuzzleBridge] board kosong setelah init.");
-      showPlaceholder(placeholderText("initFailed"));
-      return null;
-    }
+    bindNewButtonsToOld();
 
     instance = PM;
-    console.info("[PuzzleBridge] ✓ SUKSES. Board children:", boardEl.children.length);
+    console.info("[PuzzleBridge] ✓ selesai.");
     return instance;
   },
 
@@ -115,16 +133,14 @@ if (typeof window !== "undefined") window.PuzzleBridge = PuzzleBridge;
   window.__PuzzleBridgeAutoInit = true;
 
   function routeIsPuzzle() {
-    const h = (location.hash || "").replace(/^#\/?/, "").trim();
-    return h === "puzzle";
+    return (location.hash || "").replace(/^#\/?/, "").trim() === "puzzle";
   }
 
   let attempts = 0;
   const interval = setInterval(function () {
     attempts++;
-    if (routeIsPuzzle() && PuzzleBridge.getInstance() === null) {
-      const ok = PuzzleBridge.init();
-      if (ok) clearInterval(interval);
+    if (routeIsPuzzle() && !PuzzleBridge.getInstance()) {
+      if (PuzzleBridge.init()) clearInterval(interval);
     }
     if (attempts > 120) clearInterval(interval);
   }, 500);
