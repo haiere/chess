@@ -1,9 +1,6 @@
 /**
- * js/bridge/puzzle-bridge.js — v4.
- * Container mapping presisi berdasarkan ID yang puzzle.js benar-benar minta:
- *   puzzleBoard, pzDifficulty, pzStatus, pzStats, pzInfo → VISIBLE di #puzzle-board-container
- *   btnPz* → HIDDEN (diproxy dari tombol baru)
- *   puzzle-status → existing di HTML
+ * js/bridge/puzzle-bridge.js — v5.
+ * Tambahan: setelah init, auto-load puzzle pertama.
  */
 import { IDShim } from "./id-shim.js";
 
@@ -42,49 +39,32 @@ function showPlaceholder(msg) {
   container.appendChild(ph);
 }
 
-/** Kumpulkan semua elemen visible yang sudah ada, agar tidak di-shim ulang. */
 function prepareContainer() {
   const container = $("puzzle-board-container");
   if (!container) return;
-
-  // Sembunyikan #puzzle-board lama (jangan hapus — bisa dipakai nanti)
   const oldBoard = $("puzzle-board");
   if (oldBoard) {
     oldBoard.style.display = "none";
     oldBoard.setAttribute("aria-hidden", "true");
   }
-
-  // Bersihkan placeholder lama
   const old = container.querySelector(".app-placeholder");
   if (old) old.remove();
 }
 
-/** Mapping container untuk setiap ID yang puzzle.js minta. */
 function containerFor(id) {
   const container = $("puzzle-board-container");
   const status = $("puzzle-status");
 
-  // Papan utama → di dalam board container (visible)
   if (id === "puzzleBoard") return container;
-
-  // Difficulty select → di dalam board container, akan kita proxy ke select HTML
   if (id === "pzDifficulty") return container;
-
-  // Status / stats / info → di bawah board, pakai #puzzle-status kalau ada
   if (id === "pzStatus" || id === "pzStats" || id === "pzInfo") {
     return status || container;
   }
-
-  // Tombol btnPz* → hidden (default IDShim behavior)
   if (id.indexOf("btnPz") === 0) return null;
-
-  // `puzzle-status` sudah ada di HTML — IDShim tidak akan shim ini
   if (id === "puzzle-status") return status;
-
   return container;
 }
 
-/** Proxy tombol baru → tombol lama yang di-shim. */
 function bindPuzzleButtons() {
   const map = {
     "btn-puzzle-hint":     "btnPzHint",
@@ -103,24 +83,51 @@ function bindPuzzleButtons() {
   }
 }
 
-/** Proxy difficulty select HTML → pzDifficulty shim. */
 function bindDifficulty() {
   const real = $("puzzle-difficulty");
   const shim = $("pzDifficulty");
   if (!real || !shim || real.__bridgeBound) return;
   real.__bridgeBound = true;
-
-  // Set initial value
-  try {
-    if (shim.value !== real.value) shim.value = real.value;
-  } catch (e) { /* ignore */ }
-
+  try { if (shim.value !== real.value) shim.value = real.value; } catch (e) {}
   real.addEventListener("change", () => {
     try {
       shim.value = real.value;
       shim.dispatchEvent(new Event("change"));
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
   });
+}
+
+/** Auto-load puzzle pertama setelah init. */
+function autoLoadFirstPuzzle() {
+  const pBoard = $("puzzleBoard");
+  if (pBoard && pBoard.children.length > 0) return; // sudah ada
+
+  // Prioritas: Random > Next > Daily > klik item pertama
+  const candidates = ["btnPzRandom", "btnPzNext", "btnPzDaily"];
+  for (const id of candidates) {
+    const btn = $(id);
+    if (btn) {
+      console.info("[PuzzleBridge] auto-load via #" + id);
+      try { btn.click(); } catch (e) {}
+      // Cek apakah berhasil
+      setTimeout(() => {
+        const c = $("puzzleBoard");
+        console.info("[PuzzleBridge] setelah auto-load, #puzzleBoard children:",
+          c ? c.children.length : "no el");
+      }, 200);
+      return;
+    }
+  }
+
+  // Fallback: klik item pertama di puzzle list (kalau ada)
+  const list = $("puzzleList") || $("puzzle-list");
+  if (list && list.children.length > 0) {
+    console.info("[PuzzleBridge] auto-load via item pertama di daftar puzzle");
+    try { list.children[0].click(); } catch (e) {}
+    return;
+  }
+
+  console.warn("[PuzzleBridge] tidak ada tombol auto-load. Puzzle perlu diklik manual.");
 }
 
 export const PuzzleBridge = {
@@ -136,7 +143,6 @@ export const PuzzleBridge = {
     }
 
     const PM = window.PuzzleMode;
-    console.info("[PuzzleBridge] PuzzleMode:", typeof PM, "init:", typeof (PM && PM.init));
     if (!PM || typeof PM.init !== "function") {
       showPlaceholder(placeholderText("noPuzzleMode"));
       return null;
@@ -144,29 +150,21 @@ export const PuzzleBridge = {
 
     prepareContainer();
 
-    console.info("[PuzzleBridge] memanggil PuzzleMode.init() dengan container mapping...");
     const result = IDShim.runWithShim(function () {
       try { PM.init(); }
       catch (e) {
         console.warn("[PuzzleBridge] PuzzleMode.init() threw:", e);
         console.warn("[PuzzleBridge] stack:", e && e.stack);
       }
-    }, {
-      containerFor: containerFor
-    });
+    }, { containerFor: containerFor });
 
-    console.info("[PuzzleBridge] ID diminta:", result.requestedIds);
     console.info("[PuzzleBridge] ID di-shim:", result.createdIds);
-    if (result.error) console.warn("[PuzzleBridge] init error:", result.error);
-
-    // Cek hasil
-    const pBoard = $("puzzleBoard");
-    const pStatus = $("pzStatus");
-    console.info("[PuzzleBridge] #puzzleBoard children:", pBoard ? pBoard.children.length : "no el");
-    console.info("[PuzzleBridge] #pzStatus text:", pStatus ? pStatus.textContent.slice(0, 80) : "no el");
 
     bindPuzzleButtons();
     bindDifficulty();
+
+    // Auto-load puzzle pertama
+    setTimeout(autoLoadFirstPuzzle, 150);
 
     instance = PM;
     console.info("[PuzzleBridge] ✓ selesai.");
