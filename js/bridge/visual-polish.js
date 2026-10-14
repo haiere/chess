@@ -625,6 +625,111 @@
       #puzzleBoard img, #puzzleBoard > *:hover img { transform: none !important; }
       .app-nav a:hover { transform: none !important; }
     }
+
+    /* ============================================================
+   PUZZLE BOARD (camelCase id) — GRID FORCE
+   ============================================================ */
+#puzzleBoard {
+  display: grid !important;
+  grid-template-columns: repeat(8, 1fr) !important;
+  grid-template-rows: repeat(8, 1fr) !important;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  gap: 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 12px 40px rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+[data-theme="light"] #puzzleBoard {
+  border-color: rgba(0,0,0,0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 12px 40px rgba(0,0,0,0.14);
+}
+
+#puzzleBoard > * {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin: 0 !important;
+  padding: 0 !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
+#puzzleBoard > *.light,
+#puzzleBoard > *[data-color="light"],
+#puzzleBoard > *.sq-light { background: #f0d9b5; }
+#puzzleBoard > *.dark,
+#puzzleBoard > *[data-color="dark"],
+#puzzleBoard > *.sq-dark  { background: #b58863; }
+
+#puzzleBoard img {
+  width: 92% !important;
+  height: 92% !important;
+  max-width: 92% !important;
+  max-height: 92% !important;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.38));
+}
+
+#puzzleBoard > *.selected {
+  box-shadow:
+    inset 0 0 0 3px #3b82f6,
+    inset 0 0 24px rgba(59,130,246,0.35) !important;
+}
+#puzzleBoard > *.legal::before {
+  content: "";
+  position: absolute;
+  width: 26%; height: 26%;
+  left: 50%; top: 50%;
+  border-radius: 50%;
+  background: rgba(15,20,25,0.42);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+[data-theme="dark"] #puzzleBoard > *.legal::before {
+  background: rgba(255,255,255,0.35);
+}
+#puzzleBoard > *.last-move {
+  background-image: linear-gradient(rgba(250,204,21,0.28),rgba(250,204,21,0.28));
+}
+#puzzleBoard > *.check {
+  background-image: radial-gradient(circle, rgba(239,68,68,0.75) 22%, transparent 78%);
+}
+#puzzleBoard .coord,
+#puzzleBoard .coord-rank,
+#puzzleBoard .coord-file {
+  font-size: 0.6rem;
+  font-weight: 700;
+  opacity: 0.75;
+  color: rgba(0,0,0,0.85);
+  text-shadow: 0 1px 1px rgba(255,255,255,0.45);
+  pointer-events: none;
+}
+
+/* Container puzzle: flex column */
+#puzzle-board-container {
+  display: flex !important;
+  flex-direction: column;
+  gap: 12px;
+}
   `;
 
   const style = document.createElement("style");
