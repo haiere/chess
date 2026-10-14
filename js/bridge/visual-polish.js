@@ -1,9 +1,19 @@
 /**
- * js/bridge/visual-polish.js — ESM.
- * Inject CSS polish ke <head>. Tidak mengubah struktur DOM.
- * Fokus: board aesthetics, highlight states, buttons, move history, toast.
+ * js/bridge/visual-polish.js — v3 FINAL.
+ * Semua CSS polish dalam satu file:
+ *   1. Board aesthetics (game + puzzle)
+ *   2. Highlight states (selected, legal, last-move, check)
+ *   3. Buttons (primary, destructive, hover)
+ *   4. Cards & page headings
+ *   5. Move history
+ *   6. Lesson list & detail
+ *   7. Puzzle stats/info/status
+ *   8. Toast, modal, header, nav polish
+ *   9. Responsive tweaks
+ *  10. Reduced motion
  *
- * Impor setelah game-bridge.js agar CSS-nya menimpa compat-shell default.
+ * Tidak mengubah DOM. Semua via <style> injection.
+ * Idempotent: aman diimpor berulang.
  */
 (function () {
   "use strict";
@@ -12,9 +22,10 @@
 
   const css = `
     /* ============================================================
-       BOARD AESTHETICS
+       1. BOARD AESTHETICS
        ============================================================ */
-    #board {
+    #board,
+    #puzzleBoard {
       border: 1px solid rgba(255,255,255,0.10);
       border-radius: 12px;
       box-shadow:
@@ -25,24 +36,37 @@
       transition: box-shadow 0.2s ease;
     }
 
-    [data-theme="light"] #board {
+    [data-theme="light"] #board,
+    [data-theme="light"] #puzzleBoard {
       border-color: rgba(0,0,0,0.10);
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.9),
         0 12px 40px rgba(0,0,0,0.14);
     }
 
-    /* Piece drop shadow + subtle scale on hover */
-    #board img {
+    /* Piece shadow + hover scale */
+    #board img,
+    #puzzleBoard img {
       filter: drop-shadow(0 1px 2px rgba(0,0,0,0.38));
       transition: transform 0.12s ease;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      display: block;
+      width: 92%;
+      height: 92%;
+      object-fit: contain;
     }
-    #board > *:hover img { transform: scale(1.03); }
+    #board > *:hover img,
+    #puzzleBoard > *:hover img { transform: scale(1.03); }
 
     /* Coordinate labels */
     #board .coord,
     #board .coord-rank,
-    #board .coord-file {
+    #board .coord-file,
+    #puzzleBoard .coord,
+    #puzzleBoard .coord-rank,
+    #puzzleBoard .coord-file {
       font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 0.02em;
@@ -53,13 +77,28 @@
       user-select: none;
     }
 
+    /* Square base layout (jaga-jaga kalau CSS eksternal override) */
+    #board > *,
+    #puzzleBoard > * {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+
     /* ============================================================
-       HIGHLIGHT STATES
+       2. HIGHLIGHT STATES
        ============================================================ */
 
     /* Selected square — blue glow */
     #board > *.selected,
-    #board > *[data-selected="1"] {
+    #board > *[data-selected="1"],
+    #puzzleBoard > *.selected,
+    #puzzleBoard > *[data-selected="1"] {
       box-shadow:
         inset 0 0 0 3px #3b82f6,
         inset 0 0 24px rgba(59,130,246,0.35) !important;
@@ -67,7 +106,9 @@
 
     /* Legal move (empty) — centered dot */
     #board > *.legal::before,
-    #board > *[data-legal="1"]::before {
+    #board > *[data-legal="1"]::before,
+    #puzzleBoard > *.legal::before,
+    #puzzleBoard > *[data-legal="1"]::before {
       content: "";
       position: absolute;
       width: 26%;
@@ -81,13 +122,17 @@
     }
 
     [data-theme="dark"] #board > *.legal::before,
-    [data-theme="dark"] #board > *[data-legal="1"]::before {
+    [data-theme="dark"] #board > *[data-legal="1"]::before,
+    [data-theme="dark"] #puzzleBoard > *.legal::before,
+    [data-theme="dark"] #puzzleBoard > *[data-legal="1"]::before {
       background: rgba(255,255,255,0.35);
     }
 
     /* Legal capture — red ring */
     #board > *.legal-capture::before,
-    #board > *.legal.capture::before {
+    #board > *.legal.capture::before,
+    #puzzleBoard > *.legal-capture::before,
+    #puzzleBoard > *.legal.capture::before {
       content: "";
       position: absolute;
       inset: 6%;
@@ -103,7 +148,9 @@
 
     /* Last move — soft yellow wash */
     #board > *.last-move,
-    #board > *[data-last-move="1"] {
+    #board > *[data-last-move="1"],
+    #puzzleBoard > *.last-move,
+    #puzzleBoard > *[data-last-move="1"] {
       background-image: linear-gradient(
         rgba(250,204,21,0.28),
         rgba(250,204,21,0.28)
@@ -113,7 +160,9 @@
 
     /* Check — radial red pulse */
     #board > *.check,
-    #board > *[data-check="1"] {
+    #board > *[data-check="1"],
+    #puzzleBoard > *.check,
+    #puzzleBoard > *[data-check="1"] {
       background-image:
         radial-gradient(circle at 50% 50%,
           rgba(239,68,68,0.75) 22%,
@@ -122,7 +171,7 @@
     }
 
     /* ============================================================
-       BUTTONS (main content area)
+       3. BUTTONS
        ============================================================ */
     .app-main button:not(.compat-close):not(#btn-theme) {
       padding: 10px 16px;
@@ -158,15 +207,17 @@
       outline-offset: 2px;
     }
 
-    /* Primary — New Game */
-    #btn-new-game {
+    /* Primary — New Game & puzzle next */
+    #btn-new-game,
+    #btn-puzzle-next {
       background: var(--app-accent) !important;
       border-color: var(--app-accent) !important;
       color: #ffffff !important;
       font-weight: 600 !important;
       box-shadow: 0 2px 12px rgba(59,130,246,0.35) !important;
     }
-    #btn-new-game:hover {
+    #btn-new-game:hover,
+    #btn-puzzle-next:hover {
       background: color-mix(in srgb, var(--app-accent) 88%, #ffffff) !important;
       box-shadow: 0 4px 16px rgba(59,130,246,0.45) !important;
     }
@@ -181,7 +232,7 @@
     }
 
     /* ============================================================
-       PAGE HEADINGS & CARDS
+       4. PAGE HEADINGS & CARDS
        ============================================================ */
     .app-page-title {
       font-size: 1.5rem;
@@ -204,7 +255,7 @@
     }
 
     /* ============================================================
-       MOVE HISTORY
+       5. MOVE HISTORY
        ============================================================ */
     #moveHistory {
       display: flex;
@@ -255,17 +306,231 @@
     }
 
     /* ============================================================
-       STATUS
+       6. LESSON LIST
        ============================================================ */
-    #game-status {
-      font-weight: 500;
-      color: var(--app-muted);
+    #lessonList {
+      display: block !important;
+      margin-bottom: 20px;
+    }
+
+    #lessonList > * {
+      display: block !important;
+      padding: 14px 16px !important;
+      border-radius: 10px !important;
+      background: var(--app-bg) !important;
+      border: 1px solid var(--app-border) !important;
+      cursor: pointer;
+      margin-bottom: 8px !important;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      line-height: 1.55;
+      word-break: normal !important;
+      overflow-wrap: break-word !important;
+      hyphens: none !important;
+      white-space: normal !important;
+      grid-template-columns: none !important;
+      grid-template-rows: none !important;
+      flex-direction: row !important;
+      gap: 0 !important;
+    }
+
+    #lessonList > *:hover {
+      border-color: color-mix(in srgb, var(--app-border) 55%, var(--app-accent)) !important;
+      background: color-mix(in srgb, var(--app-bg) 92%, var(--app-accent)) !important;
+    }
+
+    #lessonList > *.active,
+    #lessonList > *[aria-current="true"],
+    #lessonList > *[aria-selected="true"] {
+      background: var(--app-accent-soft) !important;
+      border-color: var(--app-accent) !important;
+    }
+
+    /* Reset children — inline flow natural */
+    #lessonList > * > * {
+      display: inline !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      position: static !important;
+      grid-column: auto !important;
+      grid-row: auto !important;
+      flex: none !important;
+      float: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      font-size: inherit !important;
+      font-weight: inherit !important;
+      color: inherit !important;
+      line-height: inherit !important;
+      vertical-align: middle !important;
+    }
+
+    /* Level badge */
+    #lessonList > * [class*="badge" i],
+    #lessonList > * [class*="level" i],
+    #lessonList > * [class*="tag" i],
+    #lessonList > * [data-level] {
+      display: inline-block !important;
+      padding: 2px 10px !important;
+      border-radius: 20px !important;
+      font-size: 0.68rem !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.03em !important;
+      background: rgba(16, 185, 129, 0.18) !important;
+      color: #10b981 !important;
+      margin-right: 8px !important;
+      vertical-align: middle !important;
+    }
+
+    /* Lesson title */
+    #lessonList > * h3,
+    #lessonList > * h4,
+    #lessonList > * [class*="title" i],
+    #lessonList > * strong {
+      display: inline !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      color: var(--app-text) !important;
+      vertical-align: middle !important;
+    }
+
+    /* Lesson description & steps */
+    #lessonList > * p,
+    #lessonList > * [class*="desc" i],
+    #lessonList > * [class*="steps" i],
+    #lessonList > * small {
+      display: block !important;
+      margin-top: 6px !important;
+      font-size: 0.85rem !important;
+      color: var(--app-muted) !important;
+      font-weight: 400 !important;
+      line-height: 1.55 !important;
+    }
+
+    #lessonList:empty { display: none; }
+
+    /* ============================================================
+       7. LESSON DETAIL
+       ============================================================ */
+    #lessonDetail {
+      display: block;
+      line-height: 1.7;
       font-size: 0.95rem;
-      transition: color 0.15s ease;
+      color: var(--app-text);
+      padding: 4px 0;
+    }
+    #lessonDetail h1,
+    #lessonDetail h2,
+    #lessonDetail h3 {
+      margin: 20px 0 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--app-text);
+    }
+    #lessonDetail h1:first-child,
+    #lessonDetail h2:first-child,
+    #lessonDetail h3:first-child { margin-top: 0; }
+    #lessonDetail p { margin: 10px 0; color: var(--app-text); }
+    #lessonDetail ul,
+    #lessonDetail ol { margin: 10px 0; padding-left: 22px; }
+    #lessonDetail li { margin: 6px 0; color: var(--app-text); }
+    #lessonDetail strong { color: var(--app-text); font-weight: 600; }
+    #lessonDetail em { color: var(--app-muted); font-style: italic; }
+    #lessonDetail code {
+      background: var(--app-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.88em;
+    }
+    #lessonDetail blockquote {
+      border-left: 3px solid var(--app-accent);
+      padding: 6px 14px;
+      margin: 12px 0;
+      background: var(--app-accent-soft);
+      border-radius: 0 8px 8px 0;
+      color: var(--app-muted);
+      font-style: italic;
+    }
+    #lessonDetail img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    #lessonDetail:empty { display: none; }
+
+    #lessonProgressText {
+      font-size: 0.85rem;
+      color: var(--app-muted);
+      margin-bottom: 12px;
+      font-weight: 500;
     }
 
     /* ============================================================
-       TOAST
+       8. PUZZLE STATUS / STATS / INFO
+       ============================================================ */
+    #puzzle-status {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--app-text);
+    }
+    #puzzle-status:empty { display: none; }
+
+    #pzStatus {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--app-text);
+    }
+    #pzStatus:empty { display: none; }
+
+    #pzStats, #pzInfo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--app-border);
+      font-size: 0.82rem;
+      color: var(--app-muted);
+    }
+    #pzStats:empty, #pzInfo:empty {
+      display: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* ============================================================
+       9. PUZZLE BOARD CONTAINER
+       ============================================================ */
+    #puzzle-board-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #puzzle-board-container .board {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Difficulty shim hidden */
+    #pzDifficulty {
+      position: absolute !important;
+      left: -9999px !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    /* ============================================================
+       10. TOAST
        ============================================================ */
     #toastContainer .toast {
       backdrop-filter: blur(10px);
@@ -281,7 +546,7 @@
     }
 
     /* ============================================================
-       MODAL POLISH
+       11. MODAL POLISH
        ============================================================ */
     .modal-overlay[data-compat="1"] > .compat-inner {
       animation: modalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -292,7 +557,7 @@
     }
 
     /* ============================================================
-       HEADER POLISH
+       12. HEADER
        ============================================================ */
     .app-header {
       backdrop-filter: blur(10px);
@@ -305,7 +570,6 @@
     }
     .app-brand:hover { opacity: 0.85; }
 
-    /* Language switcher select — cleaner look */
     .lang-switcher__select {
       border-radius: 10px;
       transition: border-color 0.15s ease;
@@ -315,7 +579,7 @@
     }
 
     /* ============================================================
-       NAV POLISH
+       13. NAV
        ============================================================ */
     .app-nav a {
       transition:
@@ -323,19 +587,15 @@
         color 0.15s ease,
         transform 0.1s ease;
     }
-    .app-nav a:hover {
-      transform: translateX(2px);
-    }
+    .app-nav a:hover { transform: translateX(2px); }
 
     .app-bottomnav a {
       transition: color 0.15s ease, transform 0.1s ease;
     }
-    .app-bottomnav a:active {
-      transform: scale(0.94);
-    }
+    .app-bottomnav a:active { transform: scale(0.94); }
 
     /* ============================================================
-       RESPONSIVE TWEAKS
+       14. RESPONSIVE
        ============================================================ */
     @media (max-width: 480px) {
       .app-page-title { font-size: 1.3rem; }
@@ -347,11 +607,12 @@
         font-size: 0.85rem;
         grid-template-columns: 38px 1fr 1fr;
       }
-      #board .coord { font-size: 0.55rem; }
+      #board .coord,
+      #puzzleBoard .coord { font-size: 0.55rem; }
     }
 
     /* ============================================================
-       REDUCED MOTION
+       15. REDUCED MOTION
        ============================================================ */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -360,358 +621,10 @@
         transition-duration: 0.001ms !important;
         scroll-behavior: auto !important;
       }
-      #board img, #board > *:hover img { transform: none !important; }
+      #board img, #board > *:hover img,
+      #puzzleBoard img, #puzzleBoard > *:hover img { transform: none !important; }
       .app-nav a:hover { transform: none !important; }
     }
-    /* ============================================================
-   LESSON LIST & DETAIL
-   ============================================================ */
-#lessonList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 20px;
-}
-#lessonList > * {
-  padding: 12px 16px;
-  border-radius: 10px;
-  background: var(--app-bg);
-  border: 1px solid var(--app-border);
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-#lessonList > *:hover {
-  border-color: color-mix(in srgb, var(--app-border) 55%, var(--app-accent));
-  background: color-mix(in srgb, var(--app-bg) 92%, var(--app-accent));
-}
-#lessonList > *.active,
-#lessonList > *[aria-current="true"],
-#lessonList > *[aria-selected="true"] {
-  background: var(--app-accent-soft);
-  border-color: var(--app-accent);
-  color: var(--app-accent);
-  font-weight: 600;
-}
-#lessonList:empty { display: none; }
-
-#lessonDetail {
-  line-height: 1.65;
-  font-size: 0.95rem;
-}
-#lessonDetail h2,
-#lessonDetail h3 {
-  margin: 16px 0 8px;
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-#lessonDetail h2:first-child,
-#lessonDetail h3:first-child { margin-top: 0; }
-#lessonDetail p { margin: 8px 0; }
-#lessonDetail ul,
-#lessonDetail ol {
-  margin: 8px 0;
-  padding-left: 20px;
-}
-#lessonDetail li { margin: 4px 0; }
-#lessonDetail img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin: 8px 0;
-}
-#lessonDetail code {
-  background: var(--app-bg);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-family: ui-monospace, monospace;
-  font-size: 0.9em;
-}
-#lessonDetail:empty { display: none; }
-
-#lessonProgressText {
-  font-size: 0.85rem;
-  color: var(--app-muted);
-  margin-bottom: 12px;
-  font-weight: 500;
-}
-
-/* Puzzle status / progress */
-#puzzle-status {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--app-text);
-}
-#puzzle-status:empty { display: none; }
-
-/* Puzzle board container match game board */
-#puzzle-board-container .board,
-#puzzle-board-container #puzzle-board {
-  display: grid !important;
-  grid-template-columns: repeat(8, 1fr) !important;
-  grid-template-rows: repeat(8, 1fr) !important;
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.38);
-}
-
-/* ============================================================
-   LESSON LIST — reset layout berantakan
-   ============================================================ */
-#lessonList {
-  display: block !important;
-  margin-bottom: 20px;
-}
-
-#lessonList > * {
-  display: block !important;
-  padding: 14px 16px !important;
-  border-radius: 10px !important;
-  background: var(--app-bg) !important;
-  border: 1px solid var(--app-border) !important;
-  cursor: pointer;
-  margin-bottom: 8px !important;
-  transition: border-color 0.15s ease, background 0.15s ease;
-  line-height: 1.55;
-  word-break: normal !important;
-  overflow-wrap: break-word !important;
-  hyphens: none !important;
-  white-space: normal !important;
-  grid-template-columns: none !important;
-  grid-template-rows: none !important;
-  flex-direction: row !important;
-  gap: 0 !important;
-}
-
-#lessonList > *:hover {
-  border-color: color-mix(in srgb, var(--app-border) 55%, var(--app-accent)) !important;
-  background: color-mix(in srgb, var(--app-bg) 92%, var(--app-accent)) !important;
-}
-
-#lessonList > *.active,
-#lessonList > *[aria-current="true"],
-#lessonList > *[aria-selected="true"] {
-  background: var(--app-accent-soft) !important;
-  border-color: var(--app-accent) !important;
-}
-
-/* Reset children — inline flow natural */
-#lessonList > * > * {
-  display: inline !important;
-  width: auto !important;
-  height: auto !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  position: static !important;
-  grid-column: auto !important;
-  grid-row: auto !important;
-  flex: none !important;
-  float: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  font-size: inherit !important;
-  font-weight: inherit !important;
-  color: inherit !important;
-  line-height: inherit !important;
-  vertical-align: middle !important;
-}
-
-/* Level badge */
-#lessonList > * [class*="badge" i],
-#lessonList > * [class*="level" i],
-#lessonList > * [class*="tag" i],
-#lessonList > * [data-level] {
-  display: inline-block !important;
-  padding: 2px 10px !important;
-  border-radius: 20px !important;
-  font-size: 0.68rem !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.03em !important;
-  background: rgba(16, 185, 129, 0.18) !important;
-  color: #10b981 !important;
-  margin-right: 8px !important;
-  vertical-align: middle !important;
-}
-
-/* Title */
-#lessonList > * h3,
-#lessonList > * h4,
-#lessonList > * [class*="title" i],
-#lessonList > * strong {
-  display: inline !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  color: var(--app-text) !important;
-  vertical-align: middle !important;
-}
-
-/* Description & steps */
-#lessonList > * p,
-#lessonList > * [class*="desc" i],
-#lessonList > * [class*="steps" i],
-#lessonList > * small {
-  display: block !important;
-  margin-top: 6px !important;
-  font-size: 0.85rem !important;
-  color: var(--app-muted) !important;
-  font-weight: 400 !important;
-  line-height: 1.55 !important;
-}
-
-/* ============================================================
-   PUZZLE BOARD — pastikan grid
-   ============================================================ */
-#puzzle-board {
-  display: grid !important;
-  grid-template-columns: repeat(8, 1fr) !important;
-  grid-template-rows: repeat(8, 1fr) !important;
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.38);
-}
-#puzzle-board > * {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  cursor: pointer;
-}
-#puzzle-board > *.light,
-#puzzle-board > *[data-color="light"] { background: #f0d9b5; }
-#puzzle-board > *.dark,
-#puzzle-board > *[data-color="dark"]  { background: #b58863; }
-#puzzle-board img {
-  width: 92%;
-  height: 92%;
-  object-fit: contain;
-  pointer-events: none;
-  display: block;
-}
-#puzzle-board > *.selected { box-shadow: inset 0 0 0 3px #3b82f6; }
-#puzzle-board > *.legal::before {
-  content: "";
-  position: absolute;
-  width: 26%;
-  height: 26%;
-  left: 50%; top: 50%;
-  border-radius: 50%;
-  background: rgba(15,20,25,0.42);
-  transform: translate(-50%, -50%);
-}
-#puzzle-board > *.last-move { background-image: linear-gradient(rgba(250,204,21,0.28),rgba(250,204,21,0.28)); }
-#puzzle-board > *.check { background-image: radial-gradient(circle, rgba(239,68,68,0.75) 22%, transparent 78%); }
-
-  /* ============================================================
-   PUZZLE BOARD (camelCase id dari puzzle.js)
-   ============================================================ */
-#puzzleBoard {
-  display: grid !important;
-  grid-template-columns: repeat(8, 1fr) !important;
-  grid-template-rows: repeat(8, 1fr) !important;
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    0 12px 40px rgba(0,0,0,0.38);
-  border: 1px solid rgba(255,255,255,0.10);
-}
-[data-theme="light"] #puzzleBoard {
-  border-color: rgba(0,0,0,0.10);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.9),
-    0 12px 40px rgba(0,0,0,0.14);
-}
-
-#puzzleBoard > * {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  cursor: pointer;
-}
-#puzzleBoard > *.light,
-#puzzleBoard > *[data-color="light"] { background: #f0d9b5; }
-#puzzleBoard > *.dark,
-#puzzleBoard > *[data-color="dark"]  { background: #b58863; }
-#puzzleBoard img {
-  width: 92%;
-  height: 92%;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.38));
-}
-#puzzleBoard > *.selected { box-shadow: inset 0 0 0 3px #3b82f6; }
-#puzzleBoard > *.legal::before {
-  content: "";
-  position: absolute;
-  width: 26%; height: 26%;
-  left: 50%; top: 50%;
-  border-radius: 50%;
-  background: rgba(15,20,25,0.42);
-  transform: translate(-50%, -50%);
-}
-[data-theme="dark"] #puzzleBoard > *.legal::before { background: rgba(255,255,255,0.35); }
-#puzzleBoard > *.last-move { background-image: linear-gradient(rgba(250,204,21,0.28),rgba(250,204,21,0.28)); }
-#puzzleBoard > *.check { background-image: radial-gradient(circle, rgba(239,68,68,0.75) 22%, transparent 78%); }
-
-/* Puzzle status/stats/info */
-#pzStatus, #pzStats, #pzInfo {
-  display: block;
-  margin-top: 12px;
-  font-size: 0.9rem;
-  color: var(--app-text);
-  line-height: 1.6;
-}
-#pzStats, #pzInfo {
-  color: var(--app-muted);
-  font-size: 0.85rem;
-}
-#pzStats:empty, #pzInfo:empty, #pzStatus:empty { display: none; }
-
-/* Difficulty select shim — hidden, karena kita pakai #puzzle-difficulty visible */
-#pzDifficulty {
-  position: absolute !important;
-  left: -9999px !important;
-  width: 0 !important;
-  height: 0 !important;
-}
-
-/* Puzzle card container spacing */
-#puzzle-board-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-#puzzle-board-container .board {
-  width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
-}
   `;
 
   const style = document.createElement("style");
@@ -726,7 +639,7 @@
     }, { once: true });
   }
 
-  console.info("[VisualPolish] CSS polish v1 diterapkan.");
+  console.info("[VisualPolish] CSS polish v3 FINAL diterapkan (" + css.length + " bytes).");
 })();
 
 export {};
