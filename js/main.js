@@ -1,38 +1,20 @@
 /**
- * js/main.js — v4 DEFENSIVE.
- * Semua bridge dimuat sebagai side-effect import, tapi diberi fallback
- * kalau file tidak ada. Error-tracer dimuat via dynamic import (optional).
+ * js/main.js — v5 BULLETPROOF.
+ * TIDAK ADA static import. Semua dynamic dengan try/catch.
+ * Apapun yang terjadi di file lain, main.js tetap execute.
  */
-import "./i18n.js";
-import "./components/LanguageSwitcher.js";
-import "./bridge/visual-polish.js";
-import "./bridge/id-shim.js";
-import "./bridge/game-bridge.js";
-import "./bridge/puzzle-bridge.js";
-import "./bridge/learn-bridge.js";
+console.log("%c[main-v5] main.js LOADED", "color:#10b981;font-weight:bold");
 
-// error-tracer OPTIONAL — tidak crash kalau file belum ada
-import("./bridge/error-tracer.js").catch(function () {});
+const BRIDGE_IMPORTS = [
+  "./i18n.js",
+  "./components/LanguageSwitcher.js",
+  "./bridge/visual-polish.js",
+  "./bridge/id-shim.js",
+  "./bridge/game-bridge.js",
+  "./bridge/puzzle-bridge.js",
+  "./bridge/learn-bridge.js"
+];
 
-/* ---------- helpers ---------- */
-async function safeImport(path) {
-  try { return await import(path); }
-  catch (e) {
-    console.warn("[main] gagal load", path, "→", e && e.message ? e.message : e);
-    return null;
-  }
-}
-function pick(mod, ...names) {
-  if (!mod) return null;
-  for (const n of names) if (mod[n]) return mod[n];
-  if (mod.default) {
-    for (const n of names) if (mod.default[n]) return mod.default[n];
-    return mod.default;
-  }
-  return null;
-}
-
-/* ---------- user modules ---------- */
 const USER_MODULES = [
   { path: "./storage.js",           globals: ["AppStorage", "Storage"] },
   { path: "./utils/storage.js",     globals: ["AppStorage", "Storage"] },
@@ -56,6 +38,35 @@ const USER_MODULES = [
   { path: "./lessons.js",           globals: ["LessonsMode", "Lessons", "Mode"] }
 ];
 
+/* ---------- helpers ---------- */
+async function safeImport(path) {
+  try { return await import(path); }
+  catch (e) {
+    console.warn("[main-v5] gagal load", path, "→", e && e.message ? e.message : e);
+    return null;
+  }
+}
+function pick(mod, ...names) {
+  if (!mod) return null;
+  for (const n of names) if (mod[n]) return mod[n];
+  if (mod.default) {
+    for (const n of names) if (mod.default[n]) return mod.default[n];
+    return mod.default;
+  }
+  return null;
+}
+
+/* ---------- load bridge modules (dynamic) ---------- */
+async function loadBridges() {
+  const loaded = [];
+  for (const path of BRIDGE_IMPORTS) {
+    const mod = await safeImport(path);
+    if (mod) loaded.push(path);
+  }
+  console.info("[main-v5] bridge modules loaded:", loaded);
+}
+
+/* ---------- load user modules ---------- */
 async function loadUserModules() {
   const loaded = [];
   for (const entry of USER_MODULES) {
@@ -67,7 +78,8 @@ async function loadUserModules() {
     for (const g of entry.globals) if (!window[g]) window[g] = value;
     loaded.push(entry.path + " → " + entry.globals[0]);
   }
-  console.info("[main] modul dimuat:", loaded.length ? loaded : "(tidak ada)");
+  console.info("[main-v5] user modules loaded:", loaded.length, "of", USER_MODULES.length);
+  return loaded;
 }
 
 /* ---------- router ---------- */
@@ -92,32 +104,38 @@ function showRoute(route) {
   if (main && main.focus) { try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); } }
 }
 
-/* ---------- bridge controller ---------- */
+/* ---------- bridges ---------- */
 const bridgeInit = { game: false, puzzle: false, learn: false };
 
 function initBridgeForRoute(route) {
   if (route === "game" && !bridgeInit.game) {
     bridgeInit.game = true;
-    console.info("[main] → GameBridge.init()");
+    console.info("[main-v5] → GameBridge.init()");
     if (window.GameBridge && typeof window.GameBridge.init === "function") {
       try { window.GameBridge.init(); }
-      catch (e) { console.error("[main] GameBridge.init() throw:", e); }
+      catch (e) { console.error("[main-v5] GameBridge.init() throw:", e); }
+    } else {
+      console.warn("[main-v5] GameBridge tidak tersedia");
     }
   }
   if (route === "puzzle" && !bridgeInit.puzzle) {
     bridgeInit.puzzle = true;
-    console.info("[main] → PuzzleBridge.init()");
+    console.info("[main-v5] → PuzzleBridge.init()");
     if (window.PuzzleBridge && typeof window.PuzzleBridge.init === "function") {
       try { window.PuzzleBridge.init(); }
-      catch (e) { console.error("[main] PuzzleBridge.init() throw:", e); }
+      catch (e) { console.error("[main-v5] PuzzleBridge.init() throw:", e); }
+    } else {
+      console.warn("[main-v5] PuzzleBridge tidak tersedia");
     }
   }
   if (route === "learn" && !bridgeInit.learn) {
     bridgeInit.learn = true;
-    console.info("[main] → LearnBridge.init()");
+    console.info("[main-v5] → LearnBridge.init()");
     if (window.LearnBridge && typeof window.LearnBridge.init === "function") {
       try { window.LearnBridge.init(); }
-      catch (e) { console.error("[main] LearnBridge.init() throw:", e); }
+      catch (e) { console.error("[main-v5] LearnBridge.init() throw:", e); }
+    } else {
+      console.warn("[main-v5] LearnBridge tidak tersedia");
     }
   }
 }
@@ -158,11 +176,11 @@ function initLangSwitcher() {
     if (!slot || slot.__mounted) return;
     slot.__mounted = true;
     try { window.LanguageSwitcher.mount(slot); }
-    catch (e) { console.warn("[main] LanguageSwitcher.mount(#" + id + ") gagal:", e); }
+    catch (e) { console.warn("[main-v5] LanguageSwitcher.mount(#" + id + ") gagal:", e); }
   });
 }
 
-/* ---------- settings bindings ---------- */
+/* ---------- settings ---------- */
 function bindSettings() {
   const themeSel = document.getElementById("setting-theme");
   if (themeSel && !themeSel.__bound) {
@@ -198,21 +216,30 @@ async function boot() {
   if (document.readyState === "loading") {
     await new Promise(r => document.addEventListener("DOMContentLoaded", r, { once: true }));
   }
+  console.log("[main-v5] DOM ready, starting boot...");
 
+  // 1. Load bridges (dynamic)
+  await loadBridges();
+  console.log("[main-v5] bridges loaded. window.GameBridge:", typeof window.GameBridge);
+
+  // 2. Init i18n
   if (window.I18n && window.I18n.init) {
     try { window.I18n.init(); }
-    catch (e) { console.warn("[main] I18n.init gagal:", e); }
+    catch (e) { console.warn("[main-v5] I18n.init gagal:", e); }
   }
 
+  // 3. Load user modules
   await loadUserModules();
 
-  console.info("[main] window map:", {
+  // 4. Report
+  console.info("[main-v5] window map:", {
     Chess:       typeof window.Chess,
     GameMode:    typeof window.GameMode,
     BoardView:   typeof window.BoardView,
     PuzzleMode:  typeof window.PuzzleMode,
     LessonsMode: typeof window.LessonsMode,
     AppStorage:  typeof window.AppStorage,
+    I18n:        typeof window.I18n,
     CompatShell: typeof window.CompatShell,
     IDShim:      typeof window.IDShim,
     GameBridge:  typeof window.GameBridge,
@@ -220,10 +247,12 @@ async function boot() {
     LearnBridge: typeof window.LearnBridge
   });
 
+  // 5. Theme
   restoreTheme();
   initThemeToggle();
   bindSettings();
 
+  // 6. Router
   window.addEventListener("hashchange", () => showRoute(normalize(location.hash)));
   if (!location.hash) {
     try { history.replaceState(null, "", "#game"); }
@@ -231,14 +260,18 @@ async function boot() {
   }
   showRoute(normalize(location.hash));
 
+  // 7. Language switcher
   initLangSwitcher();
+
+  // 8. Bridge for current route
   initBridgeForRoute(normalize(location.hash));
 
+  // 9. Bridge for future routes
   document.addEventListener("route:change", e => {
     if (e && e.detail && e.detail.route) initBridgeForRoute(e.detail.route);
   });
 
-  console.info("[main] Siap.");
+  console.log("%c[main-v5] Siap.", "color:#10b981;font-weight:bold");
 }
 
-boot().catch(e => console.error("[main] boot gagal:", e));
+boot().catch(e => console.error("[main-v5] boot gagal:", e));
