@@ -459,6 +459,162 @@
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0,0,0,0.38);
 }
+
+/* ============================================================
+   LESSON LIST — reset layout berantakan
+   ============================================================ */
+#lessonList {
+  display: block !important;
+  margin-bottom: 20px;
+}
+
+#lessonList > * {
+  display: block !important;
+  padding: 14px 16px !important;
+  border-radius: 10px !important;
+  background: var(--app-bg) !important;
+  border: 1px solid var(--app-border) !important;
+  cursor: pointer;
+  margin-bottom: 8px !important;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  line-height: 1.55;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: none !important;
+  white-space: normal !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+  flex-direction: row !important;
+  gap: 0 !important;
+}
+
+#lessonList > *:hover {
+  border-color: color-mix(in srgb, var(--app-border) 55%, var(--app-accent)) !important;
+  background: color-mix(in srgb, var(--app-bg) 92%, var(--app-accent)) !important;
+}
+
+#lessonList > *.active,
+#lessonList > *[aria-current="true"],
+#lessonList > *[aria-selected="true"] {
+  background: var(--app-accent-soft) !important;
+  border-color: var(--app-accent) !important;
+}
+
+/* Reset children — inline flow natural */
+#lessonList > * > * {
+  display: inline !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  position: static !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  flex: none !important;
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  color: inherit !important;
+  line-height: inherit !important;
+  vertical-align: middle !important;
+}
+
+/* Level badge */
+#lessonList > * [class*="badge" i],
+#lessonList > * [class*="level" i],
+#lessonList > * [class*="tag" i],
+#lessonList > * [data-level] {
+  display: inline-block !important;
+  padding: 2px 10px !important;
+  border-radius: 20px !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #10b981 !important;
+  margin-right: 8px !important;
+  vertical-align: middle !important;
+}
+
+/* Title */
+#lessonList > * h3,
+#lessonList > * h4,
+#lessonList > * [class*="title" i],
+#lessonList > * strong {
+  display: inline !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: var(--app-text) !important;
+  vertical-align: middle !important;
+}
+
+/* Description & steps */
+#lessonList > * p,
+#lessonList > * [class*="desc" i],
+#lessonList > * [class*="steps" i],
+#lessonList > * small {
+  display: block !important;
+  margin-top: 6px !important;
+  font-size: 0.85rem !important;
+  color: var(--app-muted) !important;
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+}
+
+/* ============================================================
+   PUZZLE BOARD — pastikan grid
+   ============================================================ */
+#puzzle-board {
+  display: grid !important;
+  grid-template-columns: repeat(8, 1fr) !important;
+  grid-template-rows: repeat(8, 1fr) !important;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.38);
+}
+#puzzle-board > * {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+#puzzle-board > *.light,
+#puzzle-board > *[data-color="light"] { background: #f0d9b5; }
+#puzzle-board > *.dark,
+#puzzle-board > *[data-color="dark"]  { background: #b58863; }
+#puzzle-board img {
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+  pointer-events: none;
+  display: block;
+}
+#puzzle-board > *.selected { box-shadow: inset 0 0 0 3px #3b82f6; }
+#puzzle-board > *.legal::before {
+  content: "";
+  position: absolute;
+  width: 26%;
+  height: 26%;
+  left: 50%; top: 50%;
+  border-radius: 50%;
+  background: rgba(15,20,25,0.42);
+  transform: translate(-50%, -50%);
+}
+#puzzle-board > *.last-move { background-image: linear-gradient(rgba(250,204,21,0.28),rgba(250,204,21,0.28)); }
+#puzzle-board > *.check { background-image: radial-gradient(circle, rgba(239,68,68,0.75) 22%, transparent 78%); }
   `;
 
   const style = document.createElement("style");
