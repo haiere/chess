@@ -282,7 +282,7 @@ export const LearnBridge = {
           verbose: true
         }
       );
-      console.info("[LearnBridge] persistent patch aktif untuk pola lesson*/btnLesson*/learn-*.");
+      console.info("[LearnBridge] v6 FINAL — persistent patch aktif."); 
     } catch (e) {
       console.warn("[LearnBridge] persistentPatch gagal:", e);
     }
