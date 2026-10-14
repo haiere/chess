@@ -1,6 +1,8 @@
 /**
- * js/bridge/learn-bridge.js — ESM v2 self-contained.
- * Auto-init saat route #learn. Pakai IDShim universal.
+ * js/bridge/learn-bridge.js — v3.
+ * - Shim lessonList/lessonDetail ke #learn-content (visible)
+ * - Shim lessonProgressText ke #learn-progress (visible)
+ * - Tombol tetap hidden, diproxy dari #btn-learn-prev / #btn-learn-next
  */
 import { IDShim } from "./id-shim.js";
 
@@ -16,8 +18,8 @@ function placeholderText(key) {
       initFailed: "Modul pembelajaran gagal diinisialisasi. Buka Console untuk detail."
     },
     en: {
-      noLessonsMode: "Learning module not available. Check Console for details.",
-      initFailed: "Learning module failed to initialize. Check Console for details."
+      noLessonsMode: "Learning module not available. Check Console.",
+      initFailed: "Learning module failed to initialize. Check Console."
     }
   };
   return (texts[lang] || texts.id)[key];
@@ -39,11 +41,19 @@ function showPlaceholder(msg) {
   container.appendChild(ph);
 }
 
-function clearPlaceholder() {
-  const container = $("learn-content");
-  if (container) {
-    const old = container.querySelector(".app-placeholder");
-    if (old) old.remove();
+function bindNewButtonsToOld() {
+  const map = [
+    ["btn-learn-prev", "btnLessonPrev"],
+    ["btn-learn-next", "btnLessonNext"]
+  ];
+  for (const [newId, oldId] of map) {
+    const btn = $(newId);
+    if (!btn || btn.__bridgeBound) continue;
+    btn.__bridgeBound = true;
+    btn.addEventListener("click", () => {
+      const target = $(oldId);
+      if (target) target.click();
+    });
   }
 }
 
@@ -66,19 +76,36 @@ export const LearnBridge = {
       return null;
     }
 
-    clearPlaceholder();
+    // Bersihkan placeholder kalau ada
+    const old = container.querySelector(".app-placeholder");
+    if (old) old.remove();
 
-    console.info("[LearnBridge] memanggil LessonsMode.init() dengan IDShim...");
+    console.info("[LearnBridge] memanggil LessonsMode.init() dengan IDShim (visible)...");
     const result = IDShim.runWithShim(function () {
-      try {
-        LM.init();
-      } catch (e) {
-        console.warn("[LearnBridge] LessonsMode.init() threw:", e);
+      try { LM.init(); }
+      catch (e) { console.warn("[LearnBridge] LessonsMode.init() threw:", e); }
+    }, {
+      visibleContainerId: "learn-content",
+      containerFor: function (id) {
+        // progress text → taruh di #learn-progress
+        if (id === "lessonProgressText") {
+          return document.getElementById("learn-progress")
+            || document.getElementById("learn-content");
+        }
+        return null; // fallback ke default heuristic
       }
     });
 
-    console.info("[LearnBridge] ID yang diminta lessons.js:", result.requestedIds);
-    console.info("[LearnBridge] ID yang di-shim:", result.createdIds);
+    console.info("[LearnBridge] ID diminta:", result.requestedIds);
+    console.info("[LearnBridge] ID di-shim:", result.createdIds);
+
+    // Cek hasil — apakah lessonList punya konten?
+    const list = $("lessonList");
+    const detail = $("lessonDetail");
+    console.info("[LearnBridge] #lessonList children:", list ? list.children.length : "no el");
+    console.info("[LearnBridge] #lessonDetail children:", detail ? detail.children.length : "no el");
+
+    bindNewButtonsToOld();
 
     instance = LM;
     console.info("[LearnBridge] ✓ selesai.");
@@ -98,16 +125,14 @@ if (typeof window !== "undefined") window.LearnBridge = LearnBridge;
   window.__LearnBridgeAutoInit = true;
 
   function routeIsLearn() {
-    const h = (location.hash || "").replace(/^#\/?/, "").trim();
-    return h === "learn";
+    return (location.hash || "").replace(/^#\/?/, "").trim() === "learn";
   }
 
   let attempts = 0;
   const interval = setInterval(function () {
     attempts++;
-    if (routeIsLearn() && LearnBridge.getInstance() === null) {
-      const ok = LearnBridge.init();
-      if (ok) clearInterval(interval);
+    if (routeIsLearn() && !LearnBridge.getInstance()) {
+      if (LearnBridge.init()) clearInterval(interval);
     }
     if (attempts > 120) clearInterval(interval);
   }, 500);
