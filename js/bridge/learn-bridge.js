@@ -1,58 +1,13 @@
 /**
- * js/bridge/learn-bridge.js — v5.
- * Perubahan:
- *  - Patch console.log/warn/error sementara saat init & auto-select,
- *    untuk filter noise dari lessons.js
- *  - Klik lesson lebih aman via stopPropagation
- *  - Auto-select lesson pertama
+ * js/bridge/learn-bridge.js — v6.
+ * Setelah init, install persistent patch untuk ID pelajaran.
+ * Ini menjamin setiap klik lesson menemukan semua elemen yang dia butuh.
  */
 import { IDShim } from "./id-shim.js";
 
 let MOUNTED = false;
 let instance = null;
 const $ = id => document.getElementById(id);
-
-/* ---------- console noise filter ---------- */
-function withQuietConsole(fn, ms) {
-  ms = ms || 1500;
-  const orig = {
-    log: console.log,
-    warn: console.warn,
-    info: console.info,
-    debug: console.debug,
-    trace: console.trace
-  };
-  function filter(origFn) {
-    return function (...args) {
-      try {
-        const str = args.map(a => {
-          try { return typeof a === "string" ? a : JSON.stringify(a); }
-          catch (e) { return String(a); }
-        }).join(" ");
-        // Skip log panjang (>200 char) atau yang tampak debug
-        if (str.length > 200) return;
-        if (/\bdebug\b|\btrace\b|\bstack\b/i.test(str)) return;
-      } catch (e) { /* ignore */ }
-      return origFn.apply(console, args);
-    };
-  }
-  console.log = filter(orig.log);
-  console.warn = filter(orig.warn);
-  console.info = filter(orig.info);
-  console.debug = () => {};
-  console.trace = () => {};
-
-  try { fn(); }
-  finally {
-    setTimeout(() => {
-      console.log = orig.log;
-      console.warn = orig.warn;
-      console.info = orig.info;
-      console.debug = orig.debug;
-      console.trace = orig.trace;
-    }, ms);
-  }
-}
 
 function placeholderText(key) {
   const lang = window.I18n ? window.I18n.getLang() : "id";
@@ -79,6 +34,22 @@ function showPlaceholder(msg) {
   container.appendChild(ph);
 }
 
+/** Container mapping untuk pelajaran. */
+function lessonContainerFor(id) {
+  const progress = document.getElementById("learn-progress");
+  const content = document.getElementById("learn-content");
+  const lower = id.toLowerCase();
+
+  if (lower === "lessonprogresstext" || lower.includes("progress")) {
+    return progress || content;
+  }
+  if (lower === "lessonlist" || lower === "lessondetail" ||
+      lower.startsWith("lesson") && !lower.startsWith("btnlesson")) {
+    return content || null;
+  }
+  return null; // tombol → hidden
+}
+
 function bindNewButtonsToOld() {
   const map = [
     ["btn-learn-prev", "btnLessonPrev"],
@@ -90,35 +61,11 @@ function bindNewButtonsToOld() {
     btn.__bridgeBound = true;
     btn.addEventListener("click", () => {
       const target = $(oldId);
-      if (target) {
-        // Bungkus dengan quiet console juga
-        withQuietConsole(() => {
-          try { target.click(); } catch (e) {}
-        }, 800);
-      }
+      if (target) target.click();
     });
   }
 }
 
-/** Klik lesson card dengan console filter. */
-function clickLessonSafely(el) {
-  if (!el) return;
-  withQuietConsole(() => {
-    try {
-      // Simulasi klik penuh
-      const ev = new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window
-      });
-      el.dispatchEvent(ev);
-    } catch (e) {
-      console.warn("[LearnBridge] klik lesson gagal:", e);
-    }
-  }, 2000);
-}
-
-/** Auto-select lesson pertama. */
 function autoSelectFirstLesson() {
   const detail = $("lessonDetail");
   if (detail && detail.children.length > 0) return;
@@ -131,7 +78,8 @@ function autoSelectFirstLesson() {
 
   const first = list.children[0];
   console.info("[LearnBridge] auto-select lesson pertama");
-  clickLessonSafely(first);
+  try { first.click(); }
+  catch (e) { console.warn("[LearnBridge] auto-select error:", e); }
 
   setTimeout(() => {
     const d = $("lessonDetail");
@@ -158,40 +106,39 @@ export const LearnBridge = {
     const old = container.querySelector(".app-placeholder");
     if (old) old.remove();
 
-    // Init dengan quiet console
-    let result;
-    withQuietConsole(() => {
-      result = IDShim.runWithShim(function () {
-        try { LM.init(); }
-        catch (e) { console.warn("[LearnBridge] LessonsMode.init() threw:", e); }
-      }, {
-        visibleContainerId: "learn-content",
-        containerFor: function (id) {
-          if (id === "lessonProgressText") {
-            return document.getElementById("learn-progress")
-              || document.getElementById("learn-content");
-          }
-          return null;
+    // 1. Init dengan shim
+    const result = IDShim.runWithShim(function () {
+      try { LM.init(); }
+      catch (e) { console.warn("[LearnBridge] LessonsMode.init() threw:", e); }
+    }, {
+      visibleContainerId: "learn-content",
+      containerFor: function (id) {
+        const r = lessonContainerFor(id);
+        if (r) return r;
+        if (id === "lessonProgressText") {
+          return document.getElementById("learn-progress") || null;
         }
-      });
-    }, 2000);
+        return null;
+      }
+    });
+
+    console.info("[LearnBridge] ID di-shim saat init:", result.createdIds);
+
+    // 2. PERSISTENT PATCH — agar klik lesson menemukan semua ID yang dia butuh
+    IDShim.persistentPatch(
+      [/^lesson/i, /^btnLesson/, /^learn-/i],
+      {
+        visibleContainer: container,
+        containerFor: lessonContainerFor,
+        verbose: true
+      }
+    );
+    console.info("[LearnBridge] persistent patch aktif untuk pola lesson*.");
 
     const list = $("lessonList");
     console.info("[LearnBridge] #lessonList children:", list ? list.children.length : "no el");
 
     bindNewButtonsToOld();
-
-    // Bind click handler kita sendiri untuk setiap lesson item (defensive)
-    if (list) {
-      // Detach existing inline handlers dengan clone
-      Array.from(list.children).forEach((el, i) => {
-        if (el.__learnBound) return;
-        el.__learnBound = true;
-        // Simpan reference original click handler
-        // (kita tidak hapus, tapi bungkus dengan event capture di parent)
-      });
-    }
-
     setTimeout(autoSelectFirstLesson, 200);
 
     instance = LM;
