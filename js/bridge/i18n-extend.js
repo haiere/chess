@@ -1,6 +1,8 @@
 /**
- * js/bridge/i18n-extend.js — Extend I18n.t() dengan keys tambahan.
- * Tidak perlu mengedit i18n.js. Override aman dengan fallback ke original.
+ * js/bridge/i18n-extend.js — v2.
+ * Wrapper I18n.t() untuk:
+ *   - Keys tambahan (statsLine, available, pick, stepsCount)
+ *   - Default params (failed:0 dll) saat params undefined
  */
 (function () {
   "use strict";
@@ -13,20 +15,32 @@
       puzzle: {
         statsLine: "Selesai: {solved} · Gagal: {failed} · Streak: {streak}",
         available: "{count} teka-teki tersedia",
-        pick: "Pilih teka-teki"
+        pick: "Pilih teka-teki",
+        loading: "Memuat teka-teki...",
+        completed: "Selesai!"
       },
       learning: {
-        stepsCount: "{count} langkah"
+        stepsCount: "{count} langkah",
+        lessonProgress: "Progres: {done} dari {total}",
+        completed: "Selesai",
+        notStarted: "Belum Dimulai",
+        inProgress: "Sedang Dipelajari"
       }
     },
     en: {
       puzzle: {
         statsLine: "Solved: {solved} · Failed: {failed} · Streak: {streak}",
         available: "{count} puzzles available",
-        pick: "Select a puzzle"
+        pick: "Select a puzzle",
+        loading: "Loading puzzles...",
+        completed: "Completed!"
       },
       learning: {
-        stepsCount: "{count} steps"
+        stepsCount: "{count} steps",
+        lessonProgress: "Progress: {done} of {total}",
+        completed: "Completed",
+        notStarted: "Not Started",
+        inProgress: "In Progress"
       }
     }
   };
@@ -43,9 +57,11 @@
 
   function interpolate(tpl, params) {
     if (!params || typeof tpl !== "string") return tpl;
-    return tpl.replace(/\{(\w+)\}/g, (m, n) =>
-      Object.prototype.hasOwnProperty.call(params, n) ? String(params[n]) : m
-    );
+    return tpl.replace(/\{(\w+)\}/g, (m, n) => {
+      const v = params[n];
+      if (v === undefined || v === null) return "0";
+      return String(v);
+    });
   }
 
   function install() {
@@ -59,12 +75,19 @@
       let val = getNested(SUPP[lang], key);
       if (val === undefined && lang !== "id") val = getNested(SUPP.id, key);
       if (val !== undefined) {
-        return typeof val === "string" ? interpolate(val, params) : val;
+        if (typeof val === "string") {
+          // Default params untuk stats keys
+          if (key.indexOf("statsLine") !== -1) {
+            params = Object.assign({ solved: 0, failed: 0, streak: 0 }, params || {});
+          }
+          return interpolate(val, params);
+        }
+        return val;
       }
       return origT(key, params);
     };
     I18n.__extended = true;
-    console.info("[I18n-extend] Keys tambahan terpasang.");
+    console.info("[I18n-extend v2] Keys tambahan terpasang.");
     return true;
   }
 
