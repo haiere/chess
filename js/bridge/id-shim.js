@@ -1,13 +1,13 @@
 /**
- * js/bridge/id-shim.js — v2.
- * Sekarang mendukung per-ID container mapping:
- *   - Default: ke visible container (jika diset)
- *   - Tombol (btn*) dan Modal (*Modal): ke hidden container
- *   - Bisa override per-ID via containerFor callback.
+ * js/bridge/id-shim.js — v3.
+ * Tambahan: persistentPatch() — patch getElementById yang tetap aktif
+ * untuk pola ID tertentu, auto-create saat diminta.
  */
 
 const CREATED = new Set();
 const LOG = [];
+let _persistentActive = false;
+let _persistentOrig = null;
 
 function inferTag(id) {
   if (!id) return "div";
@@ -25,7 +25,7 @@ function createShim(id, container) {
   el.setAttribute("data-shim", "1");
   el.tabIndex = -1;
 
-  const isHidden = container && container.dataset && container.dataset.hidden === "1";
+  const isHidden = !container || (container.dataset && container.dataset.hidden === "1");
   if (isHidden) {
     el.setAttribute("aria-hidden", "true");
     el.style.cssText =
@@ -46,7 +46,7 @@ function createShim(id, container) {
     el.setAttribute("aria-hidden", "true");
   }
 
-  (container || document.body).appendChild(el);
+  (container || getHiddenContainer()).appendChild(el);
   CREATED.add(id);
   return el;
 }
@@ -58,7 +58,9 @@ function getHiddenContainer() {
     c.id = "compat-shell";
     c.dataset.hidden = "1";
     c.setAttribute("aria-hidden", "true");
-    c.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;left:-9999px;top:-9999px;pointer-events:none;";
+    c.style.cssText =
+      "position:absolute;width:0;height:0;overflow:hidden;" +
+      "left:-9999px;top:-9999px;pointer-events:none;";
     document.body.appendChild(c);
   }
   return c;
@@ -66,10 +68,8 @@ function getHiddenContainer() {
 
 export const IDShim = {
   /**
-   * @param {Function} fn - fungsi init yang akan dijalankan
-   * @param {Object} [opts]
-   * @param {string} [opts.visibleContainerId] - container default untuk elemen non-tombol
-   * @param {Function} [opts.containerFor] - callback(id) → HTMLElement, override per-ID
+   * Patch getElementById selama fn() dijalankan.
+   * Semua ID yang diminta akan di-auto-create jika tidak ada.
    */
   runWithShim(fn, opts) {
     opts = opts || {};
@@ -115,6 +115,56 @@ export const IDShim = {
     };
     LOG.push(result);
     return result;
+  },
+
+  /**
+   * Patch persistent. Auto-create untuk ID yang cocok `patterns`
+   * (array of RegExp) atau yang cocok `idTest(id)`.
+   *
+   * Setiap ID yang diminta akan di-auto-create menggunakan
+   * opts.containerFor(id) untuk menentukan container.
+   */
+  persistentPatch(patterns, opts) {
+    opts = opts || {};
+    if (_persistentActive) return;
+    _persistentActive = true;
+    _persistentOrig = document.getElementById;
+
+    const hidden = getHiddenContainer();
+
+    function idMatches(id) {
+      if (!id) return false;
+      if (typeof opts.idTest === "function" && opts.idTest(id)) return true;
+      for (const re of patterns) if (re.test(id)) return true;
+      return false;
+    }
+
+    function pickContainer(id) {
+      if (typeof opts.containerFor === "function") {
+        const custom = opts.containerFor(id);
+        if (custom) return custom;
+      }
+      const lower = id.toLowerCase();
+      if (lower.startsWith("btn")) return hidden;
+      if (lower.includes("modal")) return hidden;
+      return opts.visibleContainer || hidden;
+    }
+
+    document.getElementById = function (id) {
+      let el = _persistentOrig.call(document, id);
+      if (!el && idMatches(id)) {
+        el = createShim(id, pickContainer(id));
+        if (opts.verbose) console.info("[IDShim] auto-create:", id);
+      }
+      return el;
+    };
+  },
+
+  persistentUnpatch() {
+    if (!_persistentActive) return;
+    document.getElementById = _persistentOrig;
+    _persistentActive = false;
+    _persistentOrig = null;
   },
 
   ensure(id, container) {
