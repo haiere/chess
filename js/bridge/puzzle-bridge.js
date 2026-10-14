@@ -1,10 +1,9 @@
 /**
- * js/bridge/puzzle-bridge.js — v3.
- * Sama seperti learn-bridge: shim ke container visible.
- * Karena kita belum tahu persis struktur puzzle.js, kita pakai heuristic:
- *   - papan/puzzle* → #puzzle-board-container (visible)
- *   - status/progress → #puzzle-board-container juga
- *   - btn* → hidden (diproxy dari tombol baru)
+ * js/bridge/puzzle-bridge.js — v4.
+ * Container mapping presisi berdasarkan ID yang puzzle.js benar-benar minta:
+ *   puzzleBoard, pzDifficulty, pzStatus, pzStats, pzInfo → VISIBLE di #puzzle-board-container
+ *   btnPz* → HIDDEN (diproxy dari tombol baru)
+ *   puzzle-status → existing di HTML
  */
 import { IDShim } from "./id-shim.js";
 
@@ -28,7 +27,7 @@ function placeholderText(key) {
 }
 
 function showPlaceholder(msg) {
-  const container = $("puzzle-board-container") || $("puzzle-board");
+  const container = $("puzzle-board-container");
   if (!container) return;
   const old = container.querySelector(".app-placeholder");
   if (old) old.remove();
@@ -43,33 +42,85 @@ function showPlaceholder(msg) {
   container.appendChild(ph);
 }
 
-function bindNewButtonsToOld() {
-  const map = [
-    ["btn-puzzle-hint", "btnPuzzleHint"],
-    ["btn-puzzle-hint", "btnHint"],
-    ["btn-puzzle-retry", "btnPuzzleRetry"],
-    ["btn-puzzle-retry", "btnRetry"],
-    ["btn-puzzle-next", "btnPuzzleNext"],
-    ["btn-puzzle-next", "btnNext"],
-    ["btn-puzzle-solution", "btnPuzzleSolution"],
-    ["btn-puzzle-solution", "btnShowSolution"]
-  ];
-  const bound = new Set();
-  for (const [newId, oldId] of map) {
-    if (bound.has(newId)) continue;
+/** Kumpulkan semua elemen visible yang sudah ada, agar tidak di-shim ulang. */
+function prepareContainer() {
+  const container = $("puzzle-board-container");
+  if (!container) return;
+
+  // Sembunyikan #puzzle-board lama (jangan hapus — bisa dipakai nanti)
+  const oldBoard = $("puzzle-board");
+  if (oldBoard) {
+    oldBoard.style.display = "none";
+    oldBoard.setAttribute("aria-hidden", "true");
+  }
+
+  // Bersihkan placeholder lama
+  const old = container.querySelector(".app-placeholder");
+  if (old) old.remove();
+}
+
+/** Mapping container untuk setiap ID yang puzzle.js minta. */
+function containerFor(id) {
+  const container = $("puzzle-board-container");
+  const status = $("puzzle-status");
+
+  // Papan utama → di dalam board container (visible)
+  if (id === "puzzleBoard") return container;
+
+  // Difficulty select → di dalam board container, akan kita proxy ke select HTML
+  if (id === "pzDifficulty") return container;
+
+  // Status / stats / info → di bawah board, pakai #puzzle-status kalau ada
+  if (id === "pzStatus" || id === "pzStats" || id === "pzInfo") {
+    return status || container;
+  }
+
+  // Tombol btnPz* → hidden (default IDShim behavior)
+  if (id.indexOf("btnPz") === 0) return null;
+
+  // `puzzle-status` sudah ada di HTML — IDShim tidak akan shim ini
+  if (id === "puzzle-status") return status;
+
+  return container;
+}
+
+/** Proxy tombol baru → tombol lama yang di-shim. */
+function bindPuzzleButtons() {
+  const map = {
+    "btn-puzzle-hint":     "btnPzHint",
+    "btn-puzzle-retry":    "btnPzRetry",
+    "btn-puzzle-next":     "btnPzNext",
+    "btn-puzzle-solution": "btnPzSolution"
+  };
+  for (const [newId, oldId] of Object.entries(map)) {
     const btn = $(newId);
     if (!btn || btn.__bridgeBound) continue;
-    // Cari target: coba semua kemungkinan oldId
-    const candidates = map.filter(m => m[0] === newId).map(m => m[1]);
-    const existing = candidates.find(c => $(c));
-    if (!existing) continue;
     btn.__bridgeBound = true;
-    bound.add(newId);
     btn.addEventListener("click", () => {
-      const target = $(existing);
+      const target = $(oldId);
       if (target) target.click();
     });
   }
+}
+
+/** Proxy difficulty select HTML → pzDifficulty shim. */
+function bindDifficulty() {
+  const real = $("puzzle-difficulty");
+  const shim = $("pzDifficulty");
+  if (!real || !shim || real.__bridgeBound) return;
+  real.__bridgeBound = true;
+
+  // Set initial value
+  try {
+    if (shim.value !== real.value) shim.value = real.value;
+  } catch (e) { /* ignore */ }
+
+  real.addEventListener("change", () => {
+    try {
+      shim.value = real.value;
+      shim.dispatchEvent(new Event("change"));
+    } catch (e) { /* ignore */ }
+  });
 }
 
 export const PuzzleBridge = {
@@ -91,29 +142,31 @@ export const PuzzleBridge = {
       return null;
     }
 
-    const old = (boardEl.parentNode || boardEl).querySelector?.(".app-placeholder");
-    if (old) old.remove();
+    prepareContainer();
 
-    console.info("[PuzzleBridge] memanggil PuzzleMode.init() dengan IDShim (visible)...");
+    console.info("[PuzzleBridge] memanggil PuzzleMode.init() dengan container mapping...");
     const result = IDShim.runWithShim(function () {
       try { PM.init(); }
-      catch (e) { console.warn("[PuzzleBridge] PuzzleMode.init() threw:", e); }
-    }, {
-      visibleContainerId: "puzzle-board-container",
-      containerFor: function (id) {
-        const lower = id.toLowerCase();
-        // Status/progress → di bawah board, atau di body
-        if (lower.includes("status")) return document.getElementById("puzzle-status");
-        if (lower.includes("progress")) return document.getElementById("puzzle-status");
-        return null;
+      catch (e) {
+        console.warn("[PuzzleBridge] PuzzleMode.init() threw:", e);
+        console.warn("[PuzzleBridge] stack:", e && e.stack);
       }
+    }, {
+      containerFor: containerFor
     });
 
     console.info("[PuzzleBridge] ID diminta:", result.requestedIds);
     console.info("[PuzzleBridge] ID di-shim:", result.createdIds);
-    console.info("[PuzzleBridge] puzzle-board children:", boardEl.children.length);
+    if (result.error) console.warn("[PuzzleBridge] init error:", result.error);
 
-    bindNewButtonsToOld();
+    // Cek hasil
+    const pBoard = $("puzzleBoard");
+    const pStatus = $("pzStatus");
+    console.info("[PuzzleBridge] #puzzleBoard children:", pBoard ? pBoard.children.length : "no el");
+    console.info("[PuzzleBridge] #pzStatus text:", pStatus ? pStatus.textContent.slice(0, 80) : "no el");
+
+    bindPuzzleButtons();
+    bindDifficulty();
 
     instance = PM;
     console.info("[PuzzleBridge] ✓ selesai.");
