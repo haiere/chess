@@ -12,7 +12,7 @@ const dist = join(root, 'dist');
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 
-for (const f of ['index.html', 'style.css', 'style.ext.css']) {
+for (const f of ['index.html', 'style.css']) {
     cpSync(join(root, f), join(dist, f));
 }
 for (const d of ['js', 'locales']) {
