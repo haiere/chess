@@ -1,6 +1,9 @@
 /* ============================================================
    Hajir Chess — Unified Design System v7
    Satu sumber kebenaran: tokens, komponen, halaman.
+   (Menggantikan style.css lama + style.ext.css + inline style
+    di index.html; token --app-* dan alias lama tetap dijaga
+    agar JS bridge yang sudah ada tidak rusak.)
    ============================================================ */
 
 /* ---------- 1. DESIGN TOKENS ---------- */
@@ -49,6 +52,10 @@
   --sq-legal: rgba(20, 85, 180, .40);
   --sq-capture: rgba(220, 60, 60, .60);
 
+  /* Board — alias lama (dipakai sebagian JS) */
+  --board-light: var(--sq-light);
+  --board-dark: var(--sq-dark);
+
   /* Layout */
   --nav-w: 240px;
   --header-h: 60px;
@@ -60,7 +67,7 @@
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 
-  /* Alias lama (kompatibilitas dengan JS bridge) */
+  /* Alias lama (kompatibilitas JS bridge) */
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --surface2: var(--surface-2);
   --text2: var(--text-2);
@@ -72,6 +79,29 @@
   --shadow: var(--shadow-md);
   --text-muted: var(--text-3);
   --focus: var(--accent);
+
+  /* Alias --app-* (sebelumnya inline di index.html) */
+  --app-bg: var(--bg);
+  --app-bg-soft: var(--bg-soft);
+  --app-surface: var(--surface);
+  --app-surface-2: var(--surface-2);
+  --app-border: var(--border);
+  --app-border-soft: var(--border);
+  --app-text: var(--text);
+  --app-text-dim: var(--text-2);
+  --app-muted: var(--text-3);
+  --app-accent: var(--accent);
+  --app-accent-hover: var(--accent-hover);
+  --app-accent-soft: var(--accent-soft);
+  --app-danger: var(--danger);
+  --app-success: var(--success);
+  --app-radius-sm: var(--radius-sm);
+  --app-radius: var(--radius-md);
+  --app-radius-lg: var(--radius-lg);
+  --app-nav-w: var(--nav-w);
+  --app-header-h: var(--header-h);
+  --app-bottomnav-h: var(--bottomnav-h);
+  --app-focus: var(--accent);
 }
 
 [data-theme="light"] {
@@ -87,6 +117,8 @@
   --accent-hover: #3b86ec;
   --accent-soft: rgba(26, 115, 232, .10);
   --accent-contrast: #ffffff;
+  --danger-soft: rgba(220, 38, 38, .10);
+  --success-soft: rgba(22, 163, 74, .10);
   --shadow-sm: 0 1px 3px rgba(20,30,60,.08);
   --shadow-md: 0 4px 16px rgba(20,30,60,.10);
   --shadow-lg: 0 12px 32px rgba(20,30,60,.14);
@@ -102,7 +134,9 @@
 /* ---------- 2. RESET & BASE ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+}
 
 body.app-body {
   margin: 0;
@@ -155,6 +189,14 @@ button, a, select, input { font: inherit; color: inherit; }
   text-decoration: none; font-weight: 600;
 }
 .app-skip:focus { left: 0; }
+/* Kompat: kelas lama */
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 1000;
+  background: var(--accent); color: var(--accent-contrast);
+  padding: 10px 16px; border-radius: var(--radius3); font-weight: 600;
+  text-decoration: none;
+}
+.skip-link:focus { left: 8px; top: 8px; }
 
 /* ---------- 4. HEADER ---------- */
 .app-header {
@@ -265,9 +307,11 @@ button, a, select, input { font: inherit; color: inherit; }
   display: flex; flex-direction: column; gap: var(--space-2);
   box-shadow: var(--shadow-sm);
 }
+.panel-history { max-height: 220px; }
+.panel-actions { flex-direction: row; flex-wrap: wrap; }
 
 /* ---------- 9. BUTTONS ---------- */
-.btn, .btn-row button {
+.btn, .btn-row button, .compat-actions button {
   display: inline-flex; align-items: center; justify-content: center;
   gap: 6px;
   padding: 9px 14px;
@@ -295,7 +339,9 @@ button, a, select, input { font: inherit; color: inherit; }
 .btn.danger, .btn-row button.danger { color: var(--danger); }
 .btn.danger:hover:not(:disabled) { border-color: var(--danger); background: var(--danger-soft); }
 .btn.small { padding: 6px 10px; font-size: .76rem; min-height: 34px; }
+.btn.icon-btn { padding: var(--space-2); min-width: 40px; }
 .btn.active { border-color: var(--accent); color: var(--accent); }
+.btn svg { flex: 0 0 auto; }
 
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .btn-row.btns-spread { justify-content: space-between; }
@@ -342,7 +388,7 @@ button, a, select, input { font: inherit; color: inherit; }
 .square.dark  { background: var(--sq-dark); }
 @media (hover: hover) {
   .square.light:hover { filter: brightness(1.05); }
-  .square.dark:hover  { filter: brightness(1.1); }
+  .square.dark:hover  { filter: brightness(1.12); }
 }
 
 .square.last-move::before {
@@ -389,6 +435,7 @@ button, a, select, input { font: inherit; color: inherit; }
 .square.dark  .coord-label { color: var(--sq-light); }
 
 /* Puzzle feedback */
+.pz-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; padding: 10px 12px; }
 .pz-status { font-weight: 600; font-size: .92rem; line-height: 1.4; }
 .pz-status.success { color: var(--success); }
 .pz-status.error   { color: var(--danger); }
@@ -466,6 +513,7 @@ button, a, select, input { font: inherit; color: inherit; }
   flex: 0 0 auto; font-size: .62rem; font-weight: 700;
   padding: 3px 8px; border-radius: 99px;
   background: var(--accent-soft); color: var(--accent);
+  text-transform: uppercase; letter-spacing: .4px;
 }
 .lesson-card.done .lesson-badge { background: var(--success-soft); color: var(--success); }
 .lesson-card-body { flex: 1; min-width: 0; }
@@ -473,7 +521,8 @@ button, a, select, input { font: inherit; color: inherit; }
   width: 100%; text-align: left;
   padding: var(--space-3); border-radius: var(--radius-sm);
   border: 1px solid var(--border); background: var(--surface-2);
-  cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast);
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
 }
 .quiz-option:hover { border-color: var(--accent); }
 .quiz-option.success { border-color: var(--success); background: var(--success-soft); }
@@ -563,7 +612,7 @@ body.modal-open { overflow: hidden; }
   min-height: 34px; cursor: pointer;
   transition: border-color var(--t-fast);
 }
-.lang-switcher select:hover { border-color: var(--accent); }
+.lang-switcher select:hover, .lang-switcher__select:hover { border-color: var(--accent); }
 @media (max-width: 899px) { .lang-switcher { display: none; } }
 
 /* ---------- 17. BOTTOM NAV (MOBILE) ---------- */
@@ -592,20 +641,78 @@ body.modal-open { overflow: hidden; }
 .app-bottomnav a[aria-current="page"] { color: var(--accent); }
 
 /* ---------- 18. RESPONSIVE ---------- */
+
+/* --- Mobile: satu kolom penuh, nothing clipped --- */
 @media (max-width: 899px) {
   .app-layout { grid-template-columns: 1fr; }
   .app-nav { display: none; }
   .app-bottomnav { display: block; }
-  .app-main { padding: var(--space-4) var(--space-4) calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-4)); }
+  .app-main {
+    max-width: 100%;
+    padding: var(--space-4) var(--space-4)
+             calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-4));
+  }
+  .board-container, .board {
+    max-width: min(560px, 100%, calc(100dvh - 300px));
+  }
   .toast-container { bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + 12px); }
+  .modal-overlay { padding: var(--space-3); align-items: flex-end; }
+  .modal {
+    max-width: 100%;
+    border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-sm);
+    max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 24px);
+  }
 }
 
-@media (min-width: 900px) {
-  .board-container, .board { max-width: min(560px, calc(100dvh - 180px)); }
+/* Layar sangat kecil */
+@media (max-width: 480px) {
+  .app-page-title { font-size: 1.3rem; }
+  .app-main { padding-left: var(--space-3); padding-right: var(--space-3); }
+  .app-card { padding: var(--space-3); }
+  .btn-row { gap: 6px; }
+  .btn-row button, .btn { flex: 1 1 auto; padding: 9px 10px; }
+  .coord-label { font-size: 8px; }
 }
 
+/* --- Tablet / laptop kecil: satu kolom, lebih lega --- */
+@media (min-width: 900px) and (max-width: 1099px) {
+  .board-container, .board { max-width: min(560px, calc(100dvh - 200px)); }
+}
+
+/* --- Desktop lebar: game page jadi 2 kolom --- */
+@media (min-width: 1100px) {
+  .app-main { max-width: 1080px; }
+
+  #page-game.is-active {
+    display: grid;
+    grid-template-columns: minmax(340px, 560px) minmax(280px, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+  #page-game .app-page-title,
+  #page-game .app-page-subtitle { grid-column: 1 / -1; margin-bottom: 0; }
+
+  /* kartu 1 = papan */
+  #page-game .app-card:nth-of-type(1) {
+    grid-row: 2 / span 2;
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-4));
+  }
+  #page-game .app-card:nth-of-type(1) .board,
+  #page-game .app-card:nth-of-type(1) .board-container {
+    max-width: min(100%, calc(100dvh - var(--header-h) - 140px));
+  }
+  /* kartu 2 = kontrol, kartu 3 = riwayat */
+  #page-game .app-card:nth-of-type(3) #move-history,
+  #page-game .app-card:nth-of-type(3) .move-history { max-height: none; }
+
+  .board-container, .board { max-width: min(560px, calc(100dvh - 200px)); }
+}
+
+/* --- Landscape pendek (HP landscape): papan dibatasi tinggi --- */
 @media (orientation: landscape) and (max-height: 620px) {
-  .board-container, .board { max-width: calc(100dvh - 80px); }
+  .board-container, .board { max-width: calc(100dvh - 100px); }
+  .app-page-title { font-size: 1.2rem; }
 }
 
 /* ---------- 19. REDUCED MOTION ---------- */
