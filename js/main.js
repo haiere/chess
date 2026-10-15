@@ -4,17 +4,6 @@
  * - Tambah i18n-extend.
  * - Semua dynamic import.
  */
-(function () {
-  if (typeof window === "undefined") return;
-  if (window.__mainV6Loaded) {
-    console.warn("[main-v6] duplicate load prevented.");
-    return;
-  }
-  window.__mainV6Loaded = true;
-})();
-
-console.log("%c[main-v6] LOADED", "color:#10b981;font-weight:bold");
-
 const BRIDGE_IMPORTS = [
   "./i18n.js",
   "./components/LanguageSwitcher.js",
@@ -134,6 +123,22 @@ function initBridgeForRoute(route) {
   }
 }
 
+async function initAndroidIntegration() {
+  // Status bar overlay + hardware back button (khusus Android/Capacitor)
+  try {
+    const { StatusBar, Style } = await import("@capacitor/status-bar");
+    await StatusBar.setOverlaysWebView({ overlay: true });
+    await StatusBar.setStyle({ style: Style.Dark });
+  } catch (_) { /* browser: abaikan */ }
+  try {
+    const { App } = await import("@capacitor/app");
+    await App.addListener("backButton", ({ canGoBack }) => {
+      if (canGoBack) window.history.back();
+      else App.exitApp();
+    });
+  } catch (_) { /* browser: abaikan */ }
+}
+
 function initThemeToggle() {
   const btn = document.getElementById("btn-theme");
   if (!btn || btn.__bound) return;
@@ -226,7 +231,7 @@ async function boot() {
   });
 
   restoreTheme();
-  initThemeToggle();
+  initAndroidIntegration();initThemeToggle();
   bindSettings();
 
   window.addEventListener("hashchange", () => showRoute(normalize(location.hash)));
@@ -244,5 +249,22 @@ async function boot() {
 
   console.log("%c[main-v6] Siap.", "color:#10b981;font-weight:bold");
 }
+const bootPromise = (typeof window !== "undefined" && !window.__mainV6Loaded)
+  ? (window.__mainV6Loaded = true,
+     console.log("%c[main-v6] LOADED", "color:#10b981;font-weight:bold"),
+     boot())
+  : (console.warn("[main-v6] duplicate load prevented."), null);
+if (bootPromise && bootPromise.catch) {
+  bootPromise.catch(e => console.error("[main-v6] boot gagal:", e));
+}
 
-boot().catch(e => console.error("[main-v6] boot gagal:", e));
+// Sembunyikan splash loading setelah boot selesai (fade-out, lalu hapus)
+function hideAppLoading() {
+  const el = document.getElementById("app-loading");
+  if (!el) return;
+  el.classList.add("done");
+  setTimeout(() => el.remove(), 400);
+}
+if (bootPromise && bootPromise.then) bootPromise.then(hideAppLoading);
+// Fallback pengaman: selalu hilangkan splash walau boot lambat/gagal
+setTimeout(hideAppLoading, 10000);

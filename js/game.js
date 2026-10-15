@@ -115,6 +115,9 @@
             s.textContent = T(current.currentPlayer === 'white' ? 'game.whiteToMove' : 'game.blackToMove');
             sub.textContent = '';
         }
+        // Sinkron ke elemen asli di index.html (#game-status)
+        const gs = document.getElementById('game-status');
+        if (gs) gs.textContent = sub.textContent ? s.textContent + ' — ' + sub.textContent : s.textContent;
     }
 
     function updatePlayersUI() {
@@ -154,6 +157,27 @@
     }
 
     function updateHistoryUI() {
+        // Sinkron juga ke elemen asli di index.html (#move-history)
+        const ol = document.getElementById('move-history');
+        if (ol) {
+            ol.innerHTML = '';
+            for (let i = 0; i < history.length; i += 2) {
+                const row = document.createElement('li');
+                row.className = 'move-row';
+                const n = document.createElement('span');
+                n.className = 'move-number';
+                n.textContent = (Math.floor(i / 2) + 1) + '.';
+                const ws = document.createElement('span');
+                ws.className = 'move-white';
+                ws.textContent = history[i] ? history[i].move.san : '';
+                const bs = document.createElement('span');
+                bs.className = 'move-black';
+                bs.textContent = history[i + 1] ? history[i + 1].move.san : '';
+                row.append(n, ws, bs);
+                ol.appendChild(row);
+            }
+            ol.scrollTop = ol.scrollHeight;
+        }
         const el = $('moveHistory');
         if (!el) return;
         el.innerHTML = '';
