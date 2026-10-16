@@ -722,3 +722,19 @@ body.modal-open { overflow: hidden; }
     transition-duration: .01ms !important;
   }
 }
+
+/* ---------- 20. SKELETON & STATES ---------- */
+.skeleton{position:relative;overflow:hidden;background:var(--surface-2);border-radius:var(--radius-sm);}
+.skeleton::after{content:'';position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+  animation:sk-shimmer 1.4s infinite;}
+@keyframes sk-shimmer{to{transform:translateX(100%)}}
+.skeleton--line{height:14px;margin:8px 0;}
+.skeleton--title{height:20px;width:55%;margin:4px 0 10px;}
+.skeleton--card{height:64px;border-radius:var(--radius-md);margin:10px 0;}
+.skeleton--board{width:100%;aspect-ratio:1/1;border-radius:var(--radius-md);}
+
+.state-box{display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 16px;
+  text-align:center;color:var(--text-2);font-size:.88rem;}
+.state-box svg{width:36px;height:36px;color:var(--text-3);}
+.state-box .btn{margin-top:4px;}

@@ -133,3 +133,20 @@ scripts/build.mjs, PERUBAHAN.md. Terhapus: style.ext.css, folder css/.
 - js/storage.js: sudah punya guard penuh (probe + fallback in-memory) sejak awal.
 - Verifikasi: 225/225 test PASS, npm run build OK, browser smoke 64 petak 0 error.
 - APK debug/release: ./gradlew assembleDebug/assembleRelease (perlu Android SDK + JDK17).
+
+---
+
+# Fitur: 50 Puzzle + 50 Lesson + Skeleton (tahap konten)
+
+- 50 puzzle tervalidasi engine (Easy 15/Medium 15/Hard 10/Expert 10),
+  dihasilkan scripts/gen-puzzles.js (forced-mate solver, dedupe FEN).
+  master -> expert; key i18n puzzle.medium/expert.
+- 50 lesson bilingual (EN primer + {en,id}), js/lessons-data.js;
+  js/lessons.js renderer pakai LANG()/pick().
+- Skeleton screen (shimmer) + empty/error/retry state (AppSkeleton util)
+  untuk lesson & puzzle; i18n missing-key collector di js/i18n.js
+  (window.__I18N_MISSING + console.warn saat localhost).
+- Cleanup: js/data/puzzles.js, js/data/Lesson.js, js/LanguageSwitcher.js
+  dihapus; entri loader mati dibersihkan dari js/main.js.
+- npm run build OK; cap sync android OK.
+- Test: 413 PASSED / 0 FAILED. Lint: 32/32 file JS OK.
