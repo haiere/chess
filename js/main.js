@@ -30,7 +30,6 @@ const USER_MODULES = [
   { path: "./components/Icon.js",   globals: ["Icon"] },
   { path: "./game.js",              globals: ["GameMode", "Game", "Mode"] },
   { path: "./puzzle-data.js",       globals: ["PuzzleData"] },
-  { path: "./data/puzzles.js",      globals: ["Puzzles", "PuzzleData"] },
   { path: "./puzzle/provider.js",   globals: ["PuzzleProvider", "Provider"] },
   { path: "./puzzle.js",            globals: ["PuzzleMode", "Puzzle", "Mode"] },
   { path: "./lessons-data.js",      globals: ["LessonsData"] },
@@ -206,6 +205,34 @@ function bindSettings() {
     });
   }
 }
+
+
+// Util skeleton & state kosong/error (dipakai bridge/lessons/puzzle)
+window.AppSkeleton = {
+  lines(el, n) {
+    if (!el) return;
+    let html = '<div class="skeleton skeleton--title" aria-hidden="true"></div>';
+    for (let i = 0; i < (n || 4); i++) html += '<div class="skeleton skeleton--line" aria-hidden="true"></div>';
+    el.innerHTML = html;
+  },
+  cards(el, n) {
+    if (!el) return;
+    let html = '';
+    for (let i = 0; i < (n || 3); i++) html += '<div class="skeleton skeleton--card" aria-hidden="true"></div>';
+    el.innerHTML = html;
+  },
+  board(el) { if (el) el.innerHTML = '<div class="skeleton skeleton--board" aria-hidden="true"></div>'; },
+  empty(el, key, retry) {
+    if (!el) return;
+    el.innerHTML = '<div class="state-box" role="status"><p>' +
+      (window.I18n ? window.I18n.t(key) : key) + '</p>' +
+      (retry ? '<button class="btn accent" data-retry>' +
+        (window.I18n ? window.I18n.t("common.retry") : "Retry") + '</button>' : '') +
+      '</div>';
+    const b = el.querySelector("[data-retry]");
+    if (b) b.addEventListener("click", () => location.reload());
+  }
+};
 
 async function boot() {
   if (document.readyState === "loading") {

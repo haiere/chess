@@ -1,521 +1,2402 @@
-/* Lesson content — English. Separated from UI for easy editing. */
-(function () {
-    'use strict';
-    window.LESSON_DATA = [
-        /* ─────────────────────────────────────────────
-           BEGINNER
-           ───────────────────────────────────────────── */
-        {
-            id: 'board-basics', title: 'Meet the Chessboard', level: 'beginner',
-            description: 'The 8×8 grid, coordinates, and the starting position.',
-            goal: 'Read square coordinates and recognize the starting setup.',
-            steps: [
-                { title: 'The 8×8 Grid', text: 'The board has 64 squares: 8 ranks (rows 1–8) and 8 files (columns a–h). Square a1 is always at the bottom-left from White\'s view, and it is always dark.' },
-                { title: 'Starting Position', text: 'Ranks 1 and 2 hold White\'s pieces; ranks 7 and 8 hold Black\'s. On the back rank, the queen sits on her own color (d1 for White, d8 for Black) and the king stands beside her.', board: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' },
-                { title: 'Coordinates', text: 'Every square has a name like e4 or g7. Files use letters (a–h) and ranks use numbers (1–8). This notation is used worldwide to record moves.', quiz: { question: 'Which square is top-right from White\'s point of view?', options: ['a8', 'h1', 'h8', 'a1'], answer: 2 } }
-            ]
+window.LESSON_DATA = [
+  {
+    "id": "board-notation",
+    "level": "beginner",
+    "title": {
+      "en": "The Board & Notation",
+      "id": "Papan & Notasi"
+    },
+    "description": {
+      "en": "Learn the squares and how to record moves.",
+      "id": "Kenali kotak papan dan cara mencatat langkah."
+    },
+    "goal": {
+      "en": "Read and write any chess move.",
+      "id": "Membaca dan menulis notasi catur."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Files & Ranks",
+          "id": "Kolom & Baris"
         },
-        {
-            id: 'files-ranks-diagonals', title: 'Files, Ranks, and Diagonals', level: 'beginner',
-            description: 'How pieces travel along the lines of the board.',
-            goal: 'Identify lines and use them to describe piece movement.',
-            steps: [
-                { title: 'Files', text: 'A file runs vertically from White\'s side to Black\'s. Files are labeled a through h from left to right (from White\'s view).' },
-                { title: 'Ranks', text: 'A rank runs horizontally across the board. Ranks are numbered 1 (White\'s back rank) through 8 (Black\'s back rank).' },
-                { title: 'Diagonals', text: 'A diagonal runs at a 45° angle and always stays on one color. Each square lies on exactly two diagonals — one light, one dark.', board: '8/8/8/3B4/8/8/8/8 w - - 0 1' }
-            ]
-        },
-        {
-            id: 'chess-notation', title: 'Chess Notation', level: 'beginner',
-            description: 'Read and write moves using algebraic notation.',
-            goal: 'Follow a game score and record your own moves.',
-            steps: [
-                { title: 'Naming Moves', text: 'A move is written as piece + destination. Example: Nf3 means a knight moves to f3. Pawn moves omit the letter: e4, d5, exd5 for captures.' },
-                { title: 'Special Symbols', text: 'x = capture, + = check, # = checkmate, O-O = kingside castling, O-O-O = queenside castling, e.p. = en passant, =Q = promotion to queen.' },
-                { title: 'Kuis', text: 'Notation is the universal language of chess.', quiz: { question: 'What does "exd5" mean?', options: ['A pawn from e4 captures on d5', 'A bishop moves to d5', 'A king moves to d5', 'Castling kingside'], answer: 0 } }
-            ]
-        },
-        {
-            id: 'pawn-movement', title: 'The Pawn', level: 'beginner',
-            description: 'The soul of chess — slow, brave, and full of surprises.',
-            goal: 'Move and capture with pawns correctly.',
-            steps: [
-                { title: 'Forward Only', text: 'A pawn moves one square straight ahead. From its starting rank it may advance two squares. Pawns never move backward.' },
-                { title: 'Diagonal Captures', text: 'A pawn captures one square diagonally forward. It cannot capture straight ahead — a blocked pawn stays blocked until it can capture.', board: '8/8/8/3Pp3/8/8/8/8 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'How does a pawn capture?', options: ['Straight ahead', 'Diagonally forward', 'Backward', 'Like a knight'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'knight-movement', title: 'The Knight', level: 'beginner',
-            description: 'The only piece that can jump over others.',
-            goal: 'Recognize knight moves and the L-shape.',
-            steps: [
-                { title: 'The L-Shape', text: 'The knight moves two squares in one direction, then one square perpendicular. It always lands on a square of the opposite color.' },
-                { title: 'Jumping', text: 'The knight is the only piece that can leap over other pieces — friendly or enemy. This makes it deadly in crowded positions.', board: '8/8/8/3N4/8/8/8/8 w - - 0 1' },
-                { title: 'Kuis', text: '"A knight on the rim is dim."', quiz: { question: 'How many squares does a centralized knight attack?', options: ['2', '4', '6', '8'], answer: 3 } }
-            ]
-        },
-        {
-            id: 'bishop-movement', title: 'The Bishop', level: 'beginner',
-            description: 'A long-range sniper bound to one color.',
-            goal: 'Move and value bishops correctly.',
-            steps: [
-                { title: 'Diagonal Slider', text: 'The bishop moves any number of squares diagonally and cannot jump over pieces.' },
-                { title: 'Bound to Color', text: 'Each bishop stays forever on its starting color. That is why a bishop pair (one light, one dark) is a powerful long-term asset.', board: '8/8/8/3B4/8/8/8/8 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Can a light-squared bishop ever attack a dark square?', options: ['Yes, once per game', 'Yes, with castling', 'No, never', 'Only after promotion'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'rook-movement', title: 'The Rook', level: 'beginner',
-            description: 'Straight lines, heavy power.',
-            goal: 'Use rooks on files and ranks effectively.',
-            steps: [
-                { title: 'Straight Slider', text: 'The rook moves any number of squares horizontally or vertically and cannot jump. Worth about five pawns.' },
-                { title: 'Open Files', text: 'Rooks love open files — files with no pawns. Place rooks on open files and double them up for maximum pressure.', board: '8/8/8/3R4/8/8/8/8 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Where is a rook most effective?', options: ['On an open file', 'In the corner', 'Behind its own pawns', 'On a1 forever'], answer: 0 } }
-            ]
-        },
-        {
-            id: 'queen-movement', title: 'The Queen', level: 'beginner',
-            description: 'The most powerful piece on the board.',
-            goal: 'Understand the queen\'s reach and value.',
-            steps: [
-                { title: 'Rook + Bishop', text: 'The queen combines the moves of the rook and the bishop: any number of squares in any straight line.' },
-                { title: 'Value & Caution', text: 'Worth around nine pawns. Never trade her for less, and avoid bringing her out too early — she becomes a target.', board: '8/8/8/3Q4/8/8/8/8 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'The queen combines which two pieces?', options: ['Rook + knight', 'Bishop + knight', 'Rook + bishop', 'King + pawn'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'king-movement', title: 'The King', level: 'beginner',
-            description: 'Slow, precious, and surprisingly dangerous in the endgame.',
-            goal: 'Move the king safely and use it in endgames.',
-            steps: [
-                { title: 'One Square Only', text: 'The king moves exactly one square in any direction. He may never move into check.' },
-                { title: 'Fighting King', text: 'In the opening and middlegame the king must be kept safe. In the endgame he becomes a strong attacker — activate him!', board: '8/8/8/3K4/8/8/8/8 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'When is the king strongest?', options: ['In the opening', 'In the middlegame', 'In the endgame', 'Never'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'capturing-pieces', title: 'Capturing Pieces', level: 'beginner',
-            description: 'Removing enemy pieces from the board.',
-            goal: 'Capture safely and evaluate trades.',
-            steps: [
-                { title: 'How to Capture', text: 'Move one of your pieces onto the square occupied by an enemy piece and remove that piece from the board.' },
-                { title: 'Think Before You Take', text: 'Always ask: "Is this capture safe?" A free pawn may cost you a knight. Count values before every exchange.', board: '8/8/8/3q4/4N3/8/8/8 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What should you check before capturing?', options: ['The clock', 'Whether the capture is safe', 'The opponent\'s shoe size', 'If it looks cool'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'castling', title: 'Castling', level: 'beginner',
-            description: 'The only move that moves two pieces at once.',
-            goal: 'Know when castling is allowed and why it matters.',
-            steps: [
-                { title: 'What Castling Is', text: 'The king moves two squares toward a rook, and the rook jumps to the square the king crossed. Kingside: O-O (king to g1/g8). Queenside: O-O-O (king to c1/c8).' },
-                { title: 'Legal Conditions', text: 'You may NOT castle if: the king or that rook has already moved, pieces stand between them, the king is in check, or the king passes through / lands on an attacked square.', board: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which condition prevents castling?', options: ['Your rook is attacked', 'Your queen has moved', 'Your king is in check', 'You have a bishop on c4'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'en-passant', title: 'En Passant', level: 'beginner',
-            description: 'A special pawn capture that surprises beginners.',
-            goal: 'Recognize and execute en passant.',
-            steps: [
-                { title: 'The Rule', text: 'If an enemy pawn advances two squares from its starting rank and lands beside your pawn, you may capture it as if it had only moved one square. This must be done immediately, on the very next move.', board: 'rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3' },
-                { title: 'Example', text: 'In the diagram: White has a pawn on e5, Black just played ...f5. White may play exf6 e.p. — the black pawn on f5 is captured and White\'s pawn lands on f6.' },
-                { title: 'Kuis', text: '', quiz: { question: 'When may en passant be played?', options: ['Any time pawns are adjacent', 'Immediately after the enemy pawn moves two squares', 'Only in the opening', 'Only with check'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'promotion', title: 'Pawn Promotion', level: 'beginner',
-            description: 'A pawn that reaches the last rank becomes a new piece.',
-            goal: 'Choose the best promotion piece.',
-            steps: [
-                { title: 'The Rule', text: 'A pawn reaching the 8th rank (or 1st for Black) must promote to a queen, rook, bishop, or knight of the same color.' },
-                { title: 'Usually a Queen', text: 'Promoting to a queen is almost always best. Under-promotion to a knight can be strong when it delivers an immediate check or fork (for example, promoting to a knight with check against king and queen).' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which promotion is almost always strongest?', options: ['Knight', 'Bishop', 'Queen', 'Rook'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'check', title: 'Check', level: 'beginner',
-            description: 'When the king is under attack.',
-            goal: 'Respond correctly to any check.',
-            steps: [
-                { title: 'What Check Is', text: 'Check means your king is attacked. You must respond immediately. You are never allowed to leave your own king in check.' },
-                { title: 'Three Responses', text: 'You can (1) move the king to a safe square, (2) block the attack with another piece, or (3) capture the attacking piece. Blocking is impossible against a knight or pawn check.', board: '4k3/8/8/8/8/8/8/4R1K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which response is IMPOSSIBLE when a knight gives check?', options: ['Move the king', 'Capture the knight', 'Block with a piece', 'All are possible'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'checkmate', title: 'Checkmate', level: 'beginner',
-            description: 'The goal of every chess game.',
-            goal: 'Recognize a checkmate position instantly.',
-            steps: [
-                { title: 'Definition', text: 'Checkmate is a check from which the king cannot escape. The game ends immediately — the side whose king is mated loses.' },
-                { title: 'Back-Rank Mate', text: 'The most common mate in practice: a king trapped on the back rank by his own pawns, mated by a rook or queen.', board: '6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1' },
-                { title: 'Kuis', text: 'Look at the diagram above.', quiz: { question: 'Why is Re8# mate?', options: ['The king can move to f7', 'The pawns on f7/g7/h7 block escape', 'The rook is undefended', 'The king is out of moves on the 8th rank but pawns block escape'], answer: 3 } }
-            ]
-        },
-        {
-            id: 'stalemate', title: 'Stalemate', level: 'beginner',
-            description: 'A sneaky way for a losing side to draw.',
-            goal: 'Recognize and avoid stalemate.',
-            steps: [
-                { title: 'Definition', text: 'Stalemate happens when the player to move has no legal moves AND is not in check. The game is a draw.' },
-                { title: 'Danger in Winning Positions', text: 'Many winning positions are ruined by stalemate. When up a queen, keep giving the enemy king a legal move until you are ready to mate.', board: '7k/5Q2/6K1/8/8/8/8/8 b - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is the result of a stalemate?', options: ['Win for White', 'Win for Black', 'Draw', 'Rematch'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'draw-rules', title: 'Rules for a Draw', level: 'beginner',
-            description: 'Not every game ends with a winner.',
-            goal: 'Know every way a game can be drawn.',
-            steps: [
-                { title: 'Draws by Rule', text: 'A draw occurs by stalemate, insufficient material, threefold repetition, the fifty-move rule, or agreement between players.' },
-                { title: 'Why It Matters', text: 'Knowing these rules saves lost games and forces you to convert won positions quickly. If you are winning, avoid repetition — if you are losing, aim for it.' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which is NOT a draw?', options: ['Stalemate', 'Threefold repetition', 'Insufficient material', 'Checkmate on move 5'], answer: 3 } }
-            ]
-        },
-        {
-            id: 'piece-values', title: 'Piece Values', level: 'beginner',
-            description: 'A simple way to judge material.',
-            goal: 'Evaluate trades using rough point values.',
-            steps: [
-                { title: 'Standard Values', text: 'Pawn = 1, Knight = 3, Bishop = 3, Rook = 5, Queen = 9. The king has no value — losing him ends the game.', board: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' },
-                { title: 'Rough Trades', text: 'Queen (9) for two rooks (10) is nearly even. A knight (3) for three pawns (3) is often even. A bishop is usually slightly better than a knight in open positions.' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which trade is clearly bad for you?', options: ['Queen for two rooks + pawn', 'Rook for bishop + pawn', 'Knight for three pawns', 'Bishop for a knight'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'opening-principles', title: 'Opening Principles', level: 'beginner',
-            description: 'Three golden rules for the first moves.',
-            goal: 'Start every game with a sound plan.',
-            steps: [
-                { title: 'Principle 1: Control the Center', text: 'Push a central pawn (e4 or d4 for White). Pieces on the center attack more squares and give your army room to develop.', board: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1' },
-                { title: 'Principle 2: Develop Pieces', text: 'Bring out knights and bishops. Do not move the same piece twice without reason. Do not bring your queen out early — she will be chased away and you will lose time.' },
-                { title: 'Principle 3: Castle Early', text: 'Get the king to safety before starting your own plans. Castling also connects your rooks, readying them for the middlegame.' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which opening plan is most principled?', options: ['a4 then Ra3', 'e4 then Nf3', 'h4 then Rh3', 'Na3 then Nc4'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'center-control', title: 'Controlling the Center', level: 'beginner',
-            description: 'Why e4, d4, e5, d5 matter so much.',
-            goal: 'Judge central control in any position.',
-            steps: [
-                { title: 'The Central Squares', text: 'e4, d4, e5, d5 form the center. Pawns here attack strongly and open lines for your pieces.', board: 'rnbqkbnr/ppp1pppp/8/3p4/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2' },
-                { title: 'Occupation vs. Control', text: 'You do not need a pawn on a central square to control it. Pieces that attack central squares control them just as effectively (as in hypermodern openings like 1.Nf3 or 1.g3).' },
-                { title: 'Kuis', text: '', quiz: { question: 'How many "central" squares are there in chess?', options: ['2', '4', '8', '16'], answer: 1 } }
-            ]
-        },
-
-        /* ─────────────────────────────────────────────
-           INTERMEDIATE
-           ───────────────────────────────────────────── */
-        {
-            id: 'development', title: 'Piece Development', level: 'intermediate',
-            description: 'Getting your army into the fight efficiently.',
-            goal: 'Develop pieces on the best squares in the first ten moves.',
-            steps: [
-                { title: 'Knights First, Usually', text: 'Nf3 / Nc3 (for White) attacks the center and defends e4/d4. Avoid rim knights — "a knight on the rim is dim."' },
-                { title: 'Active Bishops', text: 'Develop bishops to c4, g5, or f4 before deciding your pawn structure. Your pawns determine whether your bishop is good or bad (a "bad bishop" is blocked by your own pawns).' },
-                { title: 'Do Not Rush the Queen', text: 'Bringing the queen out early wastes time — the opponent develops while attacking her. Classic example: 1.e4 e5 2.Qh5?! lets Black play ...Nc6 and ...g6 with tempo.' },
-                { title: 'Kuis', text: '', quiz: { question: 'Why is a knight on a3 or h3 weak?', options: ['Wrong color square', 'It attacks very few squares', 'It cannot capture', 'It moves slower'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'king-safety', title: 'King Safety', level: 'intermediate',
-            description: 'An exposed king is a dead king.',
-            goal: 'Spot unsafe kings and know how to protect them.',
-            steps: [
-                { title: 'Warning Signs', text: 'A king stuck in the center, castling rights lost, broken pawn shield in front of the king, or an enemy queen/rook pointed at him — all are dangerous signals.', board: 'r1bq1b1r/pppk1ppp/8/4N3/8/8/PPPP1PPP/RNBQKB1R b KQkq - 0 1' },
-                { title: 'How to Protect the King', text: 'Castle early. Keep the pawns in front of your king (f2/g2/h2) undisturbed. Trade off the opponent\'s attacking pieces — a well-defended king is hard to mate.' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which king is safest?', options: ['In the center after moving e and f pawns', 'Castled with the f/g/h pawns intact', 'In the center with no castling rights', 'In the corner with no defenders'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-fork', title: 'Tactic: Fork', level: 'intermediate',
-            description: 'Attack two pieces at once with a single move.',
-            goal: 'Spot and execute forks, especially with knights.',
-            steps: [
-                { title: 'The Idea', text: 'A fork attacks two or more enemy pieces simultaneously. The knight is the classic forking piece because of its awkward L-shaped jump.' },
-                { title: 'Best Targets', text: 'Look for forks that hit the king and another piece — the king must move, and you win the second piece for free.', board: '3q1rk1/ppp2ppp/8/3N4/8/8/PPP2PPP/R2Q1RK1 w - - 0 1' },
-                { title: 'Kuis', text: 'Look at the diagram above.', quiz: { question: 'Which move wins Black\'s queen by fork?', options: ['Nf6+', 'Ne7+', 'Nxc7', 'Nb6'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-pin', title: 'Tactic: Pin', level: 'intermediate',
-            description: 'Freeze a piece against a more valuable target.',
-            goal: 'Recognize absolute and relative pins.',
-            steps: [
-                { title: 'What a Pin Is', text: 'A pin restricts a piece because moving it would expose a more valuable piece behind it. The pinned piece is effectively frozen.' },
-                { title: 'Absolute vs. Relative', text: 'An absolute pin is against the king — the pinned piece cannot legally move at all. A relative pin leaves the piece legally moveable, but at a material cost.', board: '4r1k1/8/8/8/8/4R3/8/4K3 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What makes a pin "absolute"?', options: ['It wins material immediately', 'It is against the king', 'It uses a knight', 'It happens in the endgame'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-skewer', title: 'Tactic: Skewer', level: 'intermediate',
-            description: 'The pin in reverse.',
-            goal: 'Spot skewers along open lines.',
-            steps: [
-                { title: 'The Idea', text: 'A skewer attacks a valuable piece; when it moves, you capture the less valuable piece behind it. It is essentially a pin turned around.' },
-                { title: 'Devastating on Open Lines', text: 'Skewers work best against a king on an open file or diagonal with a piece hiding behind it.', board: '4k3/8/8/8/8/8/8/4R1K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'How does a skewer differ from a pin?', options: ['A skewer uses a knight', 'The valuable piece is in front', 'A skewer always wins the queen', 'There is no difference'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-discovered', title: 'Tactic: Discovered Attack', level: 'intermediate',
-            description: 'Move one piece, reveal an attack from another.',
-            goal: 'Create and recognize discovered attacks and checks.',
-            steps: [
-                { title: 'The Idea', text: 'When a piece moves and opens the line of a friendly bishop, rook, or queen behind it, the result is a discovered attack. The moving piece itself can also create a threat.' },
-                { title: 'Discovered Check', text: 'A discovered check is especially deadly — the moving piece is free to capture or threaten while the opponent must respond to the check.', board: '4k3/8/8/8/8/8/3N4/3R2K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What makes a discovered check powerful?', options: ['It uses a rook', 'It forces the opponent to answer only the check while the moving piece does damage', 'It ends the game', 'It wins a pawn'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-double-attack', title: 'Tactic: Double Attack', level: 'intermediate',
-            description: 'Threaten two things — they can only stop one.',
-            goal: 'Use double attacks to win material.',
-            steps: [
-                { title: 'The Idea', text: 'A double attack creates two separate threats with one move. The opponent can usually answer only one of them.' },
-                { title: 'Best Piece', text: 'The queen is the queen of double attacks — she can create threats on distant squares at once. Knights are close behind.', board: '8/8/8/8/3Q4/8/8/4k1K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Why is a double attack strong?', options: ['It is rare', 'The opponent cannot defend both threats at once', 'It always wins a queen', 'It uses a knight'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-removing-defender', title: 'Tactic: Removing the Defender', level: 'intermediate',
-            description: 'Eliminate the piece guarding a key square.',
-            goal: 'Spot and exploit undefended or overloaded defenders.',
-            steps: [
-                { title: 'The Idea', text: 'If a piece defends a crucial square or piece, capturing or chasing away that defender often wins material — the thing it protected is now free.' },
-                { title: 'Overload', text: 'An overloaded piece defends two things at once. Attack both; it can save only one.', board: 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is an overloaded piece?', options: ['A piece on the edge', 'A piece that defends two things and cannot do both', 'A promoted pawn', 'A piece without support'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-deflection', title: 'Tactic: Deflection', level: 'intermediate',
-            description: 'Force a defender away from its duty.',
-            goal: 'Use deflection to win material or mate.',
-            steps: [
-                { title: 'The Idea', text: 'Deflection lures a defending piece away from the square or piece it must guard. Often a sacrifice is used to make the deflector move.' },
-                { title: 'Example Pattern', text: 'If a queen defends a mate square on g7, sacrificing a rook on that square forces her to capture — and she is no longer defending.', board: '6k1/5ppp/8/8/1Q6/8/5PPP/6K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is the key idea of deflection?', options: ['Fork the king and queen', 'Force a defender away from what it protects', 'Promote a pawn', 'Trade rooks'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-decoy', title: 'Tactic: Decoy', level: 'intermediate',
-            description: 'Sacrifice to lure a piece to a bad square.',
-            goal: 'Use decoys in mating combinations.',
-            steps: [
-                { title: 'The Idea', text: 'A decoy sacrifice draws an enemy piece onto a square where it can be forked, pinned, or mated. It is a close relative of deflection but focuses on squares rather than pieces.' },
-                { title: 'Mating Decoys', text: 'Common in mates like the smothered mate: sacrifice your queen so the enemy king is forced to capture, then deliver mate with a knight.', board: '6k1/6pp/8/8/8/8/5PPP/4Q1K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'How is a decoy used?', options: ['To save a pawn', 'To lure a piece to a bad square via sacrifice', 'To trade queens', 'To castle late'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-overloaded-piece', title: 'Tactic: Overloaded Piece', level: 'intermediate',
-            description: 'Exploit a defender doing too much.',
-            goal: 'Attack two defended things at once.',
-            steps: [
-                { title: 'The Idea', text: 'If one piece defends two things at once, it is overloaded. Attack both — it can save only one.' },
-                { title: 'Practical Use', text: 'Combine with deflection or a fork to make the overloaded piece choose — and whatever he chooses, you win the other.', board: '6k1/5ppp/8/8/8/8/5PPP/1R4K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'How do you exploit an overloaded piece?', options: ['Trade it', 'Attack both of its responsibilities', 'Pin it', 'Ignore it'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'tactic-zwischenzug', title: 'Tactic: Zwischenzug', level: 'intermediate',
-            description: 'The in-between move that changes everything.',
-            goal: 'Insert a check or threat before recapturing.',
-            steps: [
-                { title: 'The Idea', text: 'A zwischenzug (in-between move) is an unexpected check or threat played before the obvious recapture. It forces the opponent to respond first.' },
-                { title: 'Why It Wins', text: 'Often a player assumes a quiet recapture is coming, only to be forced to answer a check — during which you gain a tempo or material.', board: '4k3/8/8/8/8/8/4R3/6K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is a zwischenzug?', options: ['A repetition draw', 'An unexpected in-between move like a check', 'A type of pin', 'Castling long'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'back-rank-mate', title: 'Back-Rank Mate', level: 'intermediate',
-            description: 'The most common mate in club chess.',
-            goal: 'Deliver and defend against back-rank mates.',
-            steps: [
-                { title: 'The Pattern', text: 'The king is trapped on the back rank by his own pawns, and a rook or queen delivers mate on that rank.' },
-                { title: 'Play It', text: 'Force the enemy king to the back rank, remove or deflect his defenders, then slide a rook or queen to the last rank — mate.', board: '6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1' },
-                { title: 'Defend It', text: 'Leave "luft" — a pawn move like h3 or g3 — so your king has an escape square. And watch for enemy rooks on open files.', quiz: { question: 'Why does back-rank mate happen so often?', options: ['Kings are lazy', 'Pawns f7/g7/h7 block the king\'s escape', 'Rooks are the strongest piece', 'It is the only legal mate'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'smothered-mate', title: 'Smothered Mate', level: 'intermediate',
-            description: 'A knight mate against a buried king.',
-            goal: 'Recognize and deliver a smothered mate.',
-            steps: [
-                { title: 'The Idea', text: 'In a smothered mate, the enemy king is completely surrounded by his own pieces, and a knight delivers checkmate. The king cannot move; the knight cannot be blocked.' },
-                { title: 'Typical Setup', text: 'A queen sacrifice on g8 forces the rook to capture, then Nf7 delivers mate. This pattern appears constantly in tactics puzzles.', board: '6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which piece delivers the smothered mate?', options: ['Queen', 'Rook', 'Knight', 'Bishop'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'italian-game', title: 'Opening: The Italian Game', level: 'intermediate',
-            description: 'A classical opening built on rapid development.',
-            goal: 'Play the Italian Game confidently as White.',
-            steps: [
-                { title: 'Main Line', text: '1.e4 e5 2.Nf3 Nc6 3.Bc4 — White develops quickly and aims the bishop at f7, the weakest point in Black\'s camp.' },
-                { title: 'Ideas for Both Sides', text: 'White often follows with d3, c3, and a slow buildup (Giuoco Pianissimo). Sharp players go for the Fried Liver Attack with 4.Ng5 in the Two Knights Defense.', board: 'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What square does the Italian bishop target?', options: ['e5', 'f7', 'h7', 'd5'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'sicilian-defense', title: 'Opening: The Sicilian Defense', level: 'intermediate',
-            description: 'Black\'s most popular reply to 1.e4.',
-            goal: 'Understand the Sicilian\'s fighting spirit.',
-            steps: [
-                { title: 'Main Line', text: '1.e4 c5 — Black fights for the center asymmetrically, accepting a slightly cramped position in exchange for dynamic counterplay on the queenside.' },
-                { title: 'Key Variations', text: 'The Najdorf, Dragon, Sveshnikov, and Classical are the main branches. Each is a complete world of theory — pick one and master it.', board: 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is Black\'s main idea in the Sicilian?', options: ['Symmetrical defense', 'Asymmetrical counterplay on the queenside', 'Immediate mate', 'Giving up the center forever'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'french-defense', title: 'Opening: The French Defense', level: 'intermediate',
-            description: 'A solid, strategic reply to 1.e4.',
-            goal: 'Play the French Defense as Black.',
-            steps: [
-                { title: 'Main Line', text: '1.e4 e6 — Black prepares ...d5 to challenge White\'s center. The result is a slightly cramped but very solid position with rich strategic play.' },
-                { title: 'Typical Play', text: 'White often gains space, but Black attacks the pawn chain with ...c5 and ...f6. The Winawer and Classical are the main branches.', board: 'rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is Black\'s main pawn break in the French?', options: ['...c5', '...h5', '...a6', '...e5'], answer: 0 } }
-            ]
-        },
-        {
-            id: 'queens-gambit', title: "Opening: The Queen's Gambit", level: 'intermediate',
-            description: 'A timeless classical opening for White.',
-            goal: 'Play 1.d4 d5 2.c4 with understanding.',
-            steps: [
-                { title: 'Main Line', text: '1.d4 d5 2.c4 — White offers a pawn to dominate the center. Black can accept (Queen\'s Gambit Accepted) or decline (Queen\'s Gambit Declined).' },
-                { title: 'Real Idea', text: 'The pawn is not really meant to be won. If Black grabs it, White gets the center. If Black declines, White gets a space advantage and easier development.', board: 'rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Is the c4 pawn really being sacrificed in the Queen\'s Gambit?', options: ['Yes, unconditionally', 'No — if captured, White gets a strong center', 'Yes, always', 'Only in the endgame'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'pawn-structures', title: 'Pawn Structures', level: 'intermediate',
-            description: 'The skeleton that defines the whole game.',
-            goal: 'Recognize and play around key pawn formations.',
-            steps: [
-                { title: 'Why Pawns Matter', text: 'Pawns cannot move backward, so their structure sets the long-term character of the position. Pieces come and go; pawns stay.' },
-                { title: 'Key Types', text: 'Isolated pawn (no friendly pawns on adjacent files), doubled pawns (two on the same file), backward pawn (behind the rest and hard to advance), passed pawn (no enemy pawns blocking or guarding its advance).' },
-                { title: 'Practical Rule', text: 'Play against your opponent\'s pawn weaknesses and around your own. Fix targets, then attack them with rooks and knights.', board: '8/8/8/3p4/3P4/8/8/8 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is a passed pawn?', options: ['A pawn that has moved', 'A pawn with no enemy pawns ahead or on adjacent files', 'A doubled pawn', 'A pawn about to promote'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'beginner-mistakes', title: 'Common Beginner Mistakes', level: 'intermediate',
-            description: 'Avoid the traps that cost most games.',
-            goal: 'Reduce blunders by building better habits.',
-            steps: [
-                { title: 'Blind Material Loss', text: 'Before every move ask: "Can my piece be captured?" and "What did my opponent\'s last move threaten?" Half of lost games are decided by simple oversights.', board: 'rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 3' },
-                { title: 'Forgetting the Back Rank', text: 'Do not leave your king trapped on the 8th rank. Push h3 or g3 to give him air — a small pawn move that prevents disaster.' },
-                { title: 'Too Many Pawn Moves', text: 'Every pawn move is permanent. Loose pawns become lifetime targets. Move only the pawns you must.' },
-                { title: 'Kuis', text: '', quiz: { question: 'What habit reduces blunders the most?', options: ['Playing faster', 'Checking threats before every move', 'Repeating the same plan', 'Ignoring the opponent'], answer: 1 } }
-            ]
-        },
-
-        /* ─────────────────────────────────────────────
-           ADVANCED
-           ───────────────────────────────────────────── */
-        {
-            id: 'endgame-kq-vs-k', title: 'Endgame: K+Q vs K', level: 'advanced',
-            description: 'The first mate every player must master.',
-            goal: 'Mate with king and queen efficiently and safely.',
-            steps: [
-                { title: 'Drive to the Edge', text: 'Use the queen to cut off ranks or files and push the enemy king toward the edge. Keep the queen a knight\'s-move away to avoid stalemate.' },
-                { title: 'Bring the King', text: 'Once the enemy king is cornered, walk your own king closer. Mate when the queen is protected by your king (or delivers check next to the enemy king).', board: '7k/8/5K2/8/8/8/8/3Q4 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is the biggest risk when mating with K+Q?', options: ['Losing the queen', 'Stalemate', 'Running out of moves', 'Time trouble'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'endgame-kr-vs-k', title: 'Endgame: K+R vs K', level: 'advanced',
-            description: 'The classic rook ladder mate.',
-            goal: 'Force mate with king and rook in under 15 moves.',
-            steps: [
-                { title: 'Cut and Push', text: 'Use the rook to cut off the enemy king along a rank or file. Advance your own king toward the corner. The enemy king has nowhere to go.' },
-                { title: 'The Ladder', text: 'When the king reaches the edge, slide the rook up one rank at a time — this is the ladder mate. Mate is delivered with the king defending the rook.', board: '6k1/8/6K1/8/8/8/8/R6R w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is the safest mating method with K+R?', options: ['Push the rook straight up', 'Cut, then bring the king to support the rook', 'Chase the king with the rook alone', 'Promote another pawn'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'endgame-kp-vs-k', title: 'Endgame: K+P vs K', level: 'advanced',
-            description: 'Master key squares and pawn promotion.',
-            goal: 'Know when a K+P endgame is won or drawn.',
-            steps: [
-                { title: 'Key Squares', text: 'The attacker wins if his king reaches a key square in front of the pawn. For a pawn on e2, the key squares are d4, e4, f4 — reach one with your king to move and the pawn promotes by force.' },
-                { title: 'Rook Pawns', text: 'A rook pawn (a-file or h-file) with a defending king in the corner is always drawn. Central and knight pawns are usually won when the attacking king leads.', board: '8/8/8/8/8/8/4P3/4K1k1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which pawn endgame is generally drawn?', options: ['Central pawn on the 4th rank', 'Knight pawn', 'Rook pawn with the defender in the corner', 'Bishop pawn on the 5th'], answer: 2 } }
-            ]
-        },
-        {
-            id: 'endgame-opposition', title: 'Endgame: The Opposition', level: 'advanced',
-            description: 'Kings face to face — who wins the race?',
-            goal: 'Use the opposition to force pawn promotion.',
-            steps: [
-                { title: 'Definition', text: 'When two kings stand on the same file or rank with one empty square between them, the side NOT to move has the opposition. The opponent must give way.' },
-                { title: 'Direct Opposition', text: 'The most common form is on a single file. With the opposition, the attacker\'s king can step around and win the defender\'s pawn, or his own pawn promotes.', board: '8/8/8/4k3/8/8/8/4K3 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Who has the opposition?', options: ['The side to move', 'The side NOT to move', 'Both sides', 'Neither'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'lucena-position', title: 'Endgame: The Lucena Position', level: 'advanced',
-            description: 'The winning rook endgame every player must memorize.',
-            goal: 'Convert a K+R+P vs K+R endgame.',
-            steps: [
-                { title: 'The Setup', text: 'King on the promotion square, pawn on the 7th rank, enemy rook cutting off the king along a file. This is winning for the side with the pawn — if you know the technique.' },
-                { title: 'Build the Bridge', text: '1.Rf4! Then bring the king out to e7, and finally 3.Rf1–f4 with the rook shielding the king from checks. The pawn promotes.', board: '3K4/3P1k2/8/8/8/8/1r6/4R3 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is the key idea in the Lucena position?', options: ['Push the pawn immediately', 'Build a bridge with the rook to shield the king', 'Trade rooks', 'Sacrifice the pawn'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'philidor-position', title: 'Endgame: The Philidor Position', level: 'advanced',
-            description: 'How to draw a rook endgame down a pawn.',
-            goal: 'Save lost-looking rook endgames with the Philidor defense.',
-            steps: [
-                { title: 'The Setup', text: 'Defender\'s rook on the third rank stops the enemy king from advancing. The pawn cannot promote on its own.' },
-                { title: 'Swing Behind', text: 'The moment the pawn advances past the third rank, swing the rook behind the pawn to deliver endless checks from the side. This draws by repetition.', board: '8/8/8/3k4/3p4/3R4/3K4/8 b - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Where does the defending rook belong in the Philidor?', options: ['Behind the pawn from the start', 'On the third rank, then behind the pawn', 'On the eighth rank', 'Next to its own king'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'positional-sacrifice', title: 'Positional Sacrifice', level: 'advanced',
-            description: 'Give material for long-term compensation.',
-            goal: 'Judge when material can be traded for structure or initiative.',
-            steps: [
-                { title: 'The Exchange Sacrifice', text: 'Trading a rook for a knight or bishop (about 2 points down) can be worth it when it shatters the opponent\'s structure, fixes a weak square, or activates all your pieces.' },
-                { title: 'Trust the Position', text: 'Positional sacrifices are not calculated to the end — they are felt. Consider development, king safety, and pawn structure instead of pure material count.', board: 'r4rk1/1pp2ppp/p1np4/4p3/2B1P3/2P2N2/PP3PPP/R3R1K1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is an exchange sacrifice?', options: ['Rook for a pawn', 'Rook for a knight or bishop', 'Queen for two rooks', 'Bishop for a knight'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'prophylaxis', title: 'Prophylaxis', level: 'advanced',
-            description: "Nimzowitsch's art of prevention.",
-            goal: 'Stop opponent plans before they begin.',
-            steps: [
-                { title: 'The Idea', text: 'Prophylaxis means preventing the opponent\'s idea before it starts. Sometimes the best move is a quiet one that steals the enemy\'s plan.' },
-                { title: 'Ask the Question', text: 'Every move, ask: "What does my opponent want to do?" Then, if you cannot improve your own position, stop him.', board: 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'What is the key question of prophylaxis?', options: ['Can I capture something?', 'What does my opponent want to do?', 'Is my king safe?', 'What is my material count?'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'piece-activity', title: 'Piece Activity', level: 'advanced',
-            description: 'The best piece on the worst square still loses.',
-            goal: 'Value activity over rigid material equality.',
-            steps: [
-                { title: 'Activity Wins Games', text: 'A passive rook on a1 can be worth less than an active bishop dominating the center. Activity is the currency of advanced chess.' },
-                { title: 'Trade Bad, Keep Good', text: 'Trade your bad pieces for your opponent\'s good ones. Keep your active pieces on the board — they will decide the game.', board: 'r2q1rk1/pp2ppbp/2np1np1/8/2PP4/1PN1B3/P3BPPP/R2Q1RK1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'When should you trade pieces?', options: ['Always', 'To fix bad pieces and open lines for good ones', 'Never', 'Only when ahead'], answer: 1 } }
-            ]
-        },
-        {
-            id: 'greek-gift', title: 'The Greek Gift Sacrifice', level: 'advanced',
-            description: 'Bxh7+ and the mating attack that follows.',
-            goal: 'Execute and defend against the classical Greek Gift.',
-            steps: [
-                { title: 'The Pattern', text: 'Bxh7+ Kxh7, Ng5+ Kg8 (or Kg6), Qh5 — the queen and knight storm the weakened kingside. The bishop sacrifice opens the h-file and drags the king into the open.' },
-                { title: 'When It Works', text: 'The Greek Gift works best when: (1) Black has castled kingside, (2) the h7 pawn is only defended by the king, (3) White has a knight able to reach g5, and (4) Black has few defenders near his king.', board: 'r1bq1rk1/ppp1bppp/2n2n2/3p4/3P4/2N1PN2/PPQ1BPPP/R1B2RK1 w - - 0 1' },
-                { title: 'Kuis', text: '', quiz: { question: 'Which move begins the Greek Gift?', options: ['Qh5', 'Bxh7+', 'Ng5+', 'Rf3'], answer: 1 } }
-            ]
+        "text": {
+          "en": "Columns a-h are files, rows 1-8 are ranks. Every square has a name like e4.",
+          "id": "Kolom a-h disebut file, baris 1-8 disebut rank. Setiap kotak punya nama seperti e4."
         }
-    ];
-})();
+      },
+      {
+        "title": {
+          "en": "Recording Moves",
+          "id": "Mencatat Langkah"
+        },
+        "text": {
+          "en": "A move is written by piece letter + destination: Nf3, e4. Captures use x: Bxf7+.",
+          "id": "Langkah ditulis huruf bidak + tujuan: Nf3, e4. Makan memakai x: Bxf7+."
+        }
+      },
+      {
+        "title": {
+          "en": "Special Marks",
+          "id": "Tanda Khusus"
+        },
+        "text": {
+          "en": "+ means check, # means checkmate, O-O castles kingside.",
+          "id": "+ artinya skak, # artinya skakmat, O-O artinya rokade pendek."
+        }
+      }
+    ]
+  },
+  {
+    "id": "piece-values",
+    "level": "beginner",
+    "title": {
+      "en": "Piece Values",
+      "id": "Nilai Bidak"
+    },
+    "description": {
+      "en": "Know what each piece is worth.",
+      "id": "Kenali nilai tiap bidak."
+    },
+    "goal": {
+      "en": "Evaluate trades correctly.",
+      "id": "Menilai pertukaran dengan benar."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "The Scale",
+          "id": "Skala Nilai"
+        },
+        "text": {
+          "en": "Pawn=1, Knight=Bishop=3, Rook=5, Queen=9. The king is priceless.",
+          "id": "Pion=1, Kuda=Gajah=3, Benteng=5, Ratu=9. Raja tak ternilai."
+        }
+      },
+      {
+        "title": {
+          "en": "Trading Up",
+          "id": "Tukar Untung"
+        },
+        "text": {
+          "en": "If you win a 5-value piece and lose a 3-value piece, you profit 2.",
+          "id": "Jika memenangkan bidak nilai 5 dan kehilangan nilai 3, untung 2."
+        }
+      },
+      {
+        "title": {
+          "en": "When to Break It",
+          "id": "Kapan Melanggarnya"
+        },
+        "text": {
+          "en": "Sacrifices can be correct when they deliver a winning attack.",
+          "id": "Korban bisa benar bila menghasilkan serangan yang menang."
+        }
+      }
+    ]
+  },
+  {
+    "id": "how-pawns-move",
+    "level": "beginner",
+    "title": {
+      "en": "How Pawns Move",
+      "id": "Cara Pion Berjalan"
+    },
+    "description": {
+      "en": "The pawn's unusual movement rules.",
+      "id": "Aturan gerak pion yang unik."
+    },
+    "goal": {
+      "en": "Use pawns without blundering them.",
+      "id": "Memakai pion tanpa membuangnya sia-sia."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Forward Only",
+          "id": "Hanya Maju"
+        },
+        "text": {
+          "en": "Pawns move one square forward, or two from their starting rank.",
+          "id": "Pion maju satu kotak, atau dua dari baris awal."
+        }
+      },
+      {
+        "title": {
+          "en": "Capturing",
+          "id": "Makan"
+        },
+        "text": {
+          "en": "Pawns capture one square diagonally forward — never straight.",
+          "id": "Pion makan satu kotak diagonal ke depan — tidak pernah lurus."
+        }
+      },
+      {
+        "title": {
+          "en": "Promotion & En Passant",
+          "id": "Promosi & En Passant"
+        },
+        "text": {
+          "en": "A pawn reaching the last rank promotes; en passant is a special capture.",
+          "id": "Pion yang sampai baris terakhir dipromosikan; en passant adalah makanan khusus."
+        }
+      }
+    ]
+  },
+  {
+    "id": "check-checkmate",
+    "level": "beginner",
+    "title": {
+      "en": "Check & Checkmate",
+      "id": "Skak & Skakmat"
+    },
+    "description": {
+      "en": "Understand the difference between check and mate.",
+      "id": "Pahami beda skak dan skakmat."
+    },
+    "goal": {
+      "en": "Escape every check and deliver mate.",
+      "id": "Keluar dari setiap skak dan mematikan lawan."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Check",
+          "id": "Skak"
+        },
+        "text": {
+          "en": "Your king is attacked. You must block, capture the attacker, or move the king.",
+          "id": "Rajamu diserang. Wajib menutup, memakan penyerang, atau memindahkan raja."
+        }
+      },
+      {
+        "title": {
+          "en": "Checkmate",
+          "id": "Skakmat"
+        },
+        "text": {
+          "en": "No escape exists — the game ends.",
+          "id": "Tidak ada jalan keluar — permainan berakhir."
+        }
+      },
+      {
+        "title": {
+          "en": "Stalemate",
+          "id": "Stalemate"
+        },
+        "text": {
+          "en": "No legal move but not in check — a draw. Save won games from this!",
+          "id": "Tidak ada langkah legal tapi tidak skak — remis. Jangan biarkan kemenangan jadi remis!"
+        }
+      }
+    ]
+  },
+  {
+    "id": "castling",
+    "level": "beginner",
+    "title": {
+      "en": "Castling Safely",
+      "id": "Rokade dengan Aman"
+    },
+    "description": {
+      "en": "The only move that plays two pieces.",
+      "id": "Satu-satunya langkah yang memainkan dua bidak."
+    },
+    "goal": {
+      "en": "Castle to protect your king.",
+      "id": "Rokade untuk melindungi raja."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Rules",
+          "id": "Aturan"
+        },
+        "text": {
+          "en": "King and rook unmoved, squares between empty, king not in or through check.",
+          "id": "Raja dan benteng belum bergerak, kotak di antaranya kosong, raja tidak sedang/tidak melewati skak."
+        }
+      },
+      {
+        "title": {
+          "en": "Kingside vs Queenside",
+          "id": "Pendek vs Panjang"
+        },
+        "text": {
+          "en": "O-O is kingside (safer), O-O-O queenside (faster development).",
+          "id": "O-O rokade pendek (lebih aman), O-O-O panjang (pembukaan lebih cepat)."
+        }
+      },
+      {
+        "title": {
+          "en": "When Not To",
+          "id": "Kapan Tidak"
+        },
+        "text": {
+          "en": "Don't castle into an attack or with a destroyed kingside.",
+          "id": "Jangan rokade ke dalam serangan atau saat sayap raja sudah rusak."
+        }
+      }
+    ]
+  },
+  {
+    "id": "opening-principles",
+    "level": "beginner",
+    "title": {
+      "en": "Opening Principles",
+      "id": "Prinsip Pembukaan"
+    },
+    "description": {
+      "en": "The three golden rules of the first moves.",
+      "id": "Tiga aturan emas langkah-langkah awal."
+    },
+    "goal": {
+      "en": "Reach a playable middlegame.",
+      "id": "Mencapai permainan menengah yang sehat."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Center First",
+          "id": "Pusat Dulu"
+        },
+        "text": {
+          "en": "Fight for e4, d4, e5, d5 with pawns and pieces.",
+          "id": "Rebut e4, d4, e5, d5 dengan pion dan bidak."
+        }
+      },
+      {
+        "title": {
+          "en": "Develop Pieces",
+          "id": "Kembangkan Bidak"
+        },
+        "text": {
+          "en": "Knights and bishops out before the queen and rooks.",
+          "id": "Kuda dan gajah keluar dulu sebelum ratu dan benteng."
+        }
+      },
+      {
+        "title": {
+          "en": "King Safety",
+          "id": "Keamanan Raja"
+        },
+        "text": {
+          "en": "Castle early — an uncastled king is a target.",
+          "id": "Rokade lebih awal — raja yang tak dirokade adalah target."
+        }
+      }
+    ]
+  },
+  {
+    "id": "development-tempo",
+    "level": "intermediate",
+    "title": {
+      "en": "Development & Tempo",
+      "id": "Pengembangan & Tempo"
+    },
+    "description": {
+      "en": "Each move is a unit of time.",
+      "id": "Setiap langkah adalah satuan waktu."
+    },
+    "goal": {
+      "en": "Never waste a tempo.",
+      "id": "Jangan pernah membuang tempo."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Tempo Defined",
+          "id": "Definisi Tempo"
+        },
+        "text": {
+          "en": "One move = one tempo. Losing a move means your opponent acts first.",
+          "id": "Satu langkah = satu tempo. Kehilangan tempo berarti lawan bergerak duluan."
+        }
+      },
+      {
+        "title": {
+          "en": "Don't Move Twice",
+          "id": "Jangan Gerak Dua Kali"
+        },
+        "text": {
+          "en": "In the opening, a piece moved twice lets your opponent develop with gain.",
+          "id": "Di pembukaan, bidak yang digerakkan dua kali membiarkan lawan berkembang gratis."
+        }
+      },
+      {
+        "title": {
+          "en": "Punish Slow Play",
+          "id": "Hukum Main Lambat"
+        },
+        "text": {
+          "en": "Attack an undeveloped opponent immediately with open lines.",
+          "id": "Serang lawan yang lambat berkembang lewat jalur terbuka."
+        }
+      }
+    ]
+  },
+  {
+    "id": "knights-vs-bishops",
+    "level": "intermediate",
+    "title": {
+      "en": "Knights vs Bishops",
+      "id": "Kuda vs Gajah"
+    },
+    "description": {
+      "en": "Two minor pieces, two personalities.",
+      "id": "Dua bidak minor, dua karakter."
+    },
+    "goal": {
+      "en": "Choose the right minor piece for the position.",
+      "id": "Memilih bidak minor yang tepat untuk posisi."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Knight Strengths",
+          "id": "Kelebihan Kuda"
+        },
+        "text": {
+          "en": "Jumps over pieces, forks, strong in closed positions.",
+          "id": "Melompati bidak, fork, kuat di posisi tertutup."
+        }
+      },
+      {
+        "title": {
+          "en": "Bishop Strengths",
+          "id": "Kelebihan Gajah"
+        },
+        "text": {
+          "en": "Long range, works in pairs, dominates open diagonals.",
+          "id": "Jangkauan jauh, kuat berpasangan, menguasai diagonal terbuka."
+        }
+      },
+      {
+        "title": {
+          "en": "The Pair",
+          "id": "Pasangan Gajah"
+        },
+        "text": {
+          "en": "Two bishops together cover both colors — a lasting edge.",
+          "id": "Dua gajah bersama menutupi kedua warna — keunggulan abadi."
+        }
+      }
+    ]
+  },
+  {
+    "id": "pawn-structure",
+    "level": "intermediate",
+    "title": {
+      "en": "Pawn Structure",
+      "id": "Struktur Pion"
+    },
+    "description": {
+      "en": "Pawns define the character of a position.",
+      "id": "Pion menentukan karakter posisi."
+    },
+    "goal": {
+      "en": "Read strengths and weaknesses in pawn chains.",
+      "id": "Membaca kekuatan dan kelemahan rantai pion."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Chains",
+          "id": "Rantai"
+        },
+        "text": {
+          "en": "Pawns protect each other diagonally; attack the base of the chain.",
+          "id": "Pion saling melindungi diagonal; serang pangkal rantai."
+        }
+      },
+      {
+        "title": {
+          "en": "Isolated Pawns",
+          "id": "Pion Terisolasi"
+        },
+        "text": {
+          "en": "No neighbor pawns — weak blockade target, but opens lines.",
+          "id": "Tanpa pion tetangga — lemah diblokade, tapi membuka jalur."
+        }
+      },
+      {
+        "title": {
+          "en": "Doubled Pawns",
+          "id": "Pion Ganda"
+        },
+        "text": {
+          "en": "Two pawns on one file — weak but can control key squares.",
+          "id": "Dua pion di satu kolom — lemah tapi bisa menguasai kotak penting."
+        }
+      }
+    ]
+  },
+  {
+    "id": "tactics-fork",
+    "level": "intermediate",
+    "title": {
+      "en": "The Fork",
+      "id": "Fork"
+    },
+    "description": {
+      "en": "One piece attacks two targets.",
+      "id": "Satu bidak menyerang dua target."
+    },
+    "goal": {
+      "en": "Win material with forks.",
+      "id": "Memenangkan material dengan fork."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Knight Forks",
+          "id": "Fork Kuda"
+        },
+        "text": {
+          "en": "Knights are the best forkers — aim at king and queen together.",
+          "id": "Kuda adalah pengfork terbaik — bidik raja dan ratu sekaligus."
+        }
+      },
+      {
+        "title": {
+          "en": "Family Fork",
+          "id": "Fork Keluarga"
+        },
+        "text": {
+          "en": "A fork on king, queen, and rook wins massive material.",
+          "id": "Fork ke raja, ratu, dan benteng memenangkan banyak material."
+        }
+      },
+      {
+        "title": {
+          "en": "Preparation",
+          "id": "Persiapan"
+        },
+        "text": {
+          "en": "Remove the defender, then land the fork.",
+          "id": "Singkirkan penjaga, lalu lakukan fork."
+        }
+      }
+    ]
+  },
+  {
+    "id": "tactics-pin",
+    "level": "intermediate",
+    "title": {
+      "en": "The Pin",
+      "id": "Pin"
+    },
+    "description": {
+      "en": "A piece frozen by a hidden attack.",
+      "id": "Bidak yang lumpuh karena serangan tersembunyi."
+    },
+    "goal": {
+      "en": "Exploit pinned pieces.",
+      "id": "Memanfaatkan bidak yang ter-pin."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Absolute Pin",
+          "id": "Pin Absolut"
+        },
+        "text": {
+          "en": "Pinned to the king — the piece cannot legally move.",
+          "id": "Ter-pin ke raja — bidak tidak boleh bergerak sama sekali."
+        }
+      },
+      {
+        "title": {
+          "en": "Relative Pin",
+          "id": "Pin Relatif"
+        },
+        "text": {
+          "en": "Moving loses material but is legal — often decisive too.",
+          "id": "Bergerak kehilangan material tapi legal — sering tetap menentukan."
+        }
+      },
+      {
+        "title": {
+          "en": "Pile Up",
+          "id": "Menumpuk"
+        },
+        "text": {
+          "en": "Add attackers to the pinned piece until it breaks.",
+          "id": "Tambahkan penyerang ke bidak ter-pin sampai jebol."
+        }
+      }
+    ]
+  },
+  {
+    "id": "tactics-skewer",
+    "level": "intermediate",
+    "title": {
+      "en": "The Skewer",
+      "id": "Skewer"
+    },
+    "description": {
+      "en": "Like a pin, but reversed.",
+      "id": "Seperti pin, tapi terbalik."
+    },
+    "goal": {
+      "en": "Skewer high-value pieces along a line.",
+      "id": "Menyusup bidak bernilai tinggi sepanjang garis."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "How It Works",
+          "id": "Cara Kerja"
+        },
+        "text": {
+          "en": "Attack a valuable piece; when it moves, win what's behind it.",
+          "id": "Serang bidak berharga; saat ia bergerak, menangkan yang di belakang."
+        }
+      },
+      {
+        "title": {
+          "en": "Queen Skewers",
+          "id": "Skewer Ratu"
+        },
+        "text": {
+          "en": "Rooks and bishops skewer queens along files and diagonals.",
+          "id": "Benteng dan gajah menyusup ratu sepanjang kolom dan diagonal."
+        }
+      },
+      {
+        "title": {
+          "en": "Setup",
+          "id": "Persiapan"
+        },
+        "text": {
+          "en": "Line up the target with limited escape squares.",
+          "id": "Sejajarkan target dengan kotak lolos yang terbatas."
+        }
+      }
+    ]
+  },
+  {
+    "id": "tactics-discovery",
+    "level": "intermediate",
+    "title": {
+      "en": "Discovered Attack",
+      "id": "Serangan Terbuka"
+    },
+    "description": {
+      "en": "Moving one piece unleashes another.",
+      "id": "Memindahkan satu bidak melepaskan yang lain."
+    },
+    "goal": {
+      "en": "Create unstoppable double threats.",
+      "id": "Membuat ancaman ganda yang tak terbendung."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Mechanism",
+          "id": "Mekanisme"
+        },
+        "text": {
+          "en": "Move the blocking piece with its own threat — the line opens behind it.",
+          "id": "Geser bidak penghalang dengan ancamannya sendiri — jalur terbuka di belakang."
+        }
+      },
+      {
+        "title": {
+          "en": "Double Check",
+          "id": "Skak Ganda"
+        },
+        "text": {
+          "en": "The moved piece checks too — only king moves are legal.",
+          "id": "Bidak yang bergerak ikut mengecek — hanya gerak raja yang sah."
+        }
+      },
+      {
+        "title": {
+          "en": "Queen Unleashed",
+          "id": "Ratu Dilepaskan"
+        },
+        "text": {
+          "en": "A discovered attack with the queen behind is usually decisive.",
+          "id": "Serangan terbuka dengan ratu di belakang hampir selalu menentukan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "removing-defender",
+    "level": "intermediate",
+    "title": {
+      "en": "Removing the Defender",
+      "id": "Menghilangkan Penjaga"
+    },
+    "description": {
+      "en": "Attack what protects the target.",
+      "id": "Serang apa yang melindungi target."
+    },
+    "goal": {
+      "en": "Win protected pieces.",
+      "id": "Memenangkan bidak yang terlindungi."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Identify Guards",
+          "id": "Kenali Penjaga"
+        },
+        "text": {
+          "en": "Before winning a piece, list everything that defends it.",
+          "id": "Sebelum memenangkan bidak, sebutkan semua yang menjaganya."
+        }
+      },
+      {
+        "title": {
+          "en": "Deflection",
+          "id": "Defleksi"
+        },
+        "text": {
+          "en": "Lure the defender away with a sacrifice or threat.",
+          "id": "Pancing penjaga pergi dengan korban atau ancaman."
+        }
+      },
+      {
+        "title": {
+          "en": "Overloading",
+          "id": "Kelelahan Tugas"
+        },
+        "text": {
+          "en": "One defender protecting two things will fail at one job.",
+          "id": "Satu penjaga untuk dua tugas akan gagal di salah satunya."
+        }
+      }
+    ]
+  },
+  {
+    "id": "mate-backrank",
+    "level": "intermediate",
+    "title": {
+      "en": "Back-rank Mate",
+      "id": "Skakmat Papan Belakang"
+    },
+    "description": {
+      "en": "The most common mating pattern.",
+      "id": "Pola skakmat paling umum."
+    },
+    "goal": {
+      "en": "Deliver and prevent back-rank mate.",
+      "id": "Melakukan dan mencegah skakmat papan belakang."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "The Pattern",
+          "id": "Pola"
+        },
+        "text": {
+          "en": "King boxed by its own pawns; a rook or queen checks along the back rank.",
+          "id": "Raja terkurung pionnya sendiri; benteng atau ratu mengecek sepanjang baris belakang."
+        }
+      },
+      {
+        "title": {
+          "en": "Escape Squares",
+          "id": "Kotak Lolos"
+        },
+        "text": {
+          "en": "Give your king an escape (g-pawn or h-pawn move) in advance.",
+          "id": "Sediakan kotak lolos (gerakkan pion g atau h) sebelumnya."
+        }
+      },
+      {
+        "title": {
+          "en": "The Lure",
+          "id": "Pancingan"
+        },
+        "text": {
+          "en": "Deflect a defender of the 8th rank, then deliver mate.",
+          "id": "Defleksi penjaga baris ke-8, lalu skakmatkan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "queen-king-mate",
+    "level": "intermediate",
+    "title": {
+      "en": "Mate with Queen & King",
+      "id": "Skakmat Ratu & Raja"
+    },
+    "description": {
+      "en": "Force mate with the strongest piece.",
+      "id": "Memaksa skakmat dengan bidak terkuat."
+    },
+    "goal": {
+      "en": "Checkmate with Q+K fluently.",
+      "id": "Mematikan dengan R+K dan K+K dengan lancar."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "The Box",
+          "id": "Kotak Penjagaan"
+        },
+        "text": {
+          "en": "Use the queen to shrink the king's living space step by step.",
+          "id": "Pakai ratu untuk mengecilkan ruang gerak raja langkah demi langkah."
+        }
+      },
+      {
+        "title": {
+          "en": "Watch Stalemate",
+          "id": "Awas Stalemate"
+        },
+        "text": {
+          "en": "Stop checking when the king has no moves — stalemate is a draw.",
+          "id": "Berhenti mengecek saat raja tak punya langkah — stalemate berarti remis."
+        }
+      },
+      {
+        "title": {
+          "en": "King Supports",
+          "id": "Raja Pendukung"
+        },
+        "text": {
+          "en": "Bring your king to help guard escape squares.",
+          "id": "Bawa rajamu membantu menjaga kotak lolos."
+        }
+      }
+    ]
+  },
+  {
+    "id": "rook-king-mate",
+    "level": "intermediate",
+    "title": {
+      "en": "Mate with Rook & King",
+      "id": "Skakmat Benteng & Raja"
+    },
+    "description": {
+      "en": "The rook ladder technique.",
+      "id": "Teknik tangga benteng."
+    },
+    "goal": {
+      "en": "Checkmate with R+K fluently.",
+      "id": "Mematikan dengan B+K dengan lancar."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "The Ladder",
+          "id": "Tangga"
+        },
+        "text": {
+          "en": "Check with the rook, move the king closer, cut the box in half.",
+          "id": "Cek dengan benteng, dekati dengan raja, potong ruang jadi dua."
+        }
+      },
+      {
+        "title": {
+          "en": "Edge the King",
+          "id": "Desak ke Tepi"
+        },
+        "text": {
+          "en": "Drive the enemy king to the edge of the board.",
+          "id": "Desak raja lawan ke tepi papan."
+        }
+      },
+      {
+        "title": {
+          "en": "Final Blow",
+          "id": "Pukulan Akhir"
+        },
+        "text": {
+          "en": "Checkmate on the edge with the rook supported by the king.",
+          "id": "Skakmat di tepi dengan benteng yang didukung raja."
+        }
+      }
+    ]
+  },
+  {
+    "id": "opposite-bishops",
+    "level": "advanced",
+    "title": {
+      "en": "Opposite-colored Bishops",
+      "id": "Gajah Warna Beda"
+    },
+    "description": {
+      "en": "Drawish in the endgame, wild in the attack.",
+      "id": "Cenderung remis di endgame, ganas di serangan."
+    },
+    "goal": {
+      "en": "Judge when the bishops matter.",
+      "id": "Menilai kapan gajah menentukan."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Endgame Truth",
+          "id": "Fakta Endgame"
+        },
+        "text": {
+          "en": "With pawns on both sides, opposite bishops often draw.",
+          "id": "Dengan pion di kedua sisi, gajah warna beda sering remis."
+        }
+      },
+      {
+        "title": {
+          "en": "Attacking Asset",
+          "id": "Senjata Serangan"
+        },
+        "text": {
+          "en": "In the middlegame, your bishop can't be opposed — attack!",
+          "id": "Di permainan menengah, gajahmu tak bisa ditandingi — serang!"
+        }
+      },
+      {
+        "title": {
+          "en": "Blockade",
+          "id": "Blokade"
+        },
+        "text": {
+          "en": "The defender's bishop can blockade pawn chains forever.",
+          "id": "Gajah bertahan bisa memblokade rantai pion selamanya."
+        }
+      }
+    ]
+  },
+  {
+    "id": "pawn-endgames",
+    "level": "advanced",
+    "title": {
+      "en": "Pawn Endgames",
+      "id": "Endgame Pion"
+    },
+    "description": {
+      "en": "Pure pawn races and calculations.",
+      "id": "Balapan dan kalkulasi pion murni."
+    },
+    "goal": {
+      "en": "Calculate the square and key squares.",
+      "id": "Menghitung kotak dan kotak kunci."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "The Square Rule",
+          "id": "Aturan Kotak"
+        },
+        "text": {
+          "en": "If the king enters the square of a passed pawn, it catches it.",
+          "id": "Jika raja masuk kotak pion lepas, ia dapat menangkapnya."
+        }
+      },
+      {
+        "title": {
+          "en": "Key Squares",
+          "id": "Kotak Kunci"
+        },
+        "text": {
+          "en": "Certain squares guarantee promotion if the king reaches them.",
+          "id": "Kotak tertentu menjamin promosi jika raja sampai di sana."
+        }
+      },
+      {
+        "title": {
+          "en": "Opposition",
+          "id": "Opposisi"
+        },
+        "text": {
+          "en": "Kings facing each other — the one not to move has the advantage.",
+          "id": "Raja saling berhadapan — yang tidak bergerak punya keuntungan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "passed-pawns",
+    "level": "advanced",
+    "title": {
+      "en": "Passed Pawns",
+      "id": "Pion Lepas"
+    },
+    "description": {
+      "en": "A pawn with no enemy pawn blocking its path.",
+      "id": "Pion tanpa pion lawan yang menghalangi jalannya."
+    },
+    "goal": {
+      "en": "Push and blockade passed pawns.",
+      "id": "Mendorong dan memblokade pion lepas."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Definition",
+          "id": "Definisi"
+        },
+        "text": {
+          "en": "No enemy pawn on its file or adjacent files can stop it.",
+          "id": "Tidak ada pion lawan di kolomnya maupun kolom tetangga yang bisa menghentikannya."
+        }
+      },
+      {
+        "title": {
+          "en": "Outside Passer",
+          "id": "Pion Luar"
+        },
+        "text": {
+          "en": "A passed pawn far from the action wins endgames.",
+          "id": "Pion lepas jauh dari pusat memenangkan endgame."
+        }
+      },
+      {
+        "title": {
+          "en": "Blockade Squares",
+          "id": "Blokade"
+        },
+        "text": {
+          "en": "Stop it on a square controlled by your king or pieces.",
+          "id": "Hentikan di kotak yang dikuasai raja atau bidakmu."
+        }
+      }
+    ]
+  },
+  {
+    "id": "initiative-attack",
+    "level": "advanced",
+    "title": {
+      "en": "The Initiative",
+      "id": "Inisiatif"
+    },
+    "description": {
+      "en": "The player forcing the play controls the game.",
+      "id": "Pemain yang memaksa jalannya permainan mengendalikannya."
+    },
+    "goal": {
+      "en": "Seize and keep the initiative.",
+      "id": "Merebut dan mempertahankan inisiatif."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "What It Is",
+          "id": "Apa Itu"
+        },
+        "text": {
+          "en": "A series of threats your opponent must answer.",
+          "id": "Serangkaian ancaman yang harus dijawab lawan."
+        }
+      },
+      {
+        "title": {
+          "en": "Sac for Tempo",
+          "id": "Korban Tempo"
+        },
+        "text": {
+          "en": "A pawn sacrifice to open lines and keep attacking is often right.",
+          "id": "Korban pion untuk membuka jalur dan terus menyerang sering benar."
+        }
+      },
+      {
+        "title": {
+          "en": "Convert",
+          "id": "Mengkonversi"
+        },
+        "text": {
+          "en": "When attack slows, cash in to a winning endgame.",
+          "id": "Saat serangan melambat, tukarkan jadi endgame yang menang."
+        }
+      }
+    ]
+  },
+  {
+    "id": "defense-resources",
+    "level": "advanced",
+    "title": {
+      "en": "Defensive Resources",
+      "id": "Sumber Daya Bertahan"
+    },
+    "description": {
+      "en": "Surviving lost positions.",
+      "id": "Bertahan di posisi kalah."
+    },
+    "goal": {
+      "en": "Find counterplay and swindles.",
+      "id": "Menemukan perlawanan balik."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Don't Collapse",
+          "id": "Jangan Runtuh"
+        },
+        "text": {
+          "en": "Stay calm, cut off the attacker's supply lines.",
+          "id": "Tetap tenang, putuskan jalur suplai penyerang."
+        }
+      },
+      {
+        "title": {
+          "en": "Counterplay",
+          "id": "Perlawanan Balik"
+        },
+        "text": {
+          "en": "Create your own threats — the attacker must then defend.",
+          "id": "Buat ancaman sendiri — penyerang pun harus bertahan."
+        }
+      },
+      {
+        "title": {
+          "en": "Fortress",
+          "id": "Benteng Bertahan"
+        },
+        "text": {
+          "en": "Set up an unbreakable defensive wall and hold the draw.",
+          "id": "Bangun dinding pertahanan yang tak tembus dan tahan remis."
+        }
+      }
+    ]
+  },
+  {
+    "id": "prophylaxis",
+    "level": "advanced",
+    "title": {
+      "en": "Prophylaxis",
+      "id": "Profilaksis"
+    },
+    "description": {
+      "en": "Prevent your opponent's plans.",
+      "id": "Mencegah rencana lawan."
+    },
+    "goal": {
+      "en": "Think one move deeper.",
+      "id": "Berpikir satu langkah lebih dalam."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Ask The Question",
+          "id": "Ajukan Pertanyaan"
+        },
+        "text": {
+          "en": "'What does my opponent want?' before every move.",
+          "id": "'Apa yang diingankan lawan?' sebelum setiap langkah."
+        }
+      },
+      {
+        "title": {
+          "en": "Chandler's Rule",
+          "id": "Aturan Chandler"
+        },
+        "text": {
+          "en": "When you see a good move, look for a better one — and for their idea.",
+          "id": "Saat melihat langkah bagus, cari yang lebih baik — dan ide mereka."
+        }
+      },
+      {
+        "title": {
+          "en": "Prophylactic Moves",
+          "id": "Langkah Profilaksis"
+        },
+        "text": {
+          "en": "Small quiet moves that kill enemy plans win slow games.",
+          "id": "Langkah kecil yang membunuh rencana lawan memenangkan permainan lambat."
+        }
+      }
+    ]
+  },
+  {
+    "id": "time-management",
+    "level": "intermediate",
+    "title": {
+      "en": "Time Management",
+      "id": "Manajemen Waktu"
+    },
+    "description": {
+      "en": "Use your clock as a weapon.",
+      "id": "Gunakan jam sebagai senjata."
+    },
+    "goal": {
+      "en": "Avoid time trouble and flagging.",
+      "id": "Menghindari kehabisan waktu."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Budget",
+          "id": "Anggaran"
+        },
+        "text": {
+          "en": "Spend more time on critical positions, less on forced moves.",
+          "id": "Habiskan lebih banyak waktu di posisi kritis, lebih sedikit di langkah terpaksa."
+        }
+      },
+      {
+        "title": {
+          "en": "Blitz Basics",
+          "id": "Dasar Blitz"
+        },
+        "text": {
+          "en": "Pre-move and premove-safe techniques in fast time controls.",
+          "id": "Teknik pre-move yang aman dalam kontrol waktu cepat."
+        }
+      },
+      {
+        "title": {
+          "en": "Flagging",
+          "id": "Flagging"
+        },
+        "text": {
+          "en": "Winning on time is a legitimate skill — practice fast endgames.",
+          "id": "Menang karena waktu habis adalah keterampilan sah — latih endgame cepat."
+        }
+      }
+    ]
+  },
+  {
+    "id": "reading-variations",
+    "level": "intermediate",
+    "title": {
+      "en": "Reading Variations",
+      "id": "Membaca Variasi"
+    },
+    "description": {
+      "en": "Calculate lines accurately.",
+      "id": "Menghitung garis dengan akurat."
+    },
+    "goal": {
+      "en": "See 3-4 moves deep reliably.",
+      "id": "Melihat 3-4 langkah dengan konsisten."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Candidate Moves",
+          "id": "Kandidat"
+        },
+        "text": {
+          "en": "List 2-3 candidate moves before calculating anything.",
+          "id": "Sebutkan 2-3 kandidat sebelum menghitung apa pun."
+        }
+      },
+      {
+        "title": {
+          "en": "Blunder Check",
+          "id": "Cek Blunder"
+        },
+        "text": {
+          "en": "Before playing, check captures, checks, and threats for both sides.",
+          "id": "Sebelum bermain, cek makanan, cekan, dan ancaman kedua pihak."
+        }
+      },
+      {
+        "title": {
+          "en": "Quiescence",
+          "id": "Keheningan"
+        },
+        "text": {
+          "en": "Calculate until the position is quiet — no more forcing moves.",
+          "id": "Hitung sampai posisi tenang — tidak ada lagi langkah paksa."
+        }
+      }
+    ]
+  },
+  {
+    "id": "imbalances",
+    "level": "advanced",
+    "title": {
+      "en": "Imbalances",
+      "id": "Ketidakseimbangan"
+    },
+    "description": {
+      "en": "Every trade creates a new picture.",
+      "id": "Setiap pertukaran menciptakan gambaran baru."
+    },
+    "goal": {
+      "en": "Play on the side where you're better.",
+      "id": "Bermain di sisi tempat kamu lebih unggul."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Material vs Activity",
+          "id": "Material vs Aktivitas"
+        },
+        "text": {
+          "en": "A pawn down with an attack can be better than material equal.",
+          "id": "Kurang pion dengan serangan bisa lebih baik dari material seimbang."
+        }
+      },
+      {
+        "title": {
+          "en": "Static vs Dynamic",
+          "id": "Statis vs Dinamis"
+        },
+        "text": {
+          "en": "Long-term edges (structure) vs short-term (development).",
+          "id": "Keunggulan jangka panjang (struktur) vs jangka pendek (pengembangan)."
+        }
+      },
+      {
+        "title": {
+          "en": "The Decision",
+          "id": "Keputusan"
+        },
+        "text": {
+          "en": "Choose plans matching your advantages, not random attacks.",
+          "id": "Pilih rencana sesuai keunggulanmu, bukan serangan asal-asalan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "attack-king",
+    "level": "advanced",
+    "title": {
+      "en": "Attacking the King",
+      "id": "Menyerang Raja"
+    },
+    "description": {
+      "en": "Build a winning attack.",
+      "id": "Membangun serangan yang menang."
+    },
+    "goal": {
+      "en": "Checkmate the castled king.",
+      "id": "Mematikan raja yang sudah rokade."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Ingredients",
+          "id": "Bahan"
+        },
+        "text": {
+          "en": "More attackers than defenders, open lines, and a lead in development.",
+          "id": "Lebih banyak penyerang dari penjaga, jalur terbuka, dan unggul pengembangan."
+        }
+      },
+      {
+        "title": {
+          "en": "Pawn Storm",
+          "id": "Badai Pion"
+        },
+        "text": {
+          "en": "Push g and h pawns to rip open the castled king.",
+          "id": "Dorong pion g dan h untuk membuka pertahanan raja lawan."
+        }
+      },
+      {
+        "title": {
+          "en": "When It Fails",
+          "id": "Saat Gagal"
+        },
+        "text": {
+          "en": "If the attack stalls, the position may simply be worse — reassess.",
+          "id": "Jika serangan mandek, posisi mungkin memang lebih buruk — nilai ulang."
+        }
+      }
+    ]
+  },
+  {
+    "id": "material-gambits",
+    "level": "advanced",
+    "title": {
+      "en": "Gambits",
+      "id": "Gambit"
+    },
+    "description": {
+      "en": "Sacrifice a pawn for initiative.",
+      "id": "Mengorbankan pion untuk inisiatif."
+    },
+    "goal": {
+      "en": "Judge when a pawn is worth it.",
+      "id": "Menilai kapan pion sepadan."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Famous Gambits",
+          "id": "Gambit Terkenal"
+        },
+        "text": {
+          "en": "King's Gambit, Queen's Gambit, Benko — different goals, same idea.",
+          "id": "King's Gambit, Queen's Gambit, Benko — tujuan beda, ide sama."
+        }
+      },
+      {
+        "title": {
+          "en": "Accept or Decline",
+          "id": "Terima atau Tolak"
+        },
+        "text": {
+          "en": "Accepting wins a pawn but gives the initiative; know both paths.",
+          "id": "Menerima memenangkan pion tapi memberi inisiatif; kenali keduanya."
+        }
+      },
+      {
+        "title": {
+          "en": "Hold or Return",
+          "id": "Pegang atau Kembalikan"
+        },
+        "text": {
+          "en": "Sometimes giving the pawn back consolidates the attack.",
+          "id": "Kadang mengembalikan pion justru mengonsolidasi serangan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "positional-sac",
+    "level": "advanced",
+    "title": {
+      "en": "Positional Sacrifice",
+      "id": "Korban Posisional"
+    },
+    "description": {
+      "en": "Giving material for long-term pressure.",
+      "id": "Mengorbankan material untuk tekanan jangka panjang."
+    },
+    "goal": {
+      "en": "Sacrifice for structure and squares.",
+      "id": "Berkorban untuk struktur dan kotak."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Classic Examples",
+          "id": "Contoh Klasik"
+        },
+        "text": {
+          "en": "Rxc3 in the Sicilian, Exchange sac on c3 — ruin the structure.",
+          "id": "Rxc3 di Sisilia, korban benteng di c3 — hancurkan struktur."
+        }
+      },
+      {
+        "title": {
+          "en": "Compensation",
+          "id": "Kompensasi"
+        },
+        "text": {
+          "en": "Activity, weak squares, and attack are the currency.",
+          "id": "Aktivitas, kotak lemah, dan serangan adalah mata uangnya."
+        }
+      },
+      {
+        "title": {
+          "en": "Practicality",
+          "id": "Praktis"
+        },
+        "text": {
+          "en": "Against humans, initiative matters more than engines suggest.",
+          "id": "Melawan manusia, inisiatif lebih berharga dari yang dikatakan mesin."
+        }
+      }
+    ]
+  },
+  {
+    "id": "endgame-rook",
+    "level": "advanced",
+    "title": {
+      "en": "Rook Endgames",
+      "id": "Endgame Benteng"
+    },
+    "description": {
+      "en": "The most common endgames of all.",
+      "id": "Endgame paling sering terjadi."
+    },
+    "goal": {
+      "en": "Handle rook activity and cutting off.",
+      "id": "Mengelola aktivitas dan pemotongan benteng."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Activity First",
+          "id": "Aktivitas Utama"
+        },
+        "text": {
+          "en": "An active rook beats a passive one even a pawn down.",
+          "id": "Benteng aktif mengalahkan yang pasif bahkan tanpa pion unggul."
+        }
+      },
+      {
+        "title": {
+          "en": "Cut Off",
+          "id": "Potong"
+        },
+        "text": {
+          "en": "Cut the enemy king off a file to win races.",
+          "id": "Potong raja lawan dari satu kolom untuk memenangkan balapan."
+        }
+      },
+      {
+        "title": {
+          "en": "The 7th Rank",
+          "id": "Baris ke-7"
+        },
+        "text": {
+          "en": "A rook on the 7th rank attacks pawns and ties the king down.",
+          "id": "Benteng di baris ke-7 menyerang pion dan mengikat raja."
+        }
+      }
+    ]
+  },
+  {
+    "id": "swindle-traps",
+    "level": "intermediate",
+    "title": {
+      "en": "Swindles & Traps",
+      "id": "Tipuan & Perangkap"
+    },
+    "description": {
+      "en": "Setting traps in bad positions.",
+      "id": "Memasang perangkap di posisi buruk."
+    },
+    "goal": {
+      "en": "Create chances from nothing.",
+      "id": "Menciptakan peluang dari ketiadaan."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Hope Chess?",
+          "id": "Chess Harapan?"
+        },
+        "text": {
+          "en": "No — traps that improve your position when declined.",
+          "id": "Bukan — perangkap yang memperbaiki posisi jika ditolak."
+        }
+      },
+      {
+        "title": {
+          "en": "Poisoned Pawn",
+          "id": "Pion Beracun"
+        },
+        "text": {
+          "en": "Leave material en prise with a hidden refutation.",
+          "id": "Sisakan material dengan bantahan tersembunyi."
+        }
+      },
+      {
+        "title": {
+          "en": "Never Resign Early",
+          "id": "Jangan Menyerah Cepat"
+        },
+        "text": {
+          "en": "In casual and online play, blunders happen — keep playing.",
+          "id": "Di permainan santai dan daring, blunder terjadi — terus mainkan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "opening-traps",
+    "level": "intermediate",
+    "title": {
+      "en": "Opening Traps",
+      "id": "Perangkap Pembukaan"
+    },
+    "description": {
+      "en": "Fast wins for the prepared.",
+      "id": "Kemenangan cepat bagi yang siap."
+    },
+    "goal": {
+      "en": "Avoid Scholar's Mate and friends.",
+      "id": "Menghindari Scholar's Mate dan kawan-kawannya."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Scholar's Mate",
+          "id": "Scholar's Mate"
+        },
+        "text": {
+          "en": "Qh5+Bc4 targets f7 — defend with ...g6 or ...Qe7.",
+          "id": "Qh5+Bc4 membidik f7 — pertahankan dengan ...g6 atau ...Qe7."
+        }
+      },
+      {
+        "title": {
+          "en": "Legal Trap",
+          "id": "Legal Trap"
+        },
+        "text": {
+          "en": "Luring the queen into Nb4+ wins it — watch development!",
+          "id": "Memancing ratu ke Nb4+ memenangkannya — awas pengembangan!"
+        }
+      },
+      {
+        "title": {
+          "en": "Englund & Co",
+          "id": "Englund & Co"
+        },
+        "text": {
+          "en": "Know one trap per opening you play, and the refutation.",
+          "id": "Kenali satu perangkap per pembukaan yang kamu mainkan, dan bantahannya."
+        }
+      }
+    ]
+  },
+  {
+    "id": "center-control",
+    "level": "intermediate",
+    "title": {
+      "en": "Controlling the Center",
+      "id": "Menguasai Pusat"
+    },
+    "description": {
+      "en": "e4, d4, e5, d5 — the heart of chess.",
+      "id": "e4, d4, e5, d5 — jantung catur."
+    },
+    "goal": {
+      "en": "Dominate the center with pawns and pieces.",
+      "id": "Menguasai pusat dengan pion dan bidak."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Why It Matters",
+          "id": "Mengapa Penting"
+        },
+        "text": {
+          "en": "Central pieces reach both sides of the board quickly.",
+          "id": "Bidak di pusat menjangkau kedua sisi papan dengan cepat."
+        }
+      },
+      {
+        "title": {
+          "en": "Pawn Centers",
+          "id": "Pusat Pion"
+        },
+        "text": {
+          "en": "Broad (e4+d4) vs flexible (d4 only) vs countering (e5).",
+          "id": "Lebar (e4+d4) vs fleksibel (hanya d4) vs kontra (e5)."
+        }
+      },
+      {
+        "title": {
+          "en": "Pieces Over Pawns",
+          "id": "Bidak di Atas Pion"
+        },
+        "text": {
+          "en": "A knight on e5 can outshine a pawn center.",
+          "id": "Kuda di e5 bisa mengalahkan pusat pion."
+        }
+      }
+    ]
+  },
+  {
+    "id": "weak-squares",
+    "level": "advanced",
+    "title": {
+      "en": "Weak Squares",
+      "id": "Kotak Lemah"
+    },
+    "description": {
+      "en": "Squares your pawns can no longer control.",
+      "id": "Kotak yang tidak lagi bisa dikontrol pionmu."
+    },
+    "goal": {
+      "en": "Occupy and exploit weak squares.",
+      "id": "Menduduki dan mengeksploitasi kotak lemah."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Definition",
+          "id": "Definisi"
+        },
+        "text": {
+          "en": "A square in your camp that no pawn can defend.",
+          "id": "Kotak di wilayahmu yang tidak bisa dijaga pion."
+        }
+      },
+      {
+        "title": {
+          "en": "Outposts",
+          "id": "Pos Luar"
+        },
+        "text": {
+          "en": "A weak square protected by your own pawn — ideal for a knight.",
+          "id": "Kotak lemah yang dilindungi pionmu sendiri — ideal untuk kuda."
+        }
+      },
+      {
+        "title": {
+          "en": "Creation",
+          "id": "Penciptaan"
+        },
+        "text": {
+          "en": "Advance pawns to fix holes in the enemy structure.",
+          "id": "Majukan pion untuk membuat lubang di struktur lawan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "bishop-pair",
+    "level": "intermediate",
+    "title": {
+      "en": "The Bishop Pair",
+      "id": "Pasangan Gajah"
+    },
+    "description": {
+      "en": "Two bishops as a lasting weapon.",
+      "id": "Dua gajah sebagai senjata abadi."
+    },
+    "goal": {
+      "en": "Keep and use the two bishops.",
+      "id": "Mempertahankan dan memakai dua gajah."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Why Strong",
+          "id": "Mengapa Kuat"
+        },
+        "text": {
+          "en": "They cover both colors and coordinate across the board.",
+          "id": "Mereka menutupi kedua warna dan berkoordinasi di seluruh papan."
+        }
+      },
+      {
+        "title": {
+          "en": "Open It Up",
+          "id": "Bukakan"
+        },
+        "text": {
+          "en": "Trade pawns, open lines — the pair grows in value.",
+          "id": "Tukar pion, buka jalur — nilai pasangan meningkat."
+        }
+      },
+      {
+        "title": {
+          "en": "Don't Trade",
+          "id": "Jangan Tukar"
+        },
+        "text": {
+          "en": "Avoid exchanging one bishop for a knight without reason.",
+          "id": "Hindari menukar satu gajah dengan kuda tanpa alasan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "knight-outposts",
+    "level": "intermediate",
+    "title": {
+      "en": "Knight Outposts",
+      "id": "Pos Luar Kuda"
+    },
+    "description": {
+      "en": "Knights love protected advanced squares.",
+      "id": "Kuda menyukai kotak maju yang terlindungi."
+    },
+    "goal": {
+      "en": "Install knights deep in enemy territory.",
+      "id": "Memasang kuda jauh di wilayah lawan."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Ideal Squares",
+          "id": "Kotak Ideal"
+        },
+        "text": {
+          "en": "Advanced, protected by a pawn, and immune to enemy pawns.",
+          "id": "Maju, dilindungi pion, dan kebal terhadap pion lawan."
+        }
+      },
+      {
+        "title": {
+          "en": "Dream Squares",
+          "id": "Kotak Impian"
+        },
+        "text": {
+          "en": "d5/e5 for white, d4/e4 for black — classic outposts.",
+          "id": "d5/e5 untuk putih, d4/e4 untuk hitam — pos klasik."
+        }
+      },
+      {
+        "title": {
+          "en": "Support",
+          "id": "Dukungan"
+        },
+        "text": {
+          "en": "Defend the outpost knight with pieces so it can't be traded off.",
+          "id": "Lindungi kuda pos dengan bidak agar tak bisa ditukar."
+        }
+      }
+    ]
+  },
+  {
+    "id": "exchange-sac",
+    "level": "advanced",
+    "title": {
+      "en": "The Exchange Sacrifice",
+      "id": "Korban Pertukaran"
+    },
+    "description": {
+      "en": "Giving a rook for a minor piece.",
+      "id": "Mengorbankan benteng untuk bidak minor."
+    },
+    "goal": {
+      "en": "Sacrifice for initiative and structure.",
+      "id": "Berkorban untuk inisiatif dan struktur."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Typical Ideas",
+          "id": "Ide Umum"
+        },
+        "text": {
+          "en": "Sac on c3/f6/f3 to wreck structure or seize dark squares.",
+          "id": "Korban di c3/f6/f3 untuk menghancurkan struktur atau merebut kotak gelap."
+        }
+      },
+      {
+        "title": {
+          "en": "Compensation Types",
+          "id": "Jenis Kompensasi"
+        },
+        "text": {
+          "en": "Attack, weak squares, superior minor piece.",
+          "id": "Serangan, kotak lemah, bidak minor yang lebih baik."
+        }
+      },
+      {
+        "title": {
+          "en": "Rxc3 Icon",
+          "id": "Ikon Rxc3"
+        },
+        "text": {
+          "en": "The Sicilian exchange sac is the most famous example.",
+          "id": "Korban pertukaran Sisilia adalah contoh paling terkenal."
+        }
+      }
+    ]
+  },
+  {
+    "id": "quiet-moves",
+    "level": "advanced",
+    "title": {
+      "en": "Quiet Moves",
+      "id": "Langkah Senyap"
+    },
+    "description": {
+      "en": "The strongest moves don't capture.",
+      "id": "Langkah terkuat kadang tidak makan apa pun."
+    },
+    "goal": {
+      "en": "Find improving moves in calm positions.",
+      "id": "Menemukan langkah penyempurna di posisi tenang."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Prophylaxis Again",
+          "id": "Profilaksis Lagi"
+        },
+        "text": {
+          "en": "Quiet moves that stop enemy ideas are often best.",
+          "id": "Langkah senyap yang menghentikan ide lawan sering yang terbaik."
+        }
+      },
+      {
+        "title": {
+          "en": "Improving Pieces",
+          "id": "Perbaikan Bidak"
+        },
+        "text": {
+          "en": "Retreat a piece to a better square without rushing.",
+          "id": "Mundurkan bidak ke kotak lebih baik tanpa terburu-buru."
+        }
+      },
+      {
+        "title": {
+          "en": "Zugzwang",
+          "id": "Zugzwang"
+        },
+        "text": {
+          "en": "Any move worsens the position — force the opponent to move.",
+          "id": "Gerakan apa pun memperburuk posisi — paksa lawan yang bergerak."
+        }
+      }
+    ]
+  },
+  {
+    "id": "zwischenzug",
+    "level": "advanced",
+    "title": {
+      "en": "Zwischenzug",
+      "id": "Zwischenzug"
+    },
+    "description": {
+      "en": "The in-between move.",
+      "id": "Langkah di sela-sela."
+    },
+    "goal": {
+      "en": "Look for unexpected intermediate moves.",
+      "id": "Mencari langkah perantara yang tak terduga."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Definition",
+          "id": "Definisi"
+        },
+        "text": {
+          "en": "Before the expected recapture, insert a stronger move.",
+          "id": "Sebelum penukaran yang diharapkan, sisipkan langkah lebih kuat."
+        }
+      },
+      {
+        "title": {
+          "en": "Common Spots",
+          "id": "Tempat Umum"
+        },
+        "text": {
+          "en": "Zwischenzug with check or a counter-capture wins material.",
+          "id": "Zwischenzug dengan cek atau makanan balik memenangkan material."
+        }
+      },
+      {
+        "title": {
+          "en": "Habit",
+          "id": "Kebiasaan"
+        },
+        "text": {
+          "en": "Never recapture automatically — scan for in-between moves.",
+          "id": "Jangan pernah makan balik otomatis — cari langkah sela."
+        }
+      }
+    ]
+  },
+  {
+    "id": "pawn-breaks",
+    "level": "advanced",
+    "title": {
+      "en": "Pawn Breaks",
+      "id": "Pecahan Pion"
+    },
+    "description": {
+      "en": "Free your position with pawn levers.",
+      "id": "Membebaskan posisi dengan tuas pion."
+    },
+    "goal": {
+      "en": "Time pawn breaks for maximum effect.",
+      "id": "Mengatur waktu pecahan pion untuk efek maksimal."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "What They Are",
+          "id": "Apa Itu"
+        },
+        "text": {
+          "en": "A pawn move that challenges the enemy structure.",
+          "id": "Langkah pion yang menantang struktur lawan."
+        }
+      },
+      {
+        "title": {
+          "en": "Preparation",
+          "id": "Persiapan"
+        },
+        "text": {
+          "en": "Break when pieces stand behind the pawn, ready to exploit.",
+          "id": "Pecahkan saat bidak siap di belakang pion untuk mengeksploitasi."
+        }
+      },
+      {
+        "title": {
+          "en": "Typical Breaks",
+          "id": "Pecahan Khas"
+        },
+        "text": {
+          "en": "...c5 vs d4, ...e5 vs d4, c4/d4 vs e6 structures.",
+          "id": "...c5 vs d4, ...e5 vs d4, struktur c4/d4 vs e6."
+        }
+      }
+    ]
+  },
+  {
+    "id": "good-bad-bishop",
+    "level": "advanced",
+    "title": {
+      "en": "Good & Bad Bishops",
+      "id": "Gajah Baik & Buruk"
+    },
+    "description": {
+      "en": "The pawn chain decides the bishop's fate.",
+      "id": "Rantai pion menentukan nasib gajah."
+    },
+    "goal": {
+      "en": "Assess and improve your bishops.",
+      "id": "Menilai dan memperbaiki gajahmu."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Definition",
+          "id": "Definisi"
+        },
+        "text": {
+          "en": "A bad bishop is blocked by its own fixed pawns.",
+          "id": "Gajah buruk terblokir oleh pionnya sendiri yang terkunci."
+        }
+      },
+      {
+        "title": {
+          "en": "The Fix",
+          "id": "Perbaikan"
+        },
+        "text": {
+          "en": "Trade it for a knight or free the pawn chain.",
+          "id": "Tukar dengan kuda atau bebaskan rantai pion."
+        }
+      },
+      {
+        "title": {
+          "en": "Attack Weapon",
+          "id": "Senjata Serangan"
+        },
+        "text": {
+          "en": "The unopposed bishop aims at the enemy king — good or not.",
+          "id": "Gajah yang tak ditandingi mengarah ke raja lawan — baik atau tidak."
+        }
+      }
+    ]
+  },
+  {
+    "id": "king-safety-net",
+    "level": "intermediate",
+    "title": {
+      "en": "King Safety",
+      "id": "Keamanan Raja"
+    },
+    "description": {
+      "en": "The king is the game.",
+      "id": "Raja adalah permainan."
+    },
+    "goal": {
+      "en": "Keep your monarch protected.",
+      "id": "Jaga rajamu tetap terlindungi."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Castled vs Not",
+          "id": "Rokade vs Belum"
+        },
+        "text": {
+          "en": "An uncastled king loses most games at club level.",
+          "id": "Raja yang belum rokade kalah dalam mayoritas permainan tingkat klub."
+        }
+      },
+      {
+        "title": {
+          "en": "Weakened Shield",
+          "id": "Perisai Lemah"
+        },
+        "text": {
+          "en": "Pawn moves in front of the king create permanent holes.",
+          "id": "Gerakan pion di depan raja membuat lubang permanen."
+        }
+      },
+      {
+        "title": {
+          "en": "Counterplay Costs",
+          "id": "Harga Perlawanan"
+        },
+        "text": {
+          "en": "Attacking with pawns in front of your own king is double-edged.",
+          "id": "Menyerang dengan pion di depan rajamu sendiri berisiko dua arah."
+        }
+      }
+    ]
+  },
+  {
+    "id": "file-ranks-plans",
+    "level": "advanced",
+    "title": {
+      "en": "Using Files & Ranks",
+      "id": "Memakai Kolom & Baris"
+    },
+    "description": {
+      "en": "Rooks need open highways.",
+      "id": "Benteng membutuhkan jalur terbuka."
+    },
+    "goal": {
+      "en": "Open files, occupy the 7th.",
+      "id": "Membuka kolom, menduduki baris ke-7."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Open Files",
+          "id": "Kolom Terbuka"
+        },
+        "text": {
+          "en": "Double rooks on an open file for maximum pressure.",
+          "id": "Gandakan benteng di kolom terbuka untuk tekanan maksimal."
+        }
+      },
+      {
+        "title": {
+          "en": "The 7th Rank",
+          "id": "Baris ke-7"
+        },
+        "text": {
+          "en": "Infiltrate the 7th rank — pawns and king suffer there.",
+          "id": "Menembus baris ke-7 — pion dan raja menderita di sana."
+        }
+      },
+      {
+        "title": {
+          "en": "Battery",
+          "id": "Baterai"
+        },
+        "text": {
+          "en": "Queen + rook stacked on a file multiplies power.",
+          "id": "Ratu + benteng bertumpuk di satu kolom menggandakan kekuatan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "practical-endgames",
+    "level": "advanced",
+    "title": {
+      "en": "Practical Endgames",
+      "id": "Endgame Praktis"
+    },
+    "description": {
+      "en": "Technique that wins won games.",
+      "id": "Teknik yang memenangkan permainan yang sudah menang."
+    },
+    "goal": {
+      "en": "Convert advantages consistently.",
+      "id": "Mengonversi keunggulan secara konsisten."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Two Weaknesses",
+          "id": "Dua Kelemahan"
+        },
+        "text": {
+          "en": "One weakness holds; two weaknesses break the defense.",
+          "id": "Satu kelemahan masih bertahan; dua kelemahan menghancurkan pertahanan."
+        }
+      },
+      {
+        "title": {
+          "en": "Do Not Rush",
+          "id": "Jangan Terburu-buru"
+        },
+        "text": {
+          "en": "Improve the king, restrict counterplay, then push.",
+          "id": "Perbaiki raja, batasi perlawanan, lalu dorong."
+        }
+      },
+      {
+        "title": {
+          "en": "Study Classics",
+          "id": "Pelajari Klasik"
+        },
+        "text": {
+          "en": "Capablanca and Rubinstein endgames teach technique.",
+          "id": "Endgame Capablanca dan Rubinstein mengajarkan teknik."
+        }
+      }
+    ]
+  },
+  {
+    "id": "psychology",
+    "level": "intermediate",
+    "title": {
+      "en": "Chess Psychology",
+      "id": "Psikologi Catur"
+    },
+    "description": {
+      "en": "The mental game behind the moves.",
+      "id": "Permainan mental di balik langkah."
+    },
+    "goal": {
+      "en": "Manage emotions and momentum.",
+      "id": "Mengelola emosi dan momentum."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "After a Blunder",
+          "id": "Setelah Blunder"
+        },
+        "text": {
+          "en": "Stay calm — one mistake doesn't lose a game, panic does.",
+          "id": "Tetap tenang — satu kesalahan tidak menghancurkan, panik ya."
+        }
+      },
+      {
+        "title": {
+          "en": "Winning Streak",
+          "id": "Rentetan Menang"
+        },
+        "text": {
+          "en": "Confidence helps, overconfidence blunders.",
+          "id": "Percaya diri membantu, terlalu percaya diri blunder."
+        }
+      },
+      {
+        "title": {
+          "en": "The Opponent",
+          "id": "Lawan"
+        },
+        "text": {
+          "en": "Play the board first, the player second.",
+          "id": "Utamakan papan, lawan kedua."
+        }
+      }
+    ]
+  },
+  {
+    "id": "study-method",
+    "level": "intermediate",
+    "title": {
+      "en": "How to Study Chess",
+      "id": "Cara Belajar Catur"
+    },
+    "description": {
+      "en": "Improve faster with the right training.",
+      "id": "Berkembang lebih cepat dengan latihan yang tepat."
+    },
+    "goal": {
+      "en": "Build a study routine that works.",
+      "id": "Membangun rutinitas belajar yang efektif."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Tactics Daily",
+          "id": "Taktik Harian"
+        },
+        "text": {
+          "en": "10-15 puzzles daily beats 100 once a week.",
+          "id": "10-15 puzzle tiap hari lebih baik dari 100 seminggu sekali."
+        }
+      },
+      {
+        "title": {
+          "en": "Analyze Losses",
+          "id": "Analisis Kekalahan"
+        },
+        "text": {
+          "en": "Your losses teach more than your wins.",
+          "id": "Kekalahanmu mengajarkan lebih banyak daripada kemenanganmu."
+        }
+      },
+      {
+        "title": {
+          "en": "Play Slow Games",
+          "id": "Main Catur Lambat"
+        },
+        "text": {
+          "en": "Rapid/classical builds calculation; blitz builds speed only.",
+          "id": "Catur cepat klasik melatih kalkulasi; blitz hanya kecepatan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "clock-practice",
+    "level": "beginner",
+    "title": {
+      "en": "Using the App's Timer",
+      "id": "Memakai Timer Aplikasi"
+    },
+    "description": {
+      "en": "Practice with real time pressure.",
+      "id": "Berlatih dengan tekanan waktu nyata."
+    },
+    "goal": {
+      "en": "Choose a time control that fits you.",
+      "id": "Memilih kontrol waktu yang sesuai."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Time Controls",
+          "id": "Kontrol Waktu"
+        },
+        "text": {
+          "en": "5+0 blitz, 10+5 rapid, 15+10 classical — pick one.",
+          "id": "5+0 blitz, 10+5 rapid, 15+10 klasik — pilih satu."
+        }
+      },
+      {
+        "title": {
+          "en": "Increment",
+          "id": "Increment"
+        },
+        "text": {
+          "en": "Increment rewards moving quickly and punishes stalling.",
+          "id": "Increment menghargai langkah cepat dan menghukum mengulur waktu."
+        }
+      },
+      {
+        "title": {
+          "en": "Practice Mode",
+          "id": "Mode Latihan"
+        },
+        "text": {
+          "en": "Use unlimited time to practice calculation without pressure.",
+          "id": "Pakai waktu tak terbatas untuk melatih kalkulasi tanpa tekanan."
+        }
+      }
+    ]
+  },
+  {
+    "id": "touch-move-etiquette",
+    "level": "beginner",
+    "title": {
+      "en": "Rules & Etiquette",
+      "id": "Aturan & Etiket"
+    },
+    "description": {
+      "en": "Fair play fundamentals.",
+      "id": "Dasar-dasar permainan adil."
+    },
+    "goal": {
+      "en": "Understand touch move and resigning.",
+      "id": "Memahami touch move dan menyerah."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Touch Move",
+          "id": "Touch Move"
+        },
+        "text": {
+          "en": "If you touch a piece with intent, you must move it (if legal).",
+          "id": "Jika menyentuh bidak dengan niat, wajib memindahkannya (jika legal)."
+        }
+      },
+      {
+        "title": {
+          "en": "Adjusting",
+          "id": "Menyesuaikan"
+        },
+        "text": {
+          "en": "Say 'j'adoube' before adjusting pieces on the board.",
+          "id": "Katakan 'j'adoube' sebelum menyesuaikan posisi bidak."
+        }
+      },
+      {
+        "title": {
+          "en": "Resigning",
+          "id": "Menyerah"
+        },
+        "text": {
+          "en": "Offer a handshake and stop the clock — resign with dignity.",
+          "id": "Ulangkan tangan dan hentikan jam — menyerahlah dengan sportif."
+        }
+      }
+    ]
+  },
+  {
+    "id": "puzzle-training",
+    "level": "intermediate",
+    "title": {
+      "en": "Training with Puzzles",
+      "id": "Latihan dengan Puzzle"
+    },
+    "description": {
+      "en": "Make the most of the app's 50 puzzles.",
+      "id": "Maksimalkan 50 puzzle di aplikasi."
+    },
+    "goal": {
+      "en": "Build pattern recognition.",
+      "id": "Membangun pengenalan pola."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Daily Set",
+          "id": "Set Harian"
+        },
+        "text": {
+          "en": "Solve puzzles across all difficulties daily — patterns stick.",
+          "id": "Selesaikan puzzle dari semua tingkat tiap hari — pola akan melekat."
+        }
+      },
+      {
+        "title": {
+          "en": "Calculate First",
+          "id": "Hitung Dulu"
+        },
+        "text": {
+          "en": "Cover the solution and calculate before moving.",
+          "id": "Tutup solusi dan hitung dulu sebelum bergerak."
+        }
+      },
+      {
+        "title": {
+          "en": "Review Mistakes",
+          "id": "Tinjau Kesalahan"
+        },
+        "text": {
+          "en": "Wrong moves teach — check why the right move works.",
+          "id": "Langkah salah mengajarkan — pelajari mengapa langkah benar bekerja."
+        }
+      }
+    ]
+  },
+  {
+    "id": "game-review",
+    "level": "intermediate",
+    "title": {
+      "en": "Reviewing Your Games",
+      "id": "Mengulas Permainanmu"
+    },
+    "description": {
+      "en": "The strongest improvement tool.",
+      "id": "Alat perbaikan terkuat."
+    },
+    "goal": {
+      "en": "Learn from every game you play.",
+      "id": "Belajar dari setiap permainan."
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Quick Scan",
+          "id": "Pindai Cepat"
+        },
+        "text": {
+          "en": "After each game, find the moment evaluation flipped.",
+          "id": "Setelah tiap permainan, temukan momen keunggulan berbalik."
+        }
+      },
+      {
+        "title": {
+          "en": "Engine Check",
+          "id": "Cek Mesin"
+        },
+        "text": {
+          "en": "Use an engine to verify your calculation, not to replace it.",
+          "id": "Pakai mesin untuk memverifikasi kalkulasi, bukan menggantikannya."
+        }
+      },
+      {
+        "title": {
+          "en": "One Lesson",
+          "id": "Satu Pelajaran"
+        },
+        "text": {
+          "en": "Take exactly one lesson per game into your next session.",
+          "id": "Ambil tepat satu pelajaran per permainan untuk sesi berikutnya."
+        }
+      }
+    ]
+  }
+];

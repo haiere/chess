@@ -87,8 +87,21 @@ export const I18n = {
   getAvailable() { return SUPPORTED.slice(); },
   t(key, params) {
     let value = getNested(LOCALES[currentLang], key);
-    if (value === undefined && currentLang !== FALLBACK_LANG) value = getNested(LOCALES[FALLBACK_LANG], key);
-    if (value === undefined) return key;
+    let missing = value === undefined;
+    if (missing && currentLang !== FALLBACK_LANG) { value = getNested(LOCALES[FALLBACK_LANG], key); }
+    if (value === undefined) {
+      // Deteksi key hilang saat development — tanpa tampil mentah di UI
+      if (typeof window !== "undefined") {
+        (window.__I18N_MISSING = window.__I18N_MISSING || new Set()).add(key);
+        if (/^(localhost|127\.)/.test(location.hostname)) {
+          console.warn("[i18n] missing key:", key);
+        }
+      }
+      return key;
+    }
+    if (missing && /^(localhost|127\.)/.test(location.hostname)) {
+      (window.__I18N_MISSING = window.__I18N_MISSING || new Set()).add(currentLang + ":" + key);
+    }
     if (typeof value !== "string") return value;
     return interpolate(value, params);
   },

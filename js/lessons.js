@@ -5,6 +5,8 @@
 
     const S = window.AppStorage, SFX = window.SFX;
     const T = (k, p) => window.I18n.t(k, p);
+    const LANG = () => (window.I18n && window.I18n.getLang ? window.I18n.getLang() : "id");
+    const pick = (v) => (v && typeof v === "object" ? (v[LANG()] || v.en || Object.values(v)[0]) : v);
     const $ = (id) => document.getElementById(id);
     const PROGRESS_KEY = 'lessonProgress';
 
@@ -21,22 +23,28 @@
         const list = $('lessonList');
         const detail = $('lessonDetail');
         if (!list || !detail) return;
+        const data = window.LESSON_DATA;
+        if (!Array.isArray(data) || data.length === 0) {
+            window.AppSkeleton && window.AppSkeleton.empty(list, 'common.error', true);
+            detail.classList.add('hidden');
+            return;
+        }
         list.innerHTML = '';
         detail.classList.add('hidden');
         list.classList.remove('hidden');
-        for (const lesson of window.LESSON_DATA) {
+        for (const lesson of data) {
             const card = document.createElement('button');
             card.type = 'button';
             card.className = 'lesson-card' + (isDone(lesson.id) ? ' done' : '');
             const badge = document.createElement('span');
-            badge.className = 'lesson-badge ' + lesson.level;
-            badge.textContent = lesson.level;
+            badge.className = 'lesson-badge ' + pick(lesson.level);
+            badge.textContent = pick(lesson.level);
             const body = document.createElement('span');
             body.className = 'lesson-card-body';
             const title = document.createElement('strong');
-            title.textContent = lesson.title;
+            title.textContent = pick(lesson.title);
             const desc = document.createElement('small');
-            desc.textContent = lesson.description;
+            desc.textContent = pick(lesson.description);
             body.append(title, desc);
             const state = document.createElement('span');
             state.className = 'lesson-state';
@@ -61,11 +69,11 @@
     function renderStep() {
         const lesson = currentLesson;
         const step = lesson.steps[stepIndex];
-        $('lessonTitle').textContent = lesson.title;
-        $('lessonGoal').textContent = T('learning.goal', { goal: lesson.goal });
+        $('lessonTitle').textContent = pick(lesson.title);
+        $('lessonGoal').textContent = T('learning.goal', { goal: pick(lesson.goal) });
         $('lessonStepCount').textContent = T('learning.stepCounter', { current: stepIndex + 1, total: lesson.steps.length });
-        $('lessonStepTitle').textContent = step.title;
-        $('lessonStepText').textContent = step.text;
+        $('lessonStepTitle').textContent = pick(step.title);
+        $('lessonStepText').textContent = pick(step.text);
 
         const wrap = $('lessonBoardWrap');
         const boardEl = $('lessonBoard');
@@ -119,7 +127,7 @@
             progress[currentLesson.id] = true;
             save();
             SFX.play('success');
-            window.GameMode.toast(T('learning.completedToast', { title: currentLesson.title }), 'success');
+            window.GameMode.toast(T('learning.completedToast', { title: pick(currentLesson.title) }), 'success');
             renderList();
         }
     }

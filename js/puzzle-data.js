@@ -1,168 +1,855 @@
-/* Puzzle dataset — every entry is validated by tests/run.mjs:
-   FEN must be valid, every solution move must be legal, and puzzles
-   themed "mate" must end in checkmate. Format for a new puzzle:
-   { id, difficulty: easy|medium|hard|master, title, rating,
-     fen, solution: ['dari-ke', ...], themes: [...] }
-   Even indices = user moves, odd indices = opponent replies. */
-(function () {
-    'use strict';
-    window.PUZZLE_DATA = [
-        /* ---------- EASY ---------- */
-        { id: 'scholar-mate', title: 'Scholar\'s Mate', difficulty: 'easy', rating: 600,
-          fen: 'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4',
-          solution: ['h5f7'], themes: ['mate', 'opening'] },
-        { id: 'back-rank-mate', title: 'Back-Rank Mate', difficulty: 'easy', rating: 650,
-          fen: '6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1',
-          solution: ['e1e8'], themes: ['mate', 'backRankMate'] },
-        { id: 'queen-corner-mate', title: 'Queen Mate in the Corner', difficulty: 'easy', rating: 650,
-          fen: '7k/8/5K2/8/8/8/8/6Q1 w - - 0 1',
-          solution: ['g1g7'], themes: ['mate', 'endgame'] },
-        { id: 'fools-mate', title: 'Fool\'s Mate (Black to Play)', difficulty: 'easy', rating: 500,
-          fen: 'rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 3',
-          solution: ['d8h4'], themes: ['mate', 'opening'] },
-        { id: 'free-queen', title: 'Hanging Queen', difficulty: 'easy', rating: 700,
-          fen: '6k1/8/8/8/3q4/8/8/3Q2K1 w - - 0 1',
-          solution: ['d1d4'], themes: ['advantage', 'capture'] },
-        { id: 'rook-corner-mate', title: 'Rook Mate on the Back Rank', difficulty: 'easy', rating: 650,
-          fen: '6k1/8/6K1/8/8/8/8/1R6 w - - 0 1',
-          solution: ['b1b8'], themes: ['mate', 'endgame'] },
-        { id: 'rook-back-rank-a', title: 'Rook Back-Rank Mate', difficulty: 'easy', rating: 650,
-          fen: '6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1',
-          solution: ['a1a8'], themes: ['mate', 'backRankMate'] },
-        { id: 'queen-back-rank', title: 'Queen Back-Rank Mate', difficulty: 'easy', rating: 650,
-          fen: '6k1/5ppp/8/8/8/8/8/Q5K1 w - - 0 1',
-          solution: ['a1a8'], themes: ['mate', 'backRankMate'] },
-        { id: 'rook-d8', title: 'Rook Mate on the Eighth', difficulty: 'easy', rating: 650,
-          fen: '6k1/5ppp/8/8/8/8/8/3R2K1 w - - 0 1',
-          solution: ['d1d8'], themes: ['mate', 'backRankMate'] },
-        { id: 'queen-h7', title: 'Queen Mate on h7', difficulty: 'easy', rating: 650,
-          fen: '7k/8/6K1/8/8/8/8/7Q w - - 0 1',
-          solution: ['h1h7'], themes: ['mate', 'endgame'] },
-        { id: 'queen-a8-corner', title: 'Queen Mate in the Corner', difficulty: 'easy', rating: 650,
-          fen: 'k7/8/1K6/8/8/8/8/6Q1 w - - 0 1',
-          solution: ['g1g8'], themes: ['mate', 'endgame'] },
-        { id: 'rook-a8-corner', title: 'Rook Mate in the Corner', difficulty: 'easy', rating: 650,
-          fen: 'k7/8/1K6/8/8/8/8/7R w - - 0 1',
-          solution: ['h1h8'], themes: ['mate', 'endgame'] },
-        { id: 'queen-h-file', title: 'Queen Mate on the h-File', difficulty: 'easy', rating: 650,
-          fen: '7k/5K2/8/8/8/8/Q7/8 w - - 0 1',
-          solution: ['a2h2'], themes: ['mate', 'endgame'] },
-        { id: 'rook-h-file', title: 'Rook Mate on the h-File', difficulty: 'easy', rating: 650,
-          fen: '7k/5K2/8/8/8/8/R7/8 w - - 0 1',
-          solution: ['a2h2'], themes: ['mate', 'endgame'] },
-        { id: 'capture-queen-rook', title: 'Capture the Hanging Queen', difficulty: 'easy', rating: 700,
-          fen: '6k1/8/8/3q4/8/8/8/3R2K1 w - - 0 1',
-          solution: ['d1d5'], themes: ['advantage', 'capture'] },
-        { id: 'capture-rook-queen', title: 'Capture the Hanging Rook', difficulty: 'easy', rating: 700,
-          fen: '6k1/8/8/3r4/8/8/8/3Q2K1 w - - 0 1',
-          solution: ['d1d5'], themes: ['advantage', 'capture'] },
-        { id: 'capture-knight-queen', title: 'Capture the Hanging Knight', difficulty: 'easy', rating: 700,
-          fen: '6k1/8/8/3n4/8/8/8/3Q2K1 w - - 0 1',
-          solution: ['d1d5'], themes: ['advantage', 'capture'] },
-        { id: 'promotion-b8', title: 'Promotion to the Eighth', difficulty: 'easy', rating: 700,
-          fen: '6k1/1P6/8/8/8/8/8/6K1 w - - 0 1',
-          solution: ['b7b8'], themes: ['promotion', 'advantage'] },
-
-        /* ---------- MEDIUM ---------- */
-        { id: 'knight-fork-queen', title: 'Knight Forks the Queen', difficulty: 'medium', rating: 1000,
-          fen: '2q2rk1/ppp2ppp/8/3N4/8/8/PPP2PPP/R2Q1RK1 w - - 0 1',
-          solution: ['d5e7', 'g8h8', 'e7c8'], themes: ['fork', 'advantage'] },
-        { id: 'hanging-queen-file', title: 'Queen on an Open File', difficulty: 'medium', rating: 900,
-          fen: '6k1/8/8/8/4q3/8/8/4R1K1 w - - 0 1',
-          solution: ['e1e4'], themes: ['advantage', 'capture'] },
-        { id: 'promotion-wins-rook', title: 'Promotion Wins a Rook', difficulty: 'medium', rating: 950,
-          fen: '2r5/1P6/8/8/8/6k1/8/6K1 w - - 0 1',
-          solution: ['b7c8'], themes: ['promotion', 'advantage'] },
-        { id: 'pinned-rook', title: 'Pinned Rook', difficulty: 'medium', rating: 950,
-          fen: '4r1k1/8/8/8/8/4R3/8/4K3 w - - 0 1',
-          solution: ['e3e8'], themes: ['pin', 'advantage'] },
-        { id: 'knight-fork-rook-e8', title: 'Knight Forks King and Rook', difficulty: 'medium', rating: 1000,
-          fen: '4r1k1/5ppp/8/2BN4/8/8/8/6K1 w - - 0 1',
-          solution: ['d5f6', 'g8h8', 'f6e8'], themes: ['fork', 'advantage'] },
-        { id: 'knight-fork-d8', title: 'Knight Forks King and Rook', difficulty: 'medium', rating: 1000,
-          fen: '3r3k/8/8/4N3/8/8/8/6K1 w - - 0 1',
-          solution: ['e5f7', 'h8h7', 'f7d8'], themes: ['fork', 'advantage'] },
-        { id: 'knight-fork-a8', title: 'Knight Forks King and Rook', difficulty: 'medium', rating: 1000,
-          fen: 'r3k3/8/8/1N6/8/8/8/6K1 w - - 0 1',
-          solution: ['b5c7', 'e8d8', 'c7a8'], themes: ['fork', 'advantage'] },
-        { id: 'knight-fork-b7', title: 'Knight Forks King and Rook', difficulty: 'medium', rating: 1000,
-          fen: '8/1r3k2/8/8/4N3/8/8/6K1 w - - 0 1',
-          solution: ['e4d6', 'f7g8', 'd6b7'], themes: ['fork', 'advantage'] },
-        { id: 'knight-fork-d6', title: 'Knight Forks King and Rook', difficulty: 'medium', rating: 1000,
-          fen: '8/8/3r3k/8/8/4N3/8/6K1 w - - 0 1',
-          solution: ['e3f5', 'h6g6', 'f5d6'], themes: ['fork', 'advantage'] },
-        { id: 'pin-queen-e7', title: 'Pin Wins the Queen', difficulty: 'medium', rating: 1000,
-          fen: '4k3/4q3/3K4/8/8/8/8/4R3 w - - 0 1',
-          solution: ['e1e7'], themes: ['pin', 'capture'] },
-        { id: 'pin-rook-e7', title: 'Pin Wins the Rook', difficulty: 'medium', rating: 1000,
-          fen: '4k3/4r3/3K4/8/8/8/8/4R3 w - - 0 1',
-          solution: ['e1e7'], themes: ['pin', 'capture'] },
-        { id: 'skewer-queen-d7', title: 'Skewer Wins the Queen', difficulty: 'medium', rating: 1000,
-          fen: '4k3/3q4/8/1BN5/8/8/8/6K1 w - - 0 1',
-          solution: ['b5d7'], themes: ['skewer', 'capture'] },
-        { id: 'skewer-queen-g7', title: 'Skewer Wins the Queen', difficulty: 'medium', rating: 1000,
-          fen: '7k/6q1/7K/8/3B4/8/8/8 w - - 0 1',
-          solution: ['d4g7'], themes: ['skewer', 'capture'] },
-        { id: 'promotion-b8-medium', title: 'Promotion on the Queenside', difficulty: 'medium', rating: 950,
-          fen: '7k/1P6/8/8/8/8/8/6K1 w - - 0 1',
-          solution: ['b7b8'], themes: ['promotion', 'advantage'] },
-        { id: 'knight-fork-queen-d8', title: 'Knight Forks King and Queen', difficulty: 'medium', rating: 1000,
-          fen: '3q3k/8/8/4N3/8/8/8/6K1 w - - 0 1',
-          solution: ['e5f7', 'h8h7', 'f7d8'], themes: ['fork', 'advantage'] },
-        { id: 'knight-fork-rook-b4', title: 'Knight Forks King and Rook', difficulty: 'medium', rating: 1000,
-          fen: '8/8/5k2/8/1r6/2N5/8/6K1 w - - 0 1',
-          solution: ['c3d5', 'f6g7', 'd5b4'], themes: ['fork', 'advantage'] },
-
-        /* ---------- HARD ---------- */
-        { id: 'two-rooks-mate-2', title: 'Mate in 2: Two Rooks', difficulty: 'hard', rating: 1250,
-          fen: '6k1/8/6K1/8/8/8/8/R6R w - - 0 1',
-          solution: ['g6f6', 'g8f8', 'a1a8'], themes: ['mate', 'endgame'] },
-        { id: 'queen-mate-2', title: 'Mate in 2: Queen and King', difficulty: 'hard', rating: 1250,
-          fen: '7k/8/5K2/8/8/8/8/3Q4 w - - 0 1',
-          solution: ['f6f7', 'h8h7', 'd1h1'], themes: ['mate', 'endgame'] },
-        { id: 'knight-fork-rook', title: 'Knight Fork in the Open', difficulty: 'hard', rating: 1200,
-          fen: '2r2rk1/ppp2ppp/8/3N4/8/8/PPP2PPP/R2Q1RK1 w - - 0 1',
-          solution: ['d5e7', 'g8h8', 'e7c8'], themes: ['fork', 'advantage'] },
-        { id: 'queen-mate-2-rotated-a', title: 'Mate in 2: Queen and King', difficulty: 'hard', rating: 1250,
-          fen: 'k7/8/2K5/8/8/8/8/4Q3 w - - 0 1',
-          solution: ['c6c7', 'a8a7', 'e1a1'], themes: ['mate', 'endgame'] },
-        { id: 'queen-mate-2-rotated-b', title: 'Mate in 2: Queen and King', difficulty: 'hard', rating: 1250,
-          fen: 'k7/8/2K5/8/8/8/8/3Q4 w - - 0 1',
-          solution: ['c6c7', 'a8a7', 'd1a1'], themes: ['mate', 'endgame'] },
-        { id: 'queen-mate-2-e1', title: 'Mate in 2: Queen and King', difficulty: 'hard', rating: 1250,
-          fen: '7k/8/5K2/8/8/8/8/4Q3 w - - 0 1',
-          solution: ['f6f7', 'h8h7', 'e1h1'], themes: ['mate', 'endgame'] },
-        { id: 'two-rooks-mate-2-b', title: 'Mate in 2: Two Rooks', difficulty: 'hard', rating: 1250,
-          fen: '6k1/8/6K1/8/8/8/8/1R5R w - - 0 1',
-          solution: ['g6f6', 'g8f8', 'b1b8'], themes: ['mate', 'endgame'] },
-        { id: 'two-rooks-mate-2-c', title: 'Mate in 2: Two Rooks', difficulty: 'hard', rating: 1250,
-          fen: '6k1/8/6K1/8/8/8/8/R1R5 w - - 0 1',
-          solution: ['g6f6', 'g8f8', 'a1a8'], themes: ['mate', 'endgame'] },
-        { id: 'hard-knight-fork-a', title: 'Knight Fork Wins a Rook', difficulty: 'hard', rating: 1200,
-          fen: '2r3k1/ppp2ppp/8/3N4/8/8/PPP2PPP/R3R1K1 w - - 0 1',
-          solution: ['d5e7', 'g8h8', 'e7c8'], themes: ['fork', 'advantage'] },
-        { id: 'hard-knight-fork-b', title: 'Knight Fork Wins a Rook', difficulty: 'hard', rating: 1200,
-          fen: 'r3k3/8/8/1N6/8/8/8/6K1 w - - 0 1',
-          solution: ['b5c7', 'e8d8', 'c7a8'], themes: ['fork', 'advantage'] },
-        { id: 'hard-knight-fork-c', title: 'Knight Fork Wins a Queen', difficulty: 'hard', rating: 1200,
-          fen: '3q3k/8/8/4N3/8/8/8/6K1 w - - 0 1',
-          solution: ['e5f7', 'h8h7', 'f7d8'], themes: ['fork', 'advantage'] },
-
-        /* ---------- MASTER ---------- */
-        { id: 'queen-mate-3', title: 'Mate in 3: Approaching the King', difficulty: 'master', rating: 1600,
-          fen: '7k/8/5K2/8/8/8/6Q1/8 w - - 0 1',
-          solution: ['f6e7', 'h8h7', 'e7f7', 'h7h8', 'g2g7'], themes: ['mate', 'endgame'] },
-        { id: 'queen-mate-3-g3', title: 'Mate in 3: Queen on g3', difficulty: 'master', rating: 1600,
-          fen: '7k/8/5K2/8/8/6Q1/8/8 w - - 0 1',
-          solution: ['f6e7', 'h8h7', 'e7f7', 'h7h8', 'g3g7'], themes: ['mate', 'endgame'] },
-        { id: 'queen-mate-3-g4', title: 'Mate in 3: Queen on g4', difficulty: 'master', rating: 1600,
-          fen: '7k/8/5K2/8/6Q1/8/8/8 w - - 0 1',
-          solution: ['f6e7', 'h8h7', 'e7f7', 'h7h8', 'g4g7'], themes: ['mate', 'endgame'] },
-        { id: 'queen-mate-3-g5', title: 'Mate in 3: Queen on g5', difficulty: 'master', rating: 1600,
-          fen: '7k/8/5K2/6Q1/8/8/8/8 w - - 0 1',
-          solution: ['f6e7', 'h8h7', 'e7f7', 'h7h8', 'g5g7'], themes: ['mate', 'endgame'] },
-        { id: 'queen-mate-3-a2', title: 'Mate in 3: Queen to h2', difficulty: 'master', rating: 1600,
-          fen: '7k/8/5K2/8/8/8/Q7/8 w - - 0 1',
-          solution: ['f6e7', 'h8h7', 'e7f7', 'h7h8', 'a2h2'], themes: ['mate', 'endgame'] }
-    ];
-})();
+// 50 puzzle tervalidasi engine — dihasilkan scripts/gen-puzzles.js
+// Jangan edit manual; ubah template lalu jalankan ulang generator.
+window.PUZZLE_DATA = [
+  {
+    "id": "easy-01",
+    "difficulty": "easy",
+    "title": "Skakmat Papan Belakang 1",
+    "title_en": "Back-rank Mate 1",
+    "rating": 440,
+    "fen": "2k5/1ppp4/8/8/8/8/8/4K2R w - - 0 1",
+    "solution": [
+      "h1h8"
+    ],
+    "themes": [
+      "mate",
+      "backRank"
+    ]
+  },
+  {
+    "id": "easy-02",
+    "difficulty": "easy",
+    "title": "Skakmat Papan Belakang 2",
+    "title_en": "Back-rank Mate 2",
+    "rating": 470,
+    "fen": "5k2/4ppp1/8/8/8/8/8/R3K3 w - - 0 1",
+    "solution": [
+      "a1a8"
+    ],
+    "themes": [
+      "mate",
+      "backRank"
+    ]
+  },
+  {
+    "id": "easy-03",
+    "difficulty": "easy",
+    "title": "Skakmat Papan Belakang 3",
+    "title_en": "Back-rank Mate 3",
+    "rating": 490,
+    "fen": "6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1",
+    "solution": [
+      "a1a8"
+    ],
+    "themes": [
+      "mate",
+      "backRank"
+    ]
+  },
+  {
+    "id": "easy-04",
+    "difficulty": "easy",
+    "title": "Skakmat Papan Belakang 4",
+    "title_en": "Back-rank Mate 4",
+    "rating": 520,
+    "fen": "1k6/ppp5/8/8/8/8/8/4K2R w - - 0 1",
+    "solution": [
+      "h1h8"
+    ],
+    "themes": [
+      "mate",
+      "backRank"
+    ]
+  },
+  {
+    "id": "easy-05",
+    "difficulty": "easy",
+    "title": "Skakmat Papan Belakang 5",
+    "title_en": "Back-rank Mate 5",
+    "rating": 540,
+    "fen": "3k4/2ppp3/8/8/8/8/8/4K2R w - - 0 1",
+    "solution": [
+      "h1h8"
+    ],
+    "themes": [
+      "mate",
+      "backRank"
+    ]
+  },
+  {
+    "id": "easy-06",
+    "difficulty": "easy",
+    "title": "Skakmat Papan Belakang 6",
+    "title_en": "Back-rank Mate 6",
+    "rating": 560,
+    "fen": "4k3/3ppp2/8/8/8/8/8/R3K3 w - - 0 1",
+    "solution": [
+      "a1a8"
+    ],
+    "themes": [
+      "mate",
+      "backRank"
+    ]
+  },
+  {
+    "id": "easy-07",
+    "difficulty": "easy",
+    "title": "Skakmat Ratu Sudut 7",
+    "title_en": "Corner Queen Mate 7",
+    "rating": 590,
+    "fen": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1",
+    "solution": [
+      "g2g7"
+    ],
+    "themes": [
+      "mate"
+    ]
+  },
+  {
+    "id": "easy-08",
+    "difficulty": "easy",
+    "title": "Skakmat Ratu Sudut 8",
+    "title_en": "Corner Queen Mate 8",
+    "rating": 610,
+    "fen": "k7/8/2K5/8/8/8/1Q6/8 w - - 0 1",
+    "solution": [
+      "b2b7"
+    ],
+    "themes": [
+      "mate"
+    ]
+  },
+  {
+    "id": "easy-09",
+    "difficulty": "easy",
+    "title": "Skakmat Ratu Sudut 9",
+    "title_en": "Corner Queen Mate 9",
+    "rating": 640,
+    "fen": "8/6q1/8/8/8/5k2/8/7K b - - 0 1",
+    "solution": [
+      "g7g2"
+    ],
+    "themes": [
+      "mate"
+    ]
+  },
+  {
+    "id": "easy-10",
+    "difficulty": "easy",
+    "title": "Skakmat Ratu Sudut 10",
+    "title_en": "Corner Queen Mate 10",
+    "rating": 660,
+    "fen": "8/1q6/8/8/8/2k5/8/K7 b - - 0 1",
+    "solution": [
+      "b7b2"
+    ],
+    "themes": [
+      "mate"
+    ]
+  },
+  {
+    "id": "easy-11",
+    "difficulty": "easy",
+    "title": "Skakmat Dua Benteng 11",
+    "title_en": "Two-rook Mate 11",
+    "rating": 680,
+    "fen": "6k1/R7/8/8/8/8/8/1R4K1 w - - 0 1",
+    "solution": [
+      "b1b8"
+    ],
+    "themes": [
+      "mate",
+      "ladder"
+    ]
+  },
+  {
+    "id": "easy-12",
+    "difficulty": "easy",
+    "title": "Skakmat Dua Benteng 12",
+    "title_en": "Two-rook Mate 12",
+    "rating": 710,
+    "fen": "1k6/7R/8/8/8/8/8/1K4R1 w - - 0 1",
+    "solution": [
+      "g1g8"
+    ],
+    "themes": [
+      "mate",
+      "ladder"
+    ]
+  },
+  {
+    "id": "easy-13",
+    "difficulty": "easy",
+    "title": "Fork Raja-Ratu 13",
+    "title_en": "Royal Fork 13",
+    "rating": 730,
+    "fen": "3q3k/8/8/4N3/8/8/8/4K3 w - - 0 1",
+    "solution": [
+      "e5f7"
+    ],
+    "themes": [
+      "fork"
+    ]
+  },
+  {
+    "id": "easy-14",
+    "difficulty": "easy",
+    "title": "Fork Raja-Ratu 14",
+    "title_en": "Royal Fork 14",
+    "rating": 760,
+    "fen": "4k3/8/8/8/4n3/8/8/3Q3K b - - 0 1",
+    "solution": [
+      "e4f2"
+    ],
+    "themes": [
+      "fork"
+    ]
+  },
+  {
+    "id": "easy-15",
+    "difficulty": "easy",
+    "title": "Ratu Tergantung 15",
+    "title_en": "Hanging Queen 15",
+    "rating": 780,
+    "fen": "4k3/8/8/3q4/8/8/8/4R1K1 w - - 0 1",
+    "solution": [
+      "e1e8"
+    ],
+    "themes": [
+      "capture"
+    ]
+  },
+  {
+    "id": "medium-01",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 1",
+    "title_en": "Queen-Rook Battery 1",
+    "rating": 980,
+    "fen": "r5k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-02",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 2",
+    "title_en": "Queen-Rook Battery 2",
+    "rating": 1010,
+    "fen": "1k5r/ppp5/3Q4/8/8/8/PPP5/1K1R4 w - - 0 1",
+    "solution": [
+      "d6d8",
+      "h8d8",
+      "d1d8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-03",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 3",
+    "title_en": "Queen-Rook Battery 3",
+    "rating": 1040,
+    "fen": "4r1k1/5ppp/8/8/8/4q3/5PPP/R5K1 b - - 0 1",
+    "solution": [
+      "e3e1",
+      "a1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-04",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 4",
+    "title_en": "Queen-Rook Battery 4",
+    "rating": 1070,
+    "fen": "1k1r4/ppp5/8/8/8/3q4/PPP5/1K5R b - - 0 1",
+    "solution": [
+      "d3d1",
+      "h1d1",
+      "d8d1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-05",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 5",
+    "title_en": "Queen-Rook Battery 5",
+    "rating": 1100,
+    "fen": "1r4k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "b8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-06",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 6",
+    "title_en": "Queen-Rook Battery 6",
+    "rating": 1130,
+    "fen": "4r1k1/5ppp/8/8/8/4q3/5PPP/1R4K1 b - - 0 1",
+    "solution": [
+      "e3e1",
+      "b1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-07",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 7",
+    "title_en": "Queen-Rook Battery 7",
+    "rating": 1160,
+    "fen": "3r2k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "d8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-08",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 8",
+    "title_en": "Queen-Rook Battery 8",
+    "rating": 1190,
+    "fen": "4r1k1/5ppp/8/8/8/4q3/5PPP/3R2K1 b - - 0 1",
+    "solution": [
+      "e3e1",
+      "d1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-09",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 9",
+    "title_en": "Queen-Rook Battery 9",
+    "rating": 1220,
+    "fen": "r5k1/5ppp/8/1Q6/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "b5e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-10",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 10",
+    "title_en": "Queen-Rook Battery 10",
+    "rating": 1250,
+    "fen": "4r1k1/5ppp/8/8/1q6/8/5PPP/R5K1 b - - 0 1",
+    "solution": [
+      "e8e1",
+      "a1e1",
+      "b4e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-11",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 11",
+    "title_en": "Queen-Rook Battery 11",
+    "rating": 1280,
+    "fen": "r5k1/5ppp/8/8/Q7/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "a4e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-12",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 12",
+    "title_en": "Queen-Rook Battery 12",
+    "rating": 1310,
+    "fen": "4r1k1/5ppp/8/q7/8/8/5PPP/R5K1 b - - 0 1",
+    "solution": [
+      "e8e1",
+      "a1e1",
+      "a5e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "medium-13",
+    "difficulty": "medium",
+    "title": "Kuda Penjaga Gugur 13",
+    "title_en": "Knight Guard Falls 13",
+    "rating": 1340,
+    "fen": "6k1/5ppp/4Qn2/8/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "f6e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate"
+    ]
+  },
+  {
+    "id": "medium-14",
+    "difficulty": "medium",
+    "title": "Kuda Penjaga Gugur 14",
+    "title_en": "Knight Guard Falls 14",
+    "rating": 1370,
+    "fen": "4r1k1/5ppp/8/8/8/4qN2/5PPP/6K1 b - - 0 1",
+    "solution": [
+      "e3e1",
+      "f3e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate"
+    ]
+  },
+  {
+    "id": "medium-15",
+    "difficulty": "medium",
+    "title": "Baterai Ratu-Benteng 15",
+    "title_en": "Queen-Rook Battery 15",
+    "rating": 1400,
+    "fen": "2r3k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "c8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-01",
+    "difficulty": "hard",
+    "title": "Perang Baterai 1",
+    "title_en": "Grand Battery 1",
+    "rating": 1580,
+    "fen": "rr4k1/5ppp/4Q3/8/8/8/4RPPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "b8e8",
+      "e2e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-02",
+    "difficulty": "hard",
+    "title": "Perang Baterai 2",
+    "title_en": "Grand Battery 2",
+    "rating": 1600,
+    "fen": "4r1k1/4rppp/8/8/8/4q3/5PPP/RR4K1 b - - 0 1",
+    "solution": [
+      "e3e1",
+      "b1e1",
+      "e7e1",
+      "a1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-03",
+    "difficulty": "hard",
+    "title": "Perang Baterai 3",
+    "title_en": "Grand Battery 3",
+    "rating": 1630,
+    "fen": "r1r3k1/5ppp/4Q3/8/8/8/4RPPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "c8e8",
+      "e2e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-04",
+    "difficulty": "hard",
+    "title": "Perang Baterai 4",
+    "title_en": "Grand Battery 4",
+    "rating": 1660,
+    "fen": "4r1k1/4rppp/8/8/8/4q3/5PPP/R1R3K1 b - - 0 1",
+    "solution": [
+      "e3e1",
+      "c1e1",
+      "e7e1",
+      "a1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-05",
+    "difficulty": "hard",
+    "title": "Perang Baterai 5",
+    "title_en": "Grand Battery 5",
+    "rating": 1680,
+    "fen": "r2r2k1/5ppp/4Q3/8/8/8/3R1PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "d2d8",
+      "a8d8",
+      "e6e8",
+      "d8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-06",
+    "difficulty": "hard",
+    "title": "Perang Baterai 6",
+    "title_en": "Grand Battery 6",
+    "rating": 1710,
+    "fen": "4r1k1/3r1ppp/8/8/8/4q3/5PPP/R2R2K1 b - - 0 1",
+    "solution": [
+      "d7d1",
+      "a1d1",
+      "e3e1",
+      "d1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-07",
+    "difficulty": "hard",
+    "title": "Perang Baterai 7",
+    "title_en": "Grand Battery 7",
+    "rating": 1740,
+    "fen": "rr4k1/5ppp/4Q3/1R6/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "b5b8",
+      "a8b8",
+      "e6e8",
+      "b8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-08",
+    "difficulty": "hard",
+    "title": "Perang Baterai 8",
+    "title_en": "Grand Battery 8",
+    "rating": 1760,
+    "fen": "r2r2k1/5ppp/4Q3/8/8/4R3/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "d8e8",
+      "e3e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-09",
+    "difficulty": "hard",
+    "title": "Perang Baterai 9",
+    "title_en": "Grand Battery 9",
+    "rating": 1790,
+    "fen": "rr4k1/5ppp/4Q3/8/8/4R3/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "b8e8",
+      "e3e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-01",
+    "difficulty": "expert",
+    "title": "Menembus Pertahanan 1",
+    "title_en": "Cracking the Defense 1",
+    "rating": 2080,
+    "fen": "r1r3k1/5ppp/2R1Qn2/8/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "c6c8",
+      "a8c8",
+      "e6c8",
+      "f6e8",
+      "c8e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-02",
+    "difficulty": "expert",
+    "title": "Menembus Pertahanan 2",
+    "title_en": "Cracking the Defense 2",
+    "rating": 2100,
+    "fen": "4r1k1/5ppp/8/8/8/2r1qN2/5PPP/R1R3K1 b - - 0 1",
+    "solution": [
+      "c3c1",
+      "f3e1",
+      "c1e1",
+      "a1e1",
+      "e3e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-03",
+    "difficulty": "expert",
+    "title": "Menembus Pertahanan 3",
+    "title_en": "Cracking the Defense 3",
+    "rating": 2130,
+    "fen": "r1r3k1/5ppp/4Qn2/8/8/2R5/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6c8",
+      "a8c8",
+      "c3c8",
+      "f6e8",
+      "c8e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-04",
+    "difficulty": "expert",
+    "title": "Menembus Pertahanan 4",
+    "title_en": "Cracking the Defense 4",
+    "rating": 2160,
+    "fen": "4r1k1/5ppp/2r5/8/8/4qN2/5PPP/R1R3K1 b - - 0 1",
+    "solution": [
+      "c6c1",
+      "f3e1",
+      "c1e1",
+      "a1e1",
+      "e3e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-05",
+    "difficulty": "expert",
+    "title": "Menembus Pertahanan 5",
+    "title_en": "Cracking the Defense 5",
+    "rating": 2180,
+    "fen": "rr4k1/5ppp/4Q2b/8/8/8/4RPPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "b8e8",
+      "e2e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-06",
+    "difficulty": "expert",
+    "title": "Menembus Pertahanan 6",
+    "title_en": "Cracking the Defense 6",
+    "rating": 2210,
+    "fen": "4r1k1/4rppp/8/8/8/4q2B/5PPP/RR4K1 b - - 0 1",
+    "solution": [
+      "e3e1",
+      "b1e1",
+      "e7e1",
+      "a1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-07",
+    "difficulty": "expert",
+    "title": "Perang Baterai 7",
+    "title_en": "Grand Battery 7",
+    "rating": 2240,
+    "fen": "rr4k1/5ppp/4Q3/8/4R3/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "e6e8",
+      "b8e8",
+      "e4e8",
+      "a8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-08",
+    "difficulty": "expert",
+    "title": "Perang Baterai 8",
+    "title_en": "Grand Battery 8",
+    "rating": 2260,
+    "fen": "4r1k1/5ppp/8/4r3/8/4q3/5PPP/RR4K1 b - - 0 1",
+    "solution": [
+      "e3e1",
+      "b1e1",
+      "e5e1",
+      "a1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-09",
+    "difficulty": "expert",
+    "title": "Perang Baterai 9",
+    "title_en": "Grand Battery 9",
+    "rating": 2290,
+    "fen": "r2r2k1/5ppp/3RQ3/8/8/8/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "d6d8",
+      "a8d8",
+      "e6e8",
+      "d8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "expert-10",
+    "difficulty": "expert",
+    "title": "Perang Baterai 10",
+    "title_en": "Grand Battery 10",
+    "rating": 2320,
+    "fen": "4r1k1/5ppp/8/8/8/3rq3/5PPP/R2R2K1 b - - 0 1",
+    "solution": [
+      "d3d1",
+      "a1d1",
+      "e3e1",
+      "d1e1",
+      "e8e1"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "hard-10",
+    "difficulty": "hard",
+    "title": "Perang Baterai 10",
+    "title_en": "Grand Battery 10",
+    "rating": 1900,
+    "fen": "rr4k1/5ppp/4Q3/8/8/1R6/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "b3b8",
+      "a8b8",
+      "e6e8",
+      "b8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  }
+];

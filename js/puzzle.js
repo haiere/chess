@@ -7,8 +7,8 @@
 
     const S = window.AppStorage, SFX = window.SFX;
     const T = (k, p) => window.I18n.t(k, p);
-    const DIFFICULTIES = ['easy', 'medium', 'hard', 'master'];
-    const DIFF_KEY = { easy: 'puzzle.easy', medium: 'puzzle.medium', hard: 'puzzle.hard', master: 'puzzle.master' };
+    const DIFFICULTIES = ['easy', 'medium', 'hard', 'expert'];
+    const DIFF_KEY = { easy: 'puzzle.easy', medium: 'puzzle.medium', hard: 'puzzle.hard', expert: 'puzzle.expert' };
     const HINT_STAGES = 3;
     const MAX_SEEN = 300;
 
