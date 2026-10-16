@@ -153,8 +153,12 @@ export const PuzzleBridge = {
       return null;
     }
 
+    // Skeleton loading saat puzzle disiapkan
+    if (window.AppSkeleton) window.AppSkeleton.board(boardEl);
+
     const PM = window.PuzzleMode;
     if (!PM || typeof PM.init !== "function") {
+      if (window.AppSkeleton) { window.AppSkeleton.empty(boardEl, "common.error", true); return null; }
       showPlaceholder(placeholderText("noPuzzleMode"));
       return null;
     }

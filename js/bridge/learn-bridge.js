@@ -111,6 +111,12 @@ function doInit() {
   const old = container.querySelector(".app-placeholder");
   if (old) old.remove();
 
+  // Skeleton loading saat lesson dirender
+  if (window.AppSkeleton) {
+    const ll = $("lessonList");
+    if (ll) window.AppSkeleton.cards(ll, 4);
+  }
+
   const result = IDShim.runWithShim(() => {
     try { LM.init(); }
     catch (e) { console.warn("[LearnBridge v10] init threw:", e && e.message); }

@@ -7,8 +7,8 @@
   const SUPP = {
     id: {
       puzzle: {
-        statsLine: "Selesai: {solved} 路 Gagal: {failed} 路 Streak: {streak}",
-        info: "Langkah {move} dari {total} 路 {side} melangkah",
+        statsLine: "Selesai: {solved} · Gagal: {failed} · Streak: {streak}",
+        info: "Langkah {move} dari {total} · {side} melangkah",
         available: "{count} teka-teki tersedia",
         pick: "Pilih teka-teki",
         loading: "Memuat teka-teki...",
@@ -27,8 +27,8 @@
     },
     en: {
       puzzle: {
-        statsLine: "Solved: {solved} 路 Failed: {failed} 路 Streak: {streak}",
-        info: "Move {move} of {total} 路 {side} to move",
+        statsLine: "Solved: {solved} · Failed: {failed} · Streak: {streak}",
+        info: "Move {move} of {total} · {side} to move",
         available: "{count} puzzles available",
         pick: "Select a puzzle",
         loading: "Loading puzzles...",
