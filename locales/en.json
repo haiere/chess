@@ -85,6 +85,8 @@
     "computer": "Computer",
     "aiLevel": "Computer Level",
     "easy": "Easy",
+ "medium": "Medium",
+ "expert": "Expert",
     "medium": "Medium",
     "hard": "Hard",
     "expert": "Expert",
