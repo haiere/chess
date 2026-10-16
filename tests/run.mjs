@@ -163,7 +163,7 @@ section('puzzle dataset');
     ok(Array.isArray(data) && data.length >= 12, 'dataset >= 12 puzzles', data ? data.length : 0);
     if (Array.isArray(data)) {
         const ids = new Set();
-        const DIFFS = ['easy', 'medium', 'hard', 'master'];
+        const DIFFS = ['easy', 'medium', 'hard', 'expert'];
         let okCount = 0;
         for (const p of data) {
             const label = p && p.id;
