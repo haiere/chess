@@ -10,7 +10,8 @@
     "lint": "eslint js tests scripts",
     "format": "prettier --write \"js/**/*.js\" \"tests/**/*.mjs\" \"scripts/**/*.mjs\" \"*.html\" \"*.css\"",
     "test": "node tests/run.mjs",
-    "test:data": "node tests/data-validation.test.mjs"
+    "test:data": "node tests/data-validation.test.mjs",
+    "audit:puzzles": "node scripts/audit-puzzles.mjs"
   },
   "devDependencies": {
     "eslint": "^9.13.0",
