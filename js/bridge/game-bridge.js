@@ -443,6 +443,7 @@ export const GameBridge = {
       console.warn("[GameBridge] #board dibuat baru.");
     }
     console.info("[GameBridge] #board ok, children:", boardEl.children.length);
+    if (window.AppSkeleton && !boardEl.querySelector(".square")) window.AppSkeleton.board(boardEl);
 
     const GM = window.GameMode;
     console.info("[GameBridge] GameMode:", typeof GM, "init:", typeof (GM && GM.init));
