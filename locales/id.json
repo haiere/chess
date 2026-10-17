@@ -136,7 +136,7 @@
     "king": "Raja",
     "queen": "Ratu",
     "rook": "Benteng",
-    "bishop": "Gajah",
+    "bishop": "Uskup",
     "knight": "Kuda",
     "pawn": "Pion"
   },
@@ -172,12 +172,14 @@
     "completed": "Teka-teki selesai!",
     "failed": "Teka-teki gagal",
     "inProgress": "Sedang berlangsung",
+    "turnStatus": "{color} melangkah — langkah {done} dari {total}",
     "whiteToMove": "Putih melangkah",
     "blackToMove": "Hitam melangkah",
     "progress": "Teka-teki {current} dari {total}",
     "progressShort": "{current}/{total}",
     "stats": "Statistik",
     "solved": "Terselesaikan",
+    "solvedCount": "{count} terselesaikan",
     "failedCount": "Gagal",
     "accuracy": "Akurasi",
     "streak": "Streak",
@@ -185,6 +187,7 @@
     "time": "Waktu",
     "resetProgress": "Atur Ulang Progres",
     "resetConfirm": "Yakin ingin mengatur ulang semua progres teka-teki?",
+    "resetToast": "Progres puzzle direset",
     "noPuzzles": "Tidak ada teka-teki tersedia",
     "loadingPuzzles": "Memuat teka-teki...",
     "loadError": "Gagal memuat teka-teki. Menggunakan data cadangan.",
@@ -224,14 +227,10 @@
     "finish": "Selesaikan",
     "progress": "Progres: {done} dari {total}",
     "progressPercent": "{percent}% selesai",
-    "quiz": "Kuis",
-    "quizQuestion": "Pertanyaan {current} dari {total}",
-    "quizCorrect": "Jawaban benar!",
-    "quizIncorrect": "Jawaban salah",
-    "quizScore": "Skor: {score}/{total}",
     "tryAgain": "Coba Lagi",
     "levels": {
       "beginner": "Pemula",
+      "elementary": "Dasar",
       "intermediate": "Menengah",
       "advanced": "Mahir"
     },
@@ -391,4 +390,4 @@
   "progress": {
     "label": "Progres"
   }
-}
+  }
