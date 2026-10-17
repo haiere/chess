@@ -1,7 +1,13 @@
 /* Puzzle mode — difficulty selection, random/next/previous/daily puzzle,
    staged hints, retry on mistakes, solution reveal, statistics with streak,
    all persisted via AppStorage. PuzzleProvider abstracts the data source
-   so an external dataset can replace PUZZLE_DATA without UI changes. */
+   so an external dataset can replace PUZZLE_DATA without UI changes.
+
+   v6.1 (Fase 1.1):
+   - puzzle.solved → puzzle.completed (status solved)
+   - puzzle.inProgress + params → puzzle.turnStatus + params (in-progress status)
+   - learning.resetToast → puzzle.resetToast (reset puzzle progress)
+*/
 (function () {
     'use strict';
 
@@ -22,7 +28,6 @@
             for (const step of p.solution) {
                 const mv = Chess.findMove(st, step);
                 if (!mv) return false;
-                // Defense-in-depth: engine sudah memfilter, ini jaga-jaga
                 if (mv.captured && mv.captured.type === 'king') return false;
                 st = Chess.applyMove(st, mv).state;
                 if (!Chess.findKing(st.board, 'white') || !Chess.findKing(st.board, 'black')) return false;
@@ -119,7 +124,7 @@
         const done = Math.ceil(stepIndex / 2);
         const colorKey = activeColor() === 'white' ? 'game.white' : 'game.black';
         if (stepIndex >= puzzle.solution.length) {
-            el.textContent = T('puzzle.solved');
+            el.textContent = T('puzzle.completed');
             el.className = 'pz-status success';
         } else if (beforeWrong) {
             el.textContent = T('puzzle.wrong');
@@ -128,7 +133,7 @@
             el.textContent = T('puzzle.hintStatus', { level: hintStage, max: HINT_STAGES, color: T(colorKey), done, total });
             el.className = 'pz-status hint';
         } else {
-            el.textContent = T('puzzle.inProgress', { color: T(colorKey), done, total });
+            el.textContent = T('puzzle.turnStatus', { color: T(colorKey), done, total });
             el.className = 'pz-status';
         }
     }
@@ -311,7 +316,7 @@
         sessionStart = Date.now();
         saveStats();
         render();
-        window.GameMode.toast(T('learning.resetToast'), 'success');
+        window.GameMode.toast(T('puzzle.resetToast'), 'success');
     }
 
     function renderBrowseList() {
@@ -407,7 +412,6 @@
             $('btnPzReset').addEventListener('click', resetProgress);
             render();
             updateStatsUI();
-            // Deep-link: muat puzzle dari hash jika ada
             try {
                 const m = (location.hash || '').match(/^#\/puzzle\/([^/?]+)/);
                 if (m && provider.byId(m[1])) startPuzzle(provider.byId(m[1]));
