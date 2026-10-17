@@ -1,8 +1,10 @@
 /**
- * js/main.js — v6.1.
+ * js/main.js — v6.2.
  * - Guard: kalau sudah load, skip.
  * - Semua dynamic import.
  * - v6.1: hapus bridge/i18n-extend (duplikat base); fix initSidebarProgress.
+ * - v6.2: hapus puzzle/provider.js (dead code); resetAllProgress robust;
+ *          btn-reset-all handler; <html lang> sync; hapus dead normalize().
  */
 const BRIDGE_IMPORTS = [
   "./i18n.js",
@@ -31,7 +33,6 @@ const USER_MODULES = [
   { path: "./components/Icon.js",   globals: ["Icon"] },
   { path: "./game.js",              globals: ["GameMode", "Game", "Mode"] },
   { path: "./puzzle-data.js",       globals: ["PuzzleData"] },
-  { path: "./puzzle/provider.js",   globals: ["PuzzleProvider", "Provider"] },
   { path: "./puzzle.js",            globals: ["PuzzleMode", "Puzzle", "Mode"] },
   { path: "./lessons-data.js",      globals: ["LessonsData"] },
   { path: "./lessons.js",           globals: ["LessonsMode", "Lessons", "Mode"] }
@@ -78,10 +79,6 @@ async function loadUserModules() {
 }
 
 const ROUTES = ["dashboard", "game", "puzzle", "learn", "settings", "about"];
-function normalize(hash) {
-  const r = (hash || "").replace(/^#\/?/, "").trim();
-  return ROUTES.includes(r) ? r : "game";
-}
 function parseHash() {
   let h = (location.hash || "#/game").replace(/^#\/?/, "");
   let query = {};
@@ -186,6 +183,86 @@ function initLangSwitcher() {
   });
 }
 
+/**
+ * Sinkronkan atribut <html lang> dengan bahasa aktif I18n.
+ * Dipanggil saat boot dan setiap I18n.setLang() (jika tersedia).
+ */
+function applyLangToDocument() {
+  try {
+    if (window.I18n && typeof window.I18n.getLang === "function") {
+      const lang = window.I18n.getLang();
+      if (lang) document.documentElement.setAttribute("lang", lang);
+    }
+  } catch (e) {}
+}
+
+function wrapI18nSetLang() {
+  if (!window.I18n || typeof window.I18n.setLang !== "function") return;
+  if (window.I18n.__langWrapped) return;
+  const orig = window.I18n.setLang.bind(window.I18n);
+  window.I18n.setLang = function (lang) {
+    const r = orig(lang);
+    applyLangToDocument();
+    return r;
+  };
+  window.I18n.__langWrapped = true;
+}
+
+/* ---------- Reset helpers (progress vs settings) ---------- */
+
+// Prefix internal AppStorage (lihat js/utils/storage.js).
+const STORAGE_PREFIX = "hajir-chess:";
+
+// Semua key milik PROGRESS (bukan settings). Termasuk kemungkinan key favorites
+// yang bisa ditulis oleh modul Favorites.
+const PROGRESS_KEYS = [
+  "puzzleStats", "puzzleSeen", "lessonProgress",
+  "lastPuzzle", "lastLesson",
+  "favPuzzles", "favLessons", "favorites", "favorites_puzzle", "favorites_lesson",
+  "dashboardProgress", "streak", "bestStreak", "practiceStreak"
+];
+
+// Key milik SETTINGS (bukan progress).
+const SETTINGS_KEYS = ["theme", "boardTheme", "sound", "coords", "animations"];
+
+function removeKeysExplicit(keys) {
+  for (const k of keys) {
+    try {
+      if (window.AppStorage && window.AppStorage.remove) window.AppStorage.remove(k);
+      else if (window.localStorage) localStorage.removeItem(STORAGE_PREFIX + k);
+    } catch (e) {}
+  }
+}
+
+function removeKeysByPattern(regex) {
+  try {
+    // Hapus via localStorage langsung untuk key yang mungkin ditulis modul lain
+    // (Favorites, Dashboard) tanpa lewat AppStorage.
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith(STORAGE_PREFIX)) continue;
+      const bare = k.slice(STORAGE_PREFIX.length);
+      if (regex.test(bare)) {
+        try { localStorage.removeItem(k); } catch (e) {}
+      }
+    }
+  } catch (e) {}
+}
+
+function resetAllProgress() {
+  removeKeysExplicit(PROGRESS_KEYS);
+  // Wildcard: tangkap key progress yang belum dikenal
+  removeKeysByPattern(/^(puzzle|lesson|fav|dashboard|streak|progress|last)/i);
+}
+
+function resetAllSettings() {
+  removeKeysExplicit(SETTINGS_KEYS);
+}
+
+function refreshSidebarProgress() {
+  try { initSidebarProgress(); } catch (e) {}
+}
+
 function bindSettings() {
   const themeSel = document.getElementById("setting-theme");
   if (themeSel && !themeSel.__bound) {
@@ -231,10 +308,10 @@ function bindSettings() {
     btnResetProgress.addEventListener("click", () => {
       const T = window.I18n ? window.I18n.t : k => k;
       if (!confirm(T("settings.resetProgressConfirm"))) return;
-      ["puzzleStats","puzzleSeen","lessonProgress","lastPuzzle","lastLesson","favPuzzles","favLessons"]
-        .forEach(k => { try { AppStorage.remove(k); } catch (err) {} });
+      resetAllProgress();
       if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
-      if (window.Dashboard && Dashboard.render) Dashboard.render();
+      refreshSidebarProgress();
+      if (window.Dashboard && Dashboard.render) { try { Dashboard.render(); } catch (e) {} }
     });
   }
   const btnResetSettings = document.getElementById("btn-reset-settings");
@@ -243,9 +320,26 @@ function bindSettings() {
     btnResetSettings.addEventListener("click", () => {
       const T = window.I18n ? window.I18n.t : k => k;
       if (!confirm(T("settings.resetSettingsConfirm"))) return;
-      ["theme","boardTheme","sound","coords","animations"]
-        .forEach(k => { try { AppStorage.remove(k); } catch (err) {} });
+      resetAllSettings();
       if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
+      // Re-apply default visual state
+      document.documentElement.removeAttribute("data-board-theme");
+      document.documentElement.setAttribute("data-animations", "on");
+    });
+  }
+  const btnResetAll = document.getElementById("btn-reset-all");
+  if (btnResetAll && !btnResetAll.__bound) {
+    btnResetAll.__bound = true;
+    btnResetAll.addEventListener("click", () => {
+      const T = window.I18n ? window.I18n.t : k => k;
+      if (!confirm(T("settings.resetConfirm"))) return;
+      resetAllProgress();
+      resetAllSettings();
+      if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
+      refreshSidebarProgress();
+      if (window.Dashboard && Dashboard.render) { try { Dashboard.render(); } catch (e) {} }
+      document.documentElement.removeAttribute("data-board-theme");
+      document.documentElement.setAttribute("data-animations", "on");
     });
   }
   const boardSel = document.getElementById("setting-board-theme");
@@ -337,6 +431,8 @@ async function boot() {
   if (window.I18n && window.I18n.init) {
     try { window.I18n.init(); } catch (e) { console.warn("[main-v6] I18n.init gagal:", e); }
   }
+  wrapI18nSetLang();
+  applyLangToDocument();
 
   await loadUserModules();
 
@@ -391,6 +487,7 @@ async function boot() {
 
   document.addEventListener("route:change", e => {
     if (e && e.detail && e.detail.route) initBridgeForRoute(e.detail.route, e.detail.param);
+    applyLangToDocument();
   });
 
   console.log("%c[main-v6] Siap.", "color:#10b981;font-weight:bold");
