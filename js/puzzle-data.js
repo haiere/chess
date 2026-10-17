@@ -204,19 +204,19 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "qlv15",
-    "difficulty": "easy",
-    "title": "Ratu Tergantung 15",
-    "title_en": "Hanging Queen 15",
-    "rating": 780,
-    "fen": "4k3/8/8/3q4/8/8/8/4R1K1 w - - 0 1",
-    "solution": [
-      "e1e8"
-    ],
-    "themes": [
-      "capture"
-    ]
-  },
+  "id": "qlv15",
+  "difficulty": "easy",
+  "title": "Ratu Tergantung 15",
+  "title_en": "Hanging Queen 15",
+  "rating": 780,
+  "fen": "4k3/8/8/3q4/8/8/8/3R1K2 w - - 0 1",
+  "solution": [
+    "d1d5"
+  ],
+  "themes": [
+    "capture"
+  ]
+},
   {
     "id": "qlv16",
     "difficulty": "medium",
