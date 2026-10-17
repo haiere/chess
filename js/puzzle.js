@@ -22,7 +22,10 @@
             for (const step of p.solution) {
                 const mv = Chess.findMove(st, step);
                 if (!mv) return false;
+                // Defense-in-depth: engine sudah memfilter, ini jaga-jaga
+                if (mv.captured && mv.captured.type === 'king') return false;
                 st = Chess.applyMove(st, mv).state;
+                if (!Chess.findKing(st.board, 'white') || !Chess.findKing(st.board, 'black')) return false;
             }
         } catch (e) { return false; }
         return true;
@@ -404,16 +407,26 @@
             $('btnPzReset').addEventListener('click', resetProgress);
             render();
             updateStatsUI();
+            // Deep-link: muat puzzle dari hash jika ada
+            try {
+                const m = (location.hash || '').match(/^#\/puzzle\/([^/?]+)/);
+                if (m && provider.byId(m[1])) startPuzzle(provider.byId(m[1]));
+            } catch (e) {}
         },
         selectPuzzle(id) {
             try {
-                const p = provider && provider.all.find(x => x.id === id);
+                const p = provider && provider.byId(id);
                 if (!p) return;
-                if (puzzle && puzzle.id === id) return; // sudah aktif
+                if (puzzle && puzzle.id === id) return;
                 startPuzzle(p);
             } catch (e) { console.warn('[PuzzleMode] selectPuzzle:', e); }
         },
-        solvedCount() { try { return (S.get('puzzleSeen', []) || []).length; } catch (e) { return 0; } },
+        solvedCount() {
+            try {
+                const st = S.get('puzzleStats', null);
+                return (st && Array.isArray(st.solved)) ? st.solved.length : 0;
+            } catch (e) { return 0; }
+        },
         refreshCoords() { if (board) board.setCoords(S.get('coords', true)); },
         rerender() { render(); }
     };
