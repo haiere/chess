@@ -42,6 +42,24 @@ export class ChessEngine {
 
   undo() { return this.#game.undo(); }
 
+  function parseFENBoard(placement) {
+    const board = [];
+    const ranks = placement.split('/');
+    for (let r = 0; r < 8; r++) {
+        const row = [];
+        for (const ch of ranks[r]) {
+            if (ch >= '1' && ch <= '8') {
+                for (let i = 0; i < parseInt(ch, 10); i++) row.push(null);
+            } else {
+                const color = ch === ch.toUpperCase() ? 'white' : 'black';
+                row.push({ type: FEN_PIECE[ch.toLowerCase()], color });
+            }
+        }
+        board.push(row);
+    }
+    return board;
+  }
+
   /** Kembalikan posisi setelah langkah tanpa mengubah state */
   peek(fen, from, to, promotion = 'q') {
     const tmp = new Chess(fen);
