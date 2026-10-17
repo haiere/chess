@@ -173,6 +173,7 @@
         selected = null; legalSel = [];
         hintStage = 0;
         if (hintTimer) { clearTimeout(hintTimer); hintTimer = null; }
+        try { S.set('lastPuzzle', p.id); } catch (e) {}
         seen.add(p.id);
         if (seen.size > MAX_SEEN) {
             const keep = new Set(stats.solved);
@@ -181,6 +182,7 @@
         saveStats();
         board.setOrientation(activeColor());
         render();
+        renderBrowseList();
     }
 
     function expectedMove() { return puzzle.solution[stepIndex]; }
@@ -309,6 +311,62 @@
         window.GameMode.toast(T('learning.resetToast'), 'success');
     }
 
+    function renderBrowseList() {
+        const listEl = $('puzzleList');
+        if (!listEl || !provider) return;
+        const q = (window.__puzzleQ || '').toLowerCase();
+        const favOnly = !!window.__puzzleFav;
+        let diff = 'all';
+        try { diff = currentDiff(); } catch (e) {}
+        const items = provider.puzzles.filter((p) => {
+            if (diff !== 'all' && p.difficulty !== diff) return false;
+            if (favOnly && !(window.Favorites && Favorites.has('puzzle', p.id))) return false;
+            const hay = ((p.title_en || p.title || '') + ' ' + p.id + ' ' + (p.themes || []).join(' ')).toLowerCase();
+            return !q || hay.indexOf(q) >= 0;
+        });
+        listEl.innerHTML = '';
+        if (!items.length) {
+            const box = document.createElement('div');
+            box.className = 'state-box';
+            box.setAttribute('role', 'status');
+            const pEl = document.createElement('p');
+            pEl.textContent = T('search.noResults');
+            box.appendChild(pEl);
+            listEl.appendChild(box);
+            return;
+        }
+        for (const p of items) {
+            const row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'item-row' + (puzzle && puzzle.id === p.id ? ' active' : '');
+            row.setAttribute('role', 'listitem');
+            const label = (window.I18n && window.I18n.lang === 'en' && p.title_en) ? p.title_en : (p.title || p.id);
+            const body = document.createElement('span');
+            body.className = 'item-body';
+            const t = document.createElement('strong');
+            t.textContent = label;
+            const meta = document.createElement('small');
+            meta.textContent = p.id + ' \u00b7 ' + T(DIFF_KEY[p.difficulty] || 'puzzle.difficulty') + (p.rating ? ' \u00b7 ' + p.rating : '');
+            body.append(t, meta);
+            const star = document.createElement('span');
+            star.className = 'fav-btn' + ((window.Favorites && Favorites.has('puzzle', p.id)) ? ' on' : '');
+            star.textContent = '\u2605';
+            star.setAttribute('aria-label', T('favorites.add'));
+            const onFav = (ev) => {
+                if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+                if (!window.Favorites) return;
+                const on = Favorites.toggle('puzzle', p.id);
+                star.classList.toggle('on', on);
+                if (window.GameMode && GameMode.toast) GameMode.toast(T(on ? 'favorites.added' : 'favorites.removed'), 'success');
+                if (window.__puzzleFav && !on) renderBrowseList();
+            };
+            star.addEventListener('click', onFav);
+            row.append(body, star);
+            row.addEventListener('click', () => startPuzzle(p));
+            listEl.appendChild(row);
+        }
+    }
+
     window.PuzzleMode = {
         init() {
             provider = new PuzzleProvider(window.PUZZLE_DATA);
@@ -319,7 +377,13 @@
                 if (!mv) { selected = null; legalSel = []; render(); return; }
                 tryUserMove(mv);
             };
-            $('pzDifficulty').addEventListener('change', () => startPuzzle(provider.random(currentDiff(), seen)));
+            const qIn = document.getElementById('puzzle-search');
+            if (qIn && !qIn.__bound) { qIn.__bound = true;
+                qIn.addEventListener('input', () => { window.__puzzleQ = qIn.value; renderBrowseList(); }); }
+            const favChk = document.getElementById('puzzle-fav-only');
+            if (favChk && !favChk.__bound) { favChk.__bound = true;
+                favChk.addEventListener('change', () => { window.__puzzleFav = favChk.checked; renderBrowseList(); }); }
+            $('pzDifficulty').addEventListener('change', () => { startPuzzle(provider.random(currentDiff(), seen)); renderBrowseList(); });
             $('btnPzRandom').addEventListener('click', () => startPuzzle(provider.random(currentDiff(), seen)));
             $('btnPzNext').addEventListener('click', () => {
                 const nxt = provider.nextAfter(puzzle ? puzzle.id : null, currentDiff(), +1) ||

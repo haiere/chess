@@ -17,6 +17,8 @@ const BRIDGE_IMPORTS = [
 
 const USER_MODULES = [
   { path: "./storage.js",           globals: ["AppStorage", "Storage"] },
+  { path: "./favorites.js",         globals: ["Favorites"] },
+  { path: "./dashboard.js",         globals: ["Dashboard"] },
   { path: "./utils/storage.js",     globals: ["AppStorage", "Storage"] },
   { path: "./utils/theme.js",       globals: ["Theme"] },
   { path: "./audio.js",             globals: ["SFX", "Audio", "Sound"] },
@@ -76,7 +78,7 @@ async function loadUserModules() {
   console.info("[main-v6] user modules:", loaded.length, "of", USER_MODULES.length);
 }
 
-const ROUTES = ["game", "puzzle", "learn", "settings", "about"];
+const ROUTES = ["dashboard", "game", "puzzle", "learn", "settings", "about"];
 function normalize(hash) {
   const r = (hash || "").replace(/^#\/?/, "").trim();
   return ROUTES.includes(r) ? r : "game";
@@ -202,6 +204,51 @@ function bindSettings() {
       } catch (err) {}
     });
   }
+  const soundSel = document.getElementById("setting-sound");
+  if (soundSel && !soundSel.__bound) {
+    soundSel.__bound = true;
+    const savedSound = (window.AppStorage && AppStorage.get("sound"));
+    soundSel.value = savedSound === false ? "off" : "on";
+    soundSel.addEventListener("change", e => {
+      try { AppStorage.set("sound", e.target.value === "on"); } catch (err) {}
+      if (window.SFX) { try { window.SFX.enabled = e.target.value === "on"; } catch (err) {} }
+    });
+  }
+  const animSel = document.getElementById("setting-animations");
+  if (animSel && !animSel.__bound) {
+    animSel.__bound = true;
+    const savedAnim = (window.AppStorage && AppStorage.get("animations"));
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    animSel.value = savedAnim === false || (savedAnim == null && reduced) ? "off" : "on";
+    document.documentElement.setAttribute("data-animations", animSel.value);
+    animSel.addEventListener("change", e => {
+      document.documentElement.setAttribute("data-animations", e.target.value);
+      try { AppStorage.set("animations", e.target.value === "on"); } catch (err) {}
+    });
+  }
+  const btnResetProgress = document.getElementById("btn-reset-progress");
+  if (btnResetProgress && !btnResetProgress.__bound) {
+    btnResetProgress.__bound = true;
+    btnResetProgress.addEventListener("click", () => {
+      const T = window.I18n ? window.I18n.t : k => k;
+      if (!confirm(T("settings.resetProgressConfirm"))) return;
+      ["puzzleStats","puzzleSeen","lessonProgress","lastPuzzle","lastLesson","favPuzzles","favLessons"]
+        .forEach(k => { try { AppStorage.remove(k); } catch (err) {} });
+      if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
+      if (window.Dashboard && Dashboard.render) Dashboard.render();
+    });
+  }
+  const btnResetSettings = document.getElementById("btn-reset-settings");
+  if (btnResetSettings && !btnResetSettings.__bound) {
+    btnResetSettings.__bound = true;
+    btnResetSettings.addEventListener("click", () => {
+      const T = window.I18n ? window.I18n.t : k => k;
+      if (!confirm(T("settings.resetSettingsConfirm"))) return;
+      ["theme","boardTheme","sound","coords","animations"]
+        .forEach(k => { try { AppStorage.remove(k); } catch (err) {} });
+      if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
+    });
+  }
   const boardSel = document.getElementById("setting-board-theme");
   if (boardSel && !boardSel.__bound) {
     boardSel.__bound = true;
@@ -243,14 +290,19 @@ window.AppSkeleton = {
   board(el) { if (el) { el.innerHTML = '<div class="skeleton skeleton--board" aria-hidden="true"></div>'; this._arm(el); } },
   empty(el, key, retry) {
     if (!el) return;
-    el.innerHTML = '<div class="state-box" role="status"><p>' +
+    el.innerHTML = '<div class="state-box" role="status" aria-live="polite"><p>' +
       (window.I18n ? window.I18n.t(key) : key) + '</p>' +
       (retry ? '<button class="btn accent" data-retry>' +
         (window.I18n ? window.I18n.t("common.retry") : "Retry") + '</button>' : '') +
       '</div>';
     const b = el.querySelector("[data-retry]");
-    if (b) b.addEventListener("click", () => location.reload());
-  }
+    if (b) b.addEventListener("click", () => {
+      // Retry tanpa reload penuh agar route (#/puzzle/qlv01) tidak rusak
+      const fn = el.__retry || (() => location.reload());
+      try { fn(); } catch (e) { location.reload(); }
+    });
+  },
+  setRetry(el, fn) { if (el) el.__retry = fn; }
 };
 
 function initSidebarProgress() {
@@ -308,6 +360,28 @@ async function boot() {
     try { history.replaceState(null, "", "#/game"); } catch (e) { location.hash = "/game"; }
   }
   showRoute(current.route, current.param);
+
+  if (window.Dashboard && Dashboard.init) { try { Dashboard.init(); } catch (e) {} }
+
+  // Keyboard shortcut desktop: ← → / R / H (abaikan input & screen reader)
+  document.addEventListener("keydown", (e) => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+    const r = parseHash().route;
+    const click = (id) => { const b = id && document.getElementById(id); if (b && !b.disabled) b.click(); };
+    if (e.key === "ArrowRight")      click(r === "learning" ? "btn-learn-next"  : r === "puzzle" ? "btn-puzzle-next"  : null);
+    else if (e.key === "ArrowLeft")  click(r === "learning" ? "btn-learn-prev"  : null);
+    else if (e.key === "r" || e.key === "R") click(r === "puzzle" ? "btn-puzzle-retry" : null);
+    else if (e.key === "h" || e.key === "H") click(r === "puzzle" ? "btn-puzzle-hint"  : null);
+    else return;
+    e.preventDefault();
+  });
+
+  // PWA: registrasi service worker (opsional — app normal jika gagal)
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
 
   initLangSwitcher();
   initBridgeForRoute(current.route, current.param);

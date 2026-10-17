@@ -25,14 +25,36 @@
         if (!list || !detail) return;
         const data = window.LESSON_DATA;
         if (!Array.isArray(data) || data.length === 0) {
-            window.AppSkeleton && window.AppSkeleton.empty(list, 'common.error', true);
+            if (window.AppSkeleton) {
+                window.AppSkeleton.setRetry(list, renderList);
+                window.AppSkeleton.empty(list, 'common.error', true);
+            }
             detail.classList.add('hidden');
             return;
         }
         list.innerHTML = '';
         detail.classList.add('hidden');
         list.classList.remove('hidden');
-        for (const lesson of data) {
+        // Filter: level, pencarian judul/deskripsi, favorit saja
+        const q = (window.__lessonQ || '').toLowerCase();
+        const lv = window.__lessonLevel || 'all';
+        const favOnly = !!window.__lessonFav;
+        const filtered = data.filter((lesson) => {
+            if (lv !== 'all' && lesson.level !== lv) return false;
+            if (favOnly && !(window.Favorites && Favorites.has('lesson', lesson.id))) return false;
+            if (q && (pick(lesson.title) + ' ' + pick(lesson.description)).toLowerCase().indexOf(q) < 0) return false;
+            return true;
+        });
+        if (!filtered.length) {
+            const box = document.createElement('div');
+            box.className = 'state-box';
+            box.setAttribute('role', 'status');
+            const p = document.createElement('p');
+            p.textContent = T('search.noResults');
+            box.appendChild(p);
+            list.appendChild(box);
+        }
+        for (const lesson of filtered) {
             const card = document.createElement('button');
             card.type = 'button';
             card.className = 'lesson-card' + (isDone(lesson.id) ? ' done' : '');
@@ -49,7 +71,23 @@
             const state = document.createElement('span');
             state.className = 'lesson-state';
             state.textContent = isDone(lesson.id) ? T('learning.done') : T('learning.stepsCount', { count: lesson.steps.length });
-            card.append(badge, body, state);
+            const star = document.createElement('span');
+            star.className = 'fav-btn' + ((window.Favorites && Favorites.has('lesson', lesson.id)) ? ' on' : '');
+            star.setAttribute('role', 'button');
+            star.setAttribute('tabindex', '0');
+            star.setAttribute('aria-label', T('favorites.add'));
+            star.textContent = '\u2605';
+            const onFav = (ev) => {
+                if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+                if (!window.Favorites) return;
+                const on = Favorites.toggle('lesson', lesson.id);
+                star.classList.toggle('on', on);
+                if (window.GameMode && GameMode.toast) GameMode.toast(T(on ? 'favorites.added' : 'favorites.removed'), 'success');
+                if (window.__lessonFav && !on) renderList();
+            };
+            star.addEventListener('click', onFav);
+            star.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') onFav(ev); });
+            card.append(badge, body, state, star);
             card.addEventListener('click', () => openLesson(lesson));
             list.appendChild(card);
         }
@@ -61,6 +99,7 @@
     function openLesson(lesson, step) {
         currentLesson = lesson;
         stepIndex = step || 0;
+        try { S.set('lastLesson', lesson.id); } catch (e) {}
         $('lessonList').classList.add('hidden');
         $('lessonDetail').classList.remove('hidden');
         renderStep();
@@ -180,6 +219,15 @@
             if (currentLesson) renderStep(); else renderList();
         },
         init() {
+            const qIn = document.getElementById('lesson-search');
+            if (qIn && !qIn.__bound) { qIn.__bound = true;
+                qIn.addEventListener('input', () => { window.__lessonQ = qIn.value; renderList(); }); }
+            const lvSel = document.getElementById('lesson-level');
+            if (lvSel && !lvSel.__bound) { lvSel.__bound = true;
+                lvSel.addEventListener('change', () => { window.__lessonLevel = lvSel.value; renderList(); }); }
+            const favChk = document.getElementById('lesson-fav-only');
+            if (favChk && !favChk.__bound) { favChk.__bound = true;
+                favChk.addEventListener('change', () => { window.__lessonFav = favChk.checked; renderList(); }); }
             $('btnLessonBack').addEventListener('click', renderList);
             $('btnLessonPrev').addEventListener('click', prev);
             $('btnLessonNext').addEventListener('click', next);

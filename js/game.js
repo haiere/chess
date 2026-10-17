@@ -629,6 +629,11 @@
         $('btnExportFEN').addEventListener('click', () => {
             copyText(Chess.toFEN(current), T('game.fenCopied'), T('game.fenCopyFail'));
         });
+        const bcf = document.getElementById('btn-copy-fen');
+        if (bcf && !bcf.__bound) { bcf.__bound = true;
+            bcf.addEventListener('click', () => copyText(Chess.toFEN(current), T('game.fenCopied'), T('game.fenCopyFail'))); }
+        const bcp = document.getElementById('btn-copy-pgn');
+        if (bcp && !bcp.__bound && typeof copyPGN === 'function') { bcp.__bound = true; bcp.addEventListener('click', copyPGN); }
         document.querySelectorAll('[data-close]').forEach(btn => {
             btn.addEventListener('click', () => hideModal(btn.dataset.close));
         });
