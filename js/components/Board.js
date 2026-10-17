@@ -13,6 +13,13 @@ import { PIECE_SVG } from '../chess/constants.js';
  * @param {string[]} opts.legalTargets
  * @param {boolean} opts.showCoords
  */
+function T(key, params) {
+  if (typeof window !== 'undefined' && window.I18n && typeof window.I18n.t === 'function') {
+    return window.I18n.t(key, params);
+  }
+  return key;
+}
+
 export function renderBoard(container, engine, opts = {}) {
   const {
     orientation = 'white',
@@ -25,9 +32,14 @@ export function renderBoard(container, engine, opts = {}) {
   } = opts;
 
   const board = engine.board;
+  const turn = (engine && engine.currentPlayer) || 'white';
+  const turnLabel = T(turn === 'white' ? 'pieces.white' : 'pieces.black');
+
   container.innerHTML = '';
   container.setAttribute('role', 'grid');
-  container.setAttribute('aria-label', 'Papan catur');
+  container.setAttribute('aria-label', T('a11y.boardLabel', { turn: turnLabel }));
+  container.setAttribute('aria-rowcount', '8');
+  container.setAttribute('aria-colcount', '8');
 
   const files = 'abcdefgh';
   const flipped = orientation === 'black';
@@ -43,6 +55,8 @@ export function renderBoard(container, engine, opts = {}) {
       sq.className = `square ${isLight ? 'light' : 'dark'}`;
       sq.dataset.square = squareName;
       sq.setAttribute('role', 'gridcell');
+      sq.setAttribute('aria-rowindex', String(dr + 1));
+      sq.setAttribute('aria-colindex', String(dc + 1));
       sq.setAttribute('tabindex', interactive ? '0' : '-1');
 
       if (lastMove && (lastMove.from === squareName || lastMove.to === squareName)) {
@@ -59,12 +73,14 @@ export function renderBoard(container, engine, opts = {}) {
           const rl = document.createElement('span');
           rl.className = 'coord-label coord-rank';
           rl.textContent = 8 - r;
+          rl.setAttribute('aria-hidden', 'true');
           sq.appendChild(rl);
         }
         if (r === (flipped ? 0 : 7)) {
           const fl = document.createElement('span');
           fl.className = 'coord-label coord-file';
           fl.textContent = files[c];
+          fl.setAttribute('aria-hidden', 'true');
           sq.appendChild(fl);
         }
       }
@@ -74,7 +90,7 @@ export function renderBoard(container, engine, opts = {}) {
         const img = document.createElement('img');
         img.className = 'piece-img';
         img.src = PIECE_SVG[piece.color][piece.type];
-        img.alt = `${piece.color} ${piece.type}`;
+        img.alt = T('pieces.' + piece.color) + ' ' + T('pieces.' + piece.type);
         img.draggable = interactive;
         sq.appendChild(img);
       }
@@ -92,4 +108,4 @@ export function renderBoard(container, engine, opts = {}) {
       container.appendChild(sq);
     }
   }
-    }
+                                         }
