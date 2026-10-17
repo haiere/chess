@@ -172,12 +172,14 @@
     "completed": "Puzzle solved!",
     "failed": "Puzzle failed",
     "inProgress": "In progress",
+    "turnStatus": "{color} to move — move {done} of {total}",
     "whiteToMove": "White to move",
     "blackToMove": "Black to move",
     "progress": "Puzzle {current} of {total}",
     "progressShort": "{current}/{total}",
     "stats": "Statistics",
     "solved": "Solved",
+    "solvedCount": "{count} solved",
     "failedCount": "Failed",
     "accuracy": "Accuracy",
     "streak": "Streak",
@@ -185,6 +187,7 @@
     "time": "Time",
     "resetProgress": "Reset Progress",
     "resetConfirm": "Are you sure you want to reset all puzzle progress?",
+    "resetToast": "Puzzle progress reset",
     "noPuzzles": "No puzzles available",
     "loadingPuzzles": "Loading puzzles...",
     "loadError": "Failed to load puzzles. Using fallback data.",
@@ -224,14 +227,10 @@
     "finish": "Finish",
     "progress": "Progress: {done} of {total}",
     "progressPercent": "{percent}% complete",
-    "quiz": "Quiz",
-    "quizQuestion": "Question {current} of {total}",
-    "quizCorrect": "Correct!",
-    "quizIncorrect": "Incorrect",
-    "quizScore": "Score: {score}/{total}",
     "tryAgain": "Try Again",
     "levels": {
       "beginner": "Beginner",
+      "elementary": "Elementary",
       "intermediate": "Intermediate",
       "advanced": "Advanced"
     },
@@ -391,4 +390,4 @@
   "progress": {
     "label": "Progress"
   }
-}
+  }
