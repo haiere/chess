@@ -1,0 +1,19 @@
+{
+  "name": "hajir-chess",
+  "version": "7.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Hajir Chess \u2014 play, solve puzzles, and learn chess. Pure web app (no native).",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "lint": "eslint js tests scripts",
+    "format": "prettier --write \"js/**/*.js\" \"tests/**/*.mjs\" \"scripts/**/*.mjs\" \"*.html\" \"*.css\"",
+    "test": "node tests/run.mjs",
+    "test:data": "node tests/data-validation.test.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^9.13.0",
+    "prettier": "^3.3.3"
+  }
+}
