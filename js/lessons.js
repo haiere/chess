@@ -83,21 +83,61 @@
             exampleBoard.setState(Chess.parseFEN(step.board), {});
         } else wrap.classList.add('hidden');
 
-        const quizWrap = $('lessonQuiz');
-        const quizEl = $('lessonQuizOptions');
-        quizWrap.classList.add('hidden');
-        quizEl.innerHTML = '';
-        if (step.quiz) {
-            $('lessonQuizQuestion').textContent = step.quiz.question;
-            step.quiz.options.forEach((opt, i) => {
-                const b = document.createElement('button');
-                b.type = 'button';
-                b.className = 'quiz-option';
-                b.textContent = opt;
-                b.addEventListener('click', () => answerQuiz(i, b));
-                quizEl.appendChild(b);
-            });
-            quizWrap.classList.remove('hidden');
+        // Latihan interaktif (board 8x8) — tanpa kuis
+        const exWrap = $('lessonQuizWrap');
+        if (exWrap) exWrap.classList.add('hidden');
+        if (step.exercise && currentLesson && currentLesson.exercise) {
+            wrap.classList.remove('hidden');
+            if (!exampleBoard) exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
+            const ex = currentLesson.exercise;
+            exampleBoard.setState(Chess.parseFEN(ex.fen), {});
+            boardEl.style.pointerEvents = 'auto';
+            boardEl.style.cursor = 'pointer';
+            let sel = null, idx = 0;
+            const finish = () => {
+                boardEl.style.pointerEvents = 'none';
+                SFX.play('success');
+                window.GameMode && window.GameMode.toast(T('learning.exerciseSuccess'), 'success');
+                markDone(currentLesson.id);
+            };
+            boardEl.onclick = (ev) => {
+                const sqEl = ev.target.closest('.square');
+                if (!sqEl) return;
+                const r = +sqEl.dataset.row, c = +sqEl.dataset.col;
+                const st = exampleBoard.state;
+                if (!st) return;
+                const piece = st.board[r][c];
+                if (!sel) {
+                    if (piece && piece.color === st.currentPlayer) {
+                        sel = { r, c };
+                        const legal = Chess.legalMovesFrom(st, r, c);
+                        exampleBoard.setState(st, {
+                            selected: { row: r, col: c },
+                            legal: legal.map(m => ({ row: m.toRow, col: m.toCol })),
+                        });
+                    }
+                } else {
+                    const got = 'abcdefgh'[sel.c] + (8 - sel.r) + 'abcdefgh'[c] + (8 - r);
+                    if (got === ex.solution[idx]) {
+                        const mv = Chess.legalMovesFrom(st, sel.r, sel.c)
+                            .find(m => m.toRow === r && m.toCol === c);
+                        if (mv) {
+                            const res = Chess.applyMove(st, mv);
+                            exampleBoard.setState(res.state, {});
+                            sel = null; idx++;
+                            if (idx >= ex.solution.length) finish();
+                            return;
+                        }
+                    }
+                    sel = null;
+                    exampleBoard.setState(st, {});
+                    SFX.play('error');
+                }
+            };
+        } else {
+            boardEl.style.pointerEvents = 'none';
+            boardEl.style.cursor = 'default';
+            boardEl.onclick = null;
         }
 
         $('btnLessonPrev').disabled = stepIndex === 0;
@@ -105,18 +145,11 @@
         $('btnLessonNext').textContent = last ? T('learning.done') : T('learning.next');
     }
 
-    function answerQuiz(i, btn) {
-        const quiz = currentLesson.steps[stepIndex].quiz;
-        const buttons = $('lessonQuizOptions').querySelectorAll('.quiz-option');
-        buttons.forEach(b => { b.disabled = true; });
-        if (i === quiz.answer) {
-            btn.classList.add('correct');
-            SFX.play('success');
-        } else {
-            btn.classList.add('wrong');
-            buttons[quiz.answer].classList.add('correct');
-            SFX.play('error');
-        }
+    function markDone(id) {
+        if (!id) return;
+        progress[id] = true;
+        save();
+        renderList();
     }
 
     function next() {

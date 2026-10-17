@@ -1,8 +1,6 @@
-// 50 puzzle tervalidasi engine — dihasilkan scripts/gen-puzzles.js
-// Jangan edit manual; ubah template lalu jalankan ulang generator.
 window.PUZZLE_DATA = [
   {
-    "id": "easy-01",
+    "id": "qlv01",
     "difficulty": "easy",
     "title": "Skakmat Papan Belakang 1",
     "title_en": "Back-rank Mate 1",
@@ -17,7 +15,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-02",
+    "id": "qlv02",
     "difficulty": "easy",
     "title": "Skakmat Papan Belakang 2",
     "title_en": "Back-rank Mate 2",
@@ -32,7 +30,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-03",
+    "id": "qlv03",
     "difficulty": "easy",
     "title": "Skakmat Papan Belakang 3",
     "title_en": "Back-rank Mate 3",
@@ -47,7 +45,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-04",
+    "id": "qlv04",
     "difficulty": "easy",
     "title": "Skakmat Papan Belakang 4",
     "title_en": "Back-rank Mate 4",
@@ -62,7 +60,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-05",
+    "id": "qlv05",
     "difficulty": "easy",
     "title": "Skakmat Papan Belakang 5",
     "title_en": "Back-rank Mate 5",
@@ -77,7 +75,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-06",
+    "id": "qlv06",
     "difficulty": "easy",
     "title": "Skakmat Papan Belakang 6",
     "title_en": "Back-rank Mate 6",
@@ -92,7 +90,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-07",
+    "id": "qlv07",
     "difficulty": "easy",
     "title": "Skakmat Ratu Sudut 7",
     "title_en": "Corner Queen Mate 7",
@@ -106,7 +104,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-08",
+    "id": "qlv08",
     "difficulty": "easy",
     "title": "Skakmat Ratu Sudut 8",
     "title_en": "Corner Queen Mate 8",
@@ -120,7 +118,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-09",
+    "id": "qlv09",
     "difficulty": "easy",
     "title": "Skakmat Ratu Sudut 9",
     "title_en": "Corner Queen Mate 9",
@@ -134,7 +132,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-10",
+    "id": "qlv10",
     "difficulty": "easy",
     "title": "Skakmat Ratu Sudut 10",
     "title_en": "Corner Queen Mate 10",
@@ -148,7 +146,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-11",
+    "id": "qlv11",
     "difficulty": "easy",
     "title": "Skakmat Dua Benteng 11",
     "title_en": "Two-rook Mate 11",
@@ -163,7 +161,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-12",
+    "id": "qlv12",
     "difficulty": "easy",
     "title": "Skakmat Dua Benteng 12",
     "title_en": "Two-rook Mate 12",
@@ -178,7 +176,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-13",
+    "id": "qlv13",
     "difficulty": "easy",
     "title": "Fork Raja-Ratu 13",
     "title_en": "Royal Fork 13",
@@ -192,7 +190,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-14",
+    "id": "qlv14",
     "difficulty": "easy",
     "title": "Fork Raja-Ratu 14",
     "title_en": "Royal Fork 14",
@@ -206,7 +204,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "easy-15",
+    "id": "qlv15",
     "difficulty": "easy",
     "title": "Ratu Tergantung 15",
     "title_en": "Hanging Queen 15",
@@ -220,7 +218,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-01",
+    "id": "qlv16",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 1",
     "title_en": "Queen-Rook Battery 1",
@@ -237,7 +235,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-02",
+    "id": "qlv17",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 2",
     "title_en": "Queen-Rook Battery 2",
@@ -254,7 +252,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-03",
+    "id": "qlv18",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 3",
     "title_en": "Queen-Rook Battery 3",
@@ -271,7 +269,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-04",
+    "id": "qlv19",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 4",
     "title_en": "Queen-Rook Battery 4",
@@ -288,7 +286,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-05",
+    "id": "qlv20",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 5",
     "title_en": "Queen-Rook Battery 5",
@@ -305,7 +303,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-06",
+    "id": "qlv21",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 6",
     "title_en": "Queen-Rook Battery 6",
@@ -322,7 +320,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-07",
+    "id": "qlv22",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 7",
     "title_en": "Queen-Rook Battery 7",
@@ -339,7 +337,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-08",
+    "id": "qlv23",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 8",
     "title_en": "Queen-Rook Battery 8",
@@ -356,7 +354,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-09",
+    "id": "qlv24",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 9",
     "title_en": "Queen-Rook Battery 9",
@@ -373,7 +371,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-10",
+    "id": "qlv25",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 10",
     "title_en": "Queen-Rook Battery 10",
@@ -390,7 +388,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-11",
+    "id": "qlv26",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 11",
     "title_en": "Queen-Rook Battery 11",
@@ -407,7 +405,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-12",
+    "id": "qlv27",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 12",
     "title_en": "Queen-Rook Battery 12",
@@ -424,7 +422,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-13",
+    "id": "qlv28",
     "difficulty": "medium",
     "title": "Kuda Penjaga Gugur 13",
     "title_en": "Knight Guard Falls 13",
@@ -440,7 +438,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-14",
+    "id": "qlv29",
     "difficulty": "medium",
     "title": "Kuda Penjaga Gugur 14",
     "title_en": "Knight Guard Falls 14",
@@ -456,7 +454,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "medium-15",
+    "id": "qlv30",
     "difficulty": "medium",
     "title": "Baterai Ratu-Benteng 15",
     "title_en": "Queen-Rook Battery 15",
@@ -473,7 +471,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-01",
+    "id": "qlv31",
     "difficulty": "hard",
     "title": "Perang Baterai 1",
     "title_en": "Grand Battery 1",
@@ -492,7 +490,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-02",
+    "id": "qlv32",
     "difficulty": "hard",
     "title": "Perang Baterai 2",
     "title_en": "Grand Battery 2",
@@ -511,7 +509,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-03",
+    "id": "qlv33",
     "difficulty": "hard",
     "title": "Perang Baterai 3",
     "title_en": "Grand Battery 3",
@@ -530,7 +528,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-04",
+    "id": "qlv34",
     "difficulty": "hard",
     "title": "Perang Baterai 4",
     "title_en": "Grand Battery 4",
@@ -549,7 +547,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-05",
+    "id": "qlv35",
     "difficulty": "hard",
     "title": "Perang Baterai 5",
     "title_en": "Grand Battery 5",
@@ -568,7 +566,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-06",
+    "id": "qlv36",
     "difficulty": "hard",
     "title": "Perang Baterai 6",
     "title_en": "Grand Battery 6",
@@ -587,7 +585,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-07",
+    "id": "qlv37",
     "difficulty": "hard",
     "title": "Perang Baterai 7",
     "title_en": "Grand Battery 7",
@@ -606,7 +604,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-08",
+    "id": "qlv38",
     "difficulty": "hard",
     "title": "Perang Baterai 8",
     "title_en": "Grand Battery 8",
@@ -625,7 +623,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "hard-09",
+    "id": "qlv39",
     "difficulty": "hard",
     "title": "Perang Baterai 9",
     "title_en": "Grand Battery 9",
@@ -644,7 +642,26 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-01",
+    "id": "qlv40",
+    "difficulty": "hard",
+    "title": "Perang Baterai 10",
+    "title_en": "Grand Battery 10",
+    "rating": 1900,
+    "fen": "rr4k1/5ppp/4Q3/8/8/1R6/5PPP/4R1K1 w - - 0 1",
+    "solution": [
+      "b3b8",
+      "a8b8",
+      "e6e8",
+      "b8e8",
+      "e1e8"
+    ],
+    "themes": [
+      "mate",
+      "battery"
+    ]
+  },
+  {
+    "id": "qlv41",
     "difficulty": "expert",
     "title": "Menembus Pertahanan 1",
     "title_en": "Cracking the Defense 1",
@@ -663,7 +680,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-02",
+    "id": "qlv42",
     "difficulty": "expert",
     "title": "Menembus Pertahanan 2",
     "title_en": "Cracking the Defense 2",
@@ -682,7 +699,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-03",
+    "id": "qlv43",
     "difficulty": "expert",
     "title": "Menembus Pertahanan 3",
     "title_en": "Cracking the Defense 3",
@@ -701,7 +718,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-04",
+    "id": "qlv44",
     "difficulty": "expert",
     "title": "Menembus Pertahanan 4",
     "title_en": "Cracking the Defense 4",
@@ -720,7 +737,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-05",
+    "id": "qlv45",
     "difficulty": "expert",
     "title": "Menembus Pertahanan 5",
     "title_en": "Cracking the Defense 5",
@@ -739,7 +756,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-06",
+    "id": "qlv46",
     "difficulty": "expert",
     "title": "Menembus Pertahanan 6",
     "title_en": "Cracking the Defense 6",
@@ -758,7 +775,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-07",
+    "id": "qlv47",
     "difficulty": "expert",
     "title": "Perang Baterai 7",
     "title_en": "Grand Battery 7",
@@ -777,7 +794,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-08",
+    "id": "qlv48",
     "difficulty": "expert",
     "title": "Perang Baterai 8",
     "title_en": "Grand Battery 8",
@@ -796,7 +813,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-09",
+    "id": "qlv49",
     "difficulty": "expert",
     "title": "Perang Baterai 9",
     "title_en": "Grand Battery 9",
@@ -815,7 +832,7 @@ window.PUZZLE_DATA = [
     ]
   },
   {
-    "id": "expert-10",
+    "id": "qlv50",
     "difficulty": "expert",
     "title": "Perang Baterai 10",
     "title_en": "Grand Battery 10",
@@ -827,25 +844,6 @@ window.PUZZLE_DATA = [
       "e3e1",
       "d1e1",
       "e8e1"
-    ],
-    "themes": [
-      "mate",
-      "battery"
-    ]
-  },
-  {
-    "id": "hard-10",
-    "difficulty": "hard",
-    "title": "Perang Baterai 10",
-    "title_en": "Grand Battery 10",
-    "rating": 1900,
-    "fen": "rr4k1/5ppp/4Q3/8/8/1R6/5PPP/4R1K1 w - - 0 1",
-    "solution": [
-      "b3b8",
-      "a8b8",
-      "e6e8",
-      "b8e8",
-      "e1e8"
     ],
     "themes": [
       "mate",

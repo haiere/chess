@@ -322,12 +322,16 @@
             $('pzDifficulty').addEventListener('change', () => startPuzzle(provider.random(currentDiff(), seen)));
             $('btnPzRandom').addEventListener('click', () => startPuzzle(provider.random(currentDiff(), seen)));
             $('btnPzNext').addEventListener('click', () => {
-                startPuzzle(provider.nextAfter(puzzle ? puzzle.id : null, currentDiff(), +1) ||
-                            provider.random(currentDiff(), new Set()));
+                const nxt = provider.nextAfter(puzzle ? puzzle.id : null, currentDiff(), +1) ||
+                            provider.random(currentDiff(), new Set());
+                startPuzzle(nxt);
+                try { location.hash = '/puzzle/' + nxt.id; } catch (e) {}
             });
             $('btnPzPrev').addEventListener('click', () => {
-                startPuzzle(provider.nextAfter(puzzle ? puzzle.id : null, currentDiff(), -1) ||
-                            provider.random(currentDiff(), new Set()));
+                const prv = provider.nextAfter(puzzle ? puzzle.id : null, currentDiff(), -1) ||
+                            provider.random(currentDiff(), new Set());
+                startPuzzle(prv);
+                try { location.hash = '/puzzle/' + prv.id; } catch (e) {}
             });
             $('btnPzDaily').addEventListener('click', () => startPuzzle(provider.daily(currentDiff())));
             $('btnPzHint').addEventListener('click', hint);
@@ -337,6 +341,15 @@
             render();
             updateStatsUI();
         },
+        selectPuzzle(id) {
+            try {
+                const p = provider && provider.all.find(x => x.id === id);
+                if (!p) return;
+                if (puzzle && puzzle.id === id) return; // sudah aktif
+                startPuzzle(p);
+            } catch (e) { console.warn('[PuzzleMode] selectPuzzle:', e); }
+        },
+        solvedCount() { try { return (S.get('puzzleSeen', []) || []).length; } catch (e) { return 0; } },
         refreshCoords() { if (board) board.setCoords(S.get('coords', true)); },
         rerender() { render(); }
     };

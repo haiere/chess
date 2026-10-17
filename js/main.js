@@ -33,7 +33,6 @@ const USER_MODULES = [
   { path: "./puzzle/provider.js",   globals: ["PuzzleProvider", "Provider"] },
   { path: "./puzzle.js",            globals: ["PuzzleMode", "Puzzle", "Mode"] },
   { path: "./lessons-data.js",      globals: ["LessonsData"] },
-  { path: "./data/Lesson.js",       globals: ["Lesson", "LessonsData"] },
   { path: "./lessons.js",           globals: ["LessonsMode", "Lessons", "Mode"] }
 ];
 
@@ -82,7 +81,23 @@ function normalize(hash) {
   const r = (hash || "").replace(/^#\/?/, "").trim();
   return ROUTES.includes(r) ? r : "game";
 }
-function showRoute(route) {
+function parseHash() {
+  let h = (location.hash || "#/game").replace(/^#\/?/, "");
+  let query = {};
+  const qIdx = h.indexOf("?");
+  if (qIdx >= 0) {
+    h.slice(qIdx + 1).split("&").forEach(kv => {
+      const [k, v] = kv.split("=");
+      if (k) query[decodeURIComponent(k)] = decodeURIComponent(v || "");
+    });
+    h = h.slice(0, qIdx);
+  }
+  const [routeRaw, param] = h.split("/");
+  const alias = { learn: "learning", "": "game" };
+  return { route: alias[routeRaw] || routeRaw || "game", param: param || query.id || null };
+}
+
+function showRoute(route, param) {
   document.querySelectorAll(".app-page").forEach(p => {
     const active = p.getAttribute("data-page") === route;
     p.classList.toggle("is-active", active);
@@ -92,13 +107,13 @@ function showRoute(route) {
     if (a.getAttribute("data-route") === route) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
-  try { document.dispatchEvent(new CustomEvent("route:change", { detail: { route } })); } catch (e) {}
+  try { document.dispatchEvent(new CustomEvent("route:change", { detail: { route, param } })); } catch (e) {}
   const main = document.getElementById("main-content");
   if (main && main.focus) { try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); } }
 }
 
 const bridgeInit = { game: false, puzzle: false, learn: false };
-function initBridgeForRoute(route) {
+function initBridgeForRoute(route, param) {
   if (route === "game" && !bridgeInit.game) {
     bridgeInit.game = true;
     if (window.GameBridge && window.GameBridge.init) {
@@ -106,38 +121,32 @@ function initBridgeForRoute(route) {
       catch (e) { console.error("[main-v6] GameBridge.init() throw:", e); }
     }
   }
-  if (route === "puzzle" && !bridgeInit.puzzle) {
-    bridgeInit.puzzle = true;
+  if (route === "puzzle") {
     if (window.PuzzleBridge && window.PuzzleBridge.init) {
-      try { window.PuzzleBridge.init(); }
+      try {
+        if (!bridgeInit.puzzle) { bridgeInit.puzzle = true; window.PuzzleBridge.init(); }
+        if (param && window.PuzzleMode && window.PuzzleMode.selectPuzzle) window.PuzzleMode.selectPuzzle(param);
+      }
       catch (e) { console.error("[main-v6] PuzzleBridge.init() throw:", e); }
     }
   }
-  if (route === "learn" && !bridgeInit.learn) {
-    bridgeInit.learn = true;
+  if (route === "learning") {
     if (window.LearnBridge && window.LearnBridge.init) {
-      try { window.LearnBridge.init(); }
+      try {
+        if (!bridgeInit.learn) { bridgeInit.learn = true; window.LearnBridge.init(); }
+        if (param && window.LessonsMode && window.LessonsMode.openLesson) window.LessonsMode.openLesson(param);
+      }
       catch (e) { console.error("[main-v6] LearnBridge.init() throw:", e); }
     }
   }
+  if (route === "settings" && !bridgeInit.settings) {
+    bridgeInit.settings = true;
+    if (window.SettingsBridge && window.SettingsBridge.init) {
+      try { window.SettingsBridge.init(); }
+      catch (e) { console.error("[main-v6] SettingsBridge.init() throw:", e); }
+    }
+  }
 }
-
-async function initAndroidIntegration() {
-  // Status bar overlay + hardware back button (khusus Android/Capacitor)
-  try {
-    const { StatusBar, Style } = await import("@capacitor/status-bar");
-    await StatusBar.setOverlaysWebView({ overlay: true });
-    await StatusBar.setStyle({ style: Style.Dark });
-  } catch (_) { /* browser: abaikan */ }
-  try {
-    const { App } = await import("@capacitor/app");
-    await App.addListener("backButton", ({ canGoBack }) => {
-      if (canGoBack) window.history.back();
-      else App.exitApp();
-    });
-  } catch (_) { /* browser: abaikan */ }
-}
-
 function initThemeToggle() {
   const btn = document.getElementById("btn-theme");
   if (!btn || btn.__bound) return;
@@ -209,19 +218,29 @@ function bindSettings() {
 
 // Util skeleton & state kosong/error (dipakai bridge/lessons/puzzle)
 window.AppSkeleton = {
+  _t: new WeakMap(),
+  _arm(el) {
+    clearTimeout(this._t.get(el));
+    this._t.set(el, setTimeout(() => {
+      // timeout pengaman: skeleton tak tampil selamanya
+      if (el && el.querySelector(".skeleton")) this.empty(el, "common.error", true);
+    }, 8000));
+  },
   lines(el, n) {
     if (!el) return;
     let html = '<div class="skeleton skeleton--title" aria-hidden="true"></div>';
     for (let i = 0; i < (n || 4); i++) html += '<div class="skeleton skeleton--line" aria-hidden="true"></div>';
     el.innerHTML = html;
+    this._arm(el);
   },
   cards(el, n) {
     if (!el) return;
     let html = '';
     for (let i = 0; i < (n || 3); i++) html += '<div class="skeleton skeleton--card" aria-hidden="true"></div>';
     el.innerHTML = html;
+    this._arm(el);
   },
-  board(el) { if (el) el.innerHTML = '<div class="skeleton skeleton--board" aria-hidden="true"></div>'; },
+  board(el) { if (el) { el.innerHTML = '<div class="skeleton skeleton--board" aria-hidden="true"></div>'; this._arm(el); } },
   empty(el, key, retry) {
     if (!el) return;
     el.innerHTML = '<div class="state-box" role="status"><p>' +
@@ -233,6 +252,24 @@ window.AppSkeleton = {
     if (b) b.addEventListener("click", () => location.reload());
   }
 };
+
+function initSidebarProgress() {
+  const sp = document.getElementById("side-progress");
+  if (!sp || !window.AppSkeleton) return;
+  window.AppSkeleton.lines(sp, 3);
+  setTimeout(() => {
+    try {
+      const T = window.I18n ? window.I18n.t : k => k;
+      const lp = JSON.parse((window.AppStorage && AppStorage.get("lessonProgress")) || "{}");
+      const cnt = window.PuzzleMode && PuzzleMode.solvedCount ? PuzzleMode.solvedCount() : 0;
+      sp.innerHTML =
+        '<h3 class="app-card-title">' + T("learning.progress") + '</h3>' +
+        '<div class="text-sub">' + T("learning.progressCount", { current: Object.keys(lp).length, total: 50 }) + '</div>' +
+        '<h3 class="app-card-title" style="margin-top:8px">' + T("puzzle.title") + '</h3>' +
+        '<div class="text-sub">' + T("puzzle.solvedCount", { count: cnt }) + '</div>';
+    } catch (e) { window.AppSkeleton && AppSkeleton.empty(sp, "common.error", false); }
+  }, 600);
+}
 
 async function boot() {
   if (document.readyState === "loading") {
@@ -257,21 +294,26 @@ async function boot() {
     PuzzleBridge: typeof window.PuzzleBridge, LearnBridge: typeof window.LearnBridge
   });
 
-  restoreTheme();
-  initAndroidIntegration();initThemeToggle();
+  restoreTheme();initThemeToggle();
+  initSidebarProgress();
+  
   bindSettings();
 
-  window.addEventListener("hashchange", () => showRoute(normalize(location.hash)));
+  const current = parseHash();
+  window.addEventListener("hashchange", () => {
+    const r = parseHash();
+    showRoute(r.route, r.param);
+  });
   if (!location.hash) {
-    try { history.replaceState(null, "", "#game"); } catch (e) { location.hash = "game"; }
+    try { history.replaceState(null, "", "#/game"); } catch (e) { location.hash = "/game"; }
   }
-  showRoute(normalize(location.hash));
+  showRoute(current.route, current.param);
 
   initLangSwitcher();
-  initBridgeForRoute(normalize(location.hash));
+  initBridgeForRoute(current.route, current.param);
 
   document.addEventListener("route:change", e => {
-    if (e && e.detail && e.detail.route) initBridgeForRoute(e.detail.route);
+    if (e && e.detail && e.detail.route) initBridgeForRoute(e.detail.route, e.detail.param);
   });
 
   console.log("%c[main-v6] Siap.", "color:#10b981;font-weight:bold");

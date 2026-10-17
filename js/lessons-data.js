@@ -1,6 +1,6 @@
 window.LESSON_DATA = [
   {
-    "id": "board-notation",
+    "id": "lesson-01",
     "level": "beginner",
     "title": {
       "en": "The Board & Notation",
@@ -23,7 +23,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Columns a-h are files, rows 1-8 are ranks. Every square has a name like e4.",
           "id": "Kolom a-h disebut file, baris 1-8 disebut rank. Setiap kotak punya nama seperti e4."
-        }
+        },
+        "board": "4k3/3pp3/8/8/8/8/3PP3/4K3 w - - 0 1"
       },
       {
         "title": {
@@ -33,7 +34,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A move is written by piece letter + destination: Nf3, e4. Captures use x: Bxf7+.",
           "id": "Langkah ditulis huruf bidak + tujuan: Nf3, e4. Makan memakai x: Bxf7+."
-        }
+        },
+        "board": "4k3/3pp3/8/8/8/8/3PP3/4K3 b - - 0 1"
       },
       {
         "title": {
@@ -43,12 +45,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "+ means check, # means checkmate, O-O castles kingside.",
           "id": "+ artinya skak, # artinya skakmat, O-O artinya rokade pendek."
-        }
+        },
+        "board": "1NB1k3/4p3/8/8/8/8/4P3/4KBN1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "k7/pp6/8/8/8/8/8/6KR w - - 0 1",
+      "solution": [
+        "h1h8"
+      ]
+    }
   },
   {
-    "id": "piece-values",
+    "id": "lesson-02",
     "level": "beginner",
     "title": {
       "en": "Piece Values",
@@ -71,7 +91,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Pawn=1, Knight=Bishop=3, Rook=5, Queen=9. The king is priceless.",
           "id": "Pion=1, Kuda=Gajah=3, Benteng=5, Ratu=9. Raja tak ternilai."
-        }
+        },
+        "board": "1NB1k3/4p3/8/8/8/8/4P3/4KBN1 b - - 0 1"
       },
       {
         "title": {
@@ -81,7 +102,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "If you win a 5-value piece and lose a 3-value piece, you profit 2.",
           "id": "Jika memenangkan bidak nilai 5 dan kehilangan nilai 3, untung 2."
-        }
+        },
+        "board": "2B1kBN1/3p4/8/8/8/8/3P4/2B1KBN1 w - - 0 1"
       },
       {
         "title": {
@@ -91,12 +113,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "Sacrifices can be correct when they deliver a winning attack.",
           "id": "Korban bisa benar bila menghasilkan serangan yang menang."
-        }
+        },
+        "board": "2B1kBN1/3p4/8/8/8/8/3P4/2B1KBN1 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/8/8/8/8/8/6KR w - - 0 1",
+      "solution": [
+        "h1h8"
+      ]
+    }
   },
   {
-    "id": "how-pawns-move",
+    "id": "lesson-03",
     "level": "beginner",
     "title": {
       "en": "How Pawns Move",
@@ -119,7 +159,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Pawns move one square forward, or two from their starting rank.",
           "id": "Pion maju satu kotak, atau dua dari baris awal."
-        }
+        },
+        "board": "1NB1kBN1/3pp3/8/8/8/8/3PP3/1NB1KBN1 w - - 0 1"
       },
       {
         "title": {
@@ -129,7 +170,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Pawns capture one square diagonally forward — never straight.",
           "id": "Pion makan satu kotak diagonal ke depan — tidak pernah lurus."
-        }
+        },
+        "board": "1NB1kBN1/3pp3/8/8/8/8/3PP3/1NB1KBN1 b - - 0 1"
       },
       {
         "title": {
@@ -139,12 +181,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "A pawn reaching the last rank promotes; en passant is a special capture.",
           "id": "Pion yang sampai baris terakhir dipromosikan; en passant adalah makanan khusus."
-        }
+        },
+        "board": "4kBN1/2pp4/8/8/8/8/2PP4/4KBN1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "2k5/1ppp4/8/8/8/8/8/6KR w - - 0 1",
+      "solution": [
+        "h1h8"
+      ]
+    }
   },
   {
-    "id": "check-checkmate",
+    "id": "lesson-04",
     "level": "beginner",
     "title": {
       "en": "Check & Checkmate",
@@ -167,7 +227,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Your king is attacked. You must block, capture the attacker, or move the king.",
           "id": "Rajamu diserang. Wajib menutup, memakan penyerang, atau memindahkan raja."
-        }
+        },
+        "board": "4kBN1/2pp4/8/8/8/8/2PP4/4KBN1 b - - 0 1"
       },
       {
         "title": {
@@ -177,7 +238,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "No escape exists — the game ends.",
           "id": "Tidak ada jalan keluar — permainan berakhir."
-        }
+        },
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 w - - 0 1"
       },
       {
         "title": {
@@ -187,12 +249,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "No legal move but not in check — a draw. Save won games from this!",
           "id": "Tidak ada langkah legal tapi tidak skak — remis. Jangan biarkan kemenangan jadi remis!"
-        }
+        },
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "3k4/2ppp3/8/8/8/8/8/6KR w - - 0 1",
+      "solution": [
+        "h1h8"
+      ]
+    }
   },
   {
-    "id": "castling",
+    "id": "lesson-05",
     "level": "beginner",
     "title": {
       "en": "Castling Safely",
@@ -215,7 +295,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "King and rook unmoved, squares between empty, king not in or through check.",
           "id": "Raja dan benteng belum bergerak, kotak di antaranya kosong, raja tidak sedang/tidak melewati skak."
-        }
+        },
+        "board": "2B1kB2/8/8/3pp3/3PP3/8/8/2B1KB2 w - - 0 1"
       },
       {
         "title": {
@@ -225,7 +306,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "O-O is kingside (safer), O-O-O queenside (faster development).",
           "id": "O-O rokade pendek (lebih aman), O-O-O panjang (pembukaan lebih cepat)."
-        }
+        },
+        "board": "2B1kB2/8/8/3pp3/3PP3/8/8/2B1KB2 b - - 0 1"
       },
       {
         "title": {
@@ -235,12 +317,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "Don't castle into an attack or with a destroyed kingside.",
           "id": "Jangan rokade ke dalam serangan atau saat sayap raja sudah rusak."
-        }
+        },
+        "board": "3k4/3pp3/8/8/8/8/3PP3/3K4 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "4k3/3ppp2/8/8/8/8/8/R5K1 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "opening-principles",
+    "id": "lesson-06",
     "level": "beginner",
     "title": {
       "en": "Opening Principles",
@@ -263,7 +363,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Fight for e4, d4, e5, d5 with pawns and pieces.",
           "id": "Rebut e4, d4, e5, d5 dengan pion dan bidak."
-        }
+        },
+        "board": "3k4/3pp3/8/8/8/8/3PP3/3K4 b - - 0 1"
       },
       {
         "title": {
@@ -273,7 +374,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Knights and bishops out before the queen and rooks.",
           "id": "Kuda dan gajah keluar dulu sebelum ratu dan benteng."
-        }
+        },
+        "board": "3k1BN1/3p4/8/8/8/8/3P4/1NBK4 w - - 0 1"
       },
       {
         "title": {
@@ -283,13 +385,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Castle early — an uncastled king is a target.",
           "id": "Rokade lebih awal — raja yang tak dirokade adalah target."
-        }
+        },
+        "board": "3k1BN1/3p4/8/8/8/8/3P4/1NBK4 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "5k2/4ppp1/8/8/8/8/8/R5K1 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "development-tempo",
-    "level": "intermediate",
+    "id": "lesson-07",
+    "level": "beginner",
     "title": {
       "en": "Development & Tempo",
       "id": "Pengembangan & Tempo"
@@ -311,7 +431,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "One move = one tempo. Losing a move means your opponent acts first.",
           "id": "Satu langkah = satu tempo. Kehilangan tempo berarti lawan bergerak duluan."
-        }
+        },
+        "board": "1NBk1B2/4p3/8/8/8/8/4P3/1NBK1B2 w - - 0 1"
       },
       {
         "title": {
@@ -321,7 +442,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "In the opening, a piece moved twice lets your opponent develop with gain.",
           "id": "Di pembukaan, bidak yang digerakkan dua kali membiarkan lawan berkembang gratis."
-        }
+        },
+        "board": "1NBk1B2/4p3/8/8/8/8/4P3/1NBK1B2 b - - 0 1"
       },
       {
         "title": {
@@ -331,13 +453,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Attack an undeveloped opponent immediately with open lines.",
           "id": "Serang lawan yang lambat berkembang lewat jalur terbuka."
-        }
+        },
+        "board": "1NBk1BN1/3pp3/8/8/8/8/3PP3/1NBK1BN1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "knights-vs-bishops",
-    "level": "intermediate",
+    "id": "lesson-08",
+    "level": "beginner",
     "title": {
       "en": "Knights vs Bishops",
       "id": "Kuda vs Gajah"
@@ -359,7 +499,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Jumps over pieces, forks, strong in closed positions.",
           "id": "Melompati bidak, fork, kuat di posisi tertutup."
-        }
+        },
+        "board": "1NBk1BN1/3pp3/8/8/8/8/3PP3/1NBK1BN1 b - - 0 1"
       },
       {
         "title": {
@@ -369,7 +510,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Long range, works in pairs, dominates open diagonals.",
           "id": "Jangkauan jauh, kuat berpasangan, menguasai diagonal terbuka."
-        }
+        },
+        "board": "1NBk4/4pp2/8/8/8/8/4PP2/1NBK4 w - - 0 1"
       },
       {
         "title": {
@@ -379,13 +521,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Two bishops together cover both colors — a lasting edge.",
           "id": "Dua gajah bersama menutupi kedua warna — keunggulan abadi."
-        }
+        },
+        "board": "1NBk4/4pp2/8/8/8/8/4PP2/1NBK4 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "7k/6pp/8/8/8/8/8/R5K1 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "pawn-structure",
-    "level": "intermediate",
+    "id": "lesson-09",
+    "level": "beginner",
     "title": {
       "en": "Pawn Structure",
       "id": "Struktur Pion"
@@ -407,7 +567,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Pawns protect each other diagonally; attack the base of the chain.",
           "id": "Pion saling melindungi diagonal; serang pangkal rantai."
-        }
+        },
+        "board": "1N1k4/4p3/2N5/8/8/2N5/3P4/1N1K4 w - - 0 1"
       },
       {
         "title": {
@@ -417,7 +578,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "No neighbor pawns — weak blockade target, but opens lines.",
           "id": "Tanpa pion tetangga — lemah diblokade, tapi membuka jalur."
-        }
+        },
+        "board": "1N1k4/4p3/2N5/8/8/2N5/3P4/1N1K4 b - - 0 1"
       },
       {
         "title": {
@@ -427,13 +589,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Two pawns on one file — weak but can control key squares.",
           "id": "Dua pion di satu kolom — lemah tapi bisa menguasai kotak penting."
-        }
+        },
+        "board": "2Bk1B2/8/8/3pp3/3PP3/8/8/2BK1B2 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1",
+      "solution": [
+        "g2g7"
+      ]
+    }
   },
   {
-    "id": "tactics-fork",
-    "level": "intermediate",
+    "id": "lesson-10",
+    "level": "beginner",
     "title": {
       "en": "The Fork",
       "id": "Fork"
@@ -455,7 +635,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Knights are the best forkers — aim at king and queen together.",
           "id": "Kuda adalah pengfork terbaik — bidik raja dan ratu sekaligus."
-        }
+        },
+        "board": "2Bk1B2/8/8/3pp3/3PP3/8/8/2BK1B2 b - - 0 1"
       },
       {
         "title": {
@@ -465,7 +646,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A fork on king, queen, and rook wins massive material.",
           "id": "Fork ke raja, ratu, dan benteng memenangkan banyak material."
-        }
+        },
+        "board": "k7/pp6/8/8/8/8/8/6KR w - - 0 1"
       },
       {
         "title": {
@@ -475,13 +657,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Remove the defender, then land the fork.",
           "id": "Singkirkan penjaga, lalu lakukan fork."
-        }
+        },
+        "board": "1k6/ppp5/8/8/8/8/8/6KR w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "k7/8/2K5/8/8/8/1Q6/8 w - - 0 1",
+      "solution": [
+        "b2b7"
+      ]
+    }
   },
   {
-    "id": "tactics-pin",
-    "level": "intermediate",
+    "id": "lesson-11",
+    "level": "beginner",
     "title": {
       "en": "The Pin",
       "id": "Pin"
@@ -503,7 +703,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Pinned to the king — the piece cannot legally move.",
           "id": "Ter-pin ke raja — bidak tidak boleh bergerak sama sekali."
-        }
+        },
+        "board": "2k5/1ppp4/8/8/8/8/8/6KR w - - 0 1"
       },
       {
         "title": {
@@ -513,7 +714,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Moving loses material but is legal — often decisive too.",
           "id": "Bergerak kehilangan material tapi legal — sering tetap menentukan."
-        }
+        },
+        "board": "3k4/2ppp3/8/8/8/8/8/6KR w - - 0 1"
       },
       {
         "title": {
@@ -523,13 +725,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Add attackers to the pinned piece until it breaks.",
           "id": "Tambahkan penyerang ke bidak ter-pin sampai jebol."
-        }
+        },
+        "board": "4k3/3ppp2/8/8/8/8/8/R5K1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/8/8/8/8/8/6KQ w - - 0 1",
+      "solution": [
+        "h1a8"
+      ]
+    }
   },
   {
-    "id": "tactics-skewer",
-    "level": "intermediate",
+    "id": "lesson-12",
+    "level": "beginner",
     "title": {
       "en": "The Skewer",
       "id": "Skewer"
@@ -551,7 +771,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Attack a valuable piece; when it moves, win what's behind it.",
           "id": "Serang bidak berharga; saat ia bergerak, menangkan yang di belakang."
-        }
+        },
+        "board": "5k2/4ppp1/8/8/8/8/8/R5K1 w - - 0 1"
       },
       {
         "title": {
@@ -561,7 +782,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Rooks and bishops skewer queens along files and diagonals.",
           "id": "Benteng dan gajah menyusup ratu sepanjang kolom dan diagonal."
-        }
+        },
+        "board": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1"
       },
       {
         "title": {
@@ -571,13 +793,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Line up the target with limited escape squares.",
           "id": "Sejajarkan target dengan kotak lolos yang terbatas."
-        }
+        },
+        "board": "7k/6pp/8/8/8/8/8/R5K1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/8/8/8/8/8/Q5K1 w - - 0 1",
+      "solution": [
+        "a1h8"
+      ]
+    }
   },
   {
-    "id": "tactics-discovery",
-    "level": "intermediate",
+    "id": "lesson-13",
+    "level": "beginner",
     "title": {
       "en": "Discovered Attack",
       "id": "Serangan Terbuka"
@@ -599,7 +839,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Move the blocking piece with its own threat — the line opens behind it.",
           "id": "Geser bidak penghalang dengan ancamannya sendiri — jalur terbuka di belakang."
-        }
+        },
+        "board": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1"
       },
       {
         "title": {
@@ -609,7 +850,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "The moved piece checks too — only king moves are legal.",
           "id": "Bidak yang bergerak ikut mengecek — hanya gerak raja yang sah."
-        }
+        },
+        "board": "k7/8/2K5/8/8/8/1Q6/8 w - - 0 1"
       },
       {
         "title": {
@@ -619,13 +861,33 @@ window.LESSON_DATA = [
         "text": {
           "en": "A discovered attack with the queen behind is usually decisive.",
           "id": "Serangan terbuka dengan ratu di belakang hampir selalu menentukan."
-        }
+        },
+        "board": "6k1/5ppp/8/8/8/8/8/6KQ w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "r5k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1",
+      "solution": [
+        "e6e8",
+        "a8e8",
+        "e1e8"
+      ]
+    }
   },
   {
-    "id": "removing-defender",
-    "level": "intermediate",
+    "id": "lesson-14",
+    "level": "elementary",
     "title": {
       "en": "Removing the Defender",
       "id": "Menghilangkan Penjaga"
@@ -647,7 +909,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Before winning a piece, list everything that defends it.",
           "id": "Sebelum memenangkan bidak, sebutkan semua yang menjaganya."
-        }
+        },
+        "board": "1k6/ppp5/8/8/8/8/8/Q5K1 w - - 0 1"
       },
       {
         "title": {
@@ -657,7 +920,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Lure the defender away with a sacrifice or threat.",
           "id": "Pancing penjaga pergi dengan korban atau ancaman."
-        }
+        },
+        "board": "r5k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1"
       },
       {
         "title": {
@@ -667,13 +931,33 @@ window.LESSON_DATA = [
         "text": {
           "en": "One defender protecting two things will fail at one job.",
           "id": "Satu penjaga untuk dua tugas akan gagal di salah satunya."
-        }
+        },
+        "board": "1r4k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1r4k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1",
+      "solution": [
+        "e6e8",
+        "b8e8",
+        "e1e8"
+      ]
+    }
   },
   {
-    "id": "mate-backrank",
-    "level": "intermediate",
+    "id": "lesson-15",
+    "level": "elementary",
     "title": {
       "en": "Back-rank Mate",
       "id": "Skakmat Papan Belakang"
@@ -695,7 +979,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "King boxed by its own pawns; a rook or queen checks along the back rank.",
           "id": "Raja terkurung pionnya sendiri; benteng atau ratu mengecek sepanjang baris belakang."
-        }
+        },
+        "board": "7k/6pp/8/8/8/8/8/RK6 w - - 0 1"
       },
       {
         "title": {
@@ -705,7 +990,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Give your king an escape (g-pawn or h-pawn move) in advance.",
           "id": "Sediakan kotak lolos (gerakkan pion g atau h) sebelumnya."
-        }
+        },
+        "board": "6k1/5ppp/8/8/8/8/8/RK6 w - - 0 1"
       },
       {
         "title": {
@@ -715,13 +1001,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Deflect a defender of the 8th rank, then deliver mate.",
           "id": "Defleksi penjaga baris ke-8, lalu skakmatkan."
-        }
+        },
+        "board": "5k2/4ppp1/8/8/8/8/8/RK6 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "7k/6pp/8/8/8/8/8/RK6 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "queen-king-mate",
-    "level": "intermediate",
+    "id": "lesson-16",
+    "level": "elementary",
     "title": {
       "en": "Mate with Queen & King",
       "id": "Skakmat Ratu & Raja"
@@ -743,7 +1047,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Use the queen to shrink the king's living space step by step.",
           "id": "Pakai ratu untuk mengecilkan ruang gerak raja langkah demi langkah."
-        }
+        },
+        "board": "4k3/3ppp2/8/8/8/8/8/RK6 w - - 0 1"
       },
       {
         "title": {
@@ -753,7 +1058,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Stop checking when the king has no moves — stalemate is a draw.",
           "id": "Berhenti mengecek saat raja tak punya langkah — stalemate berarti remis."
-        }
+        },
+        "board": "3k4/2ppp3/8/8/8/8/8/1K5R w - - 0 1"
       },
       {
         "title": {
@@ -763,13 +1069,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Bring your king to help guard escape squares.",
           "id": "Bawa rajamu membantu menjaga kotak lolos."
-        }
+        },
+        "board": "2k5/1ppp4/8/8/8/8/8/1K5R w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/8/8/8/8/8/RK6 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "rook-king-mate",
-    "level": "intermediate",
+    "id": "lesson-17",
+    "level": "elementary",
     "title": {
       "en": "Mate with Rook & King",
       "id": "Skakmat Benteng & Raja"
@@ -791,7 +1115,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Check with the rook, move the king closer, cut the box in half.",
           "id": "Cek dengan benteng, dekati dengan raja, potong ruang jadi dua."
-        }
+        },
+        "board": "1k6/ppp5/8/8/8/8/8/1K5R w - - 0 1"
       },
       {
         "title": {
@@ -801,7 +1126,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Drive the enemy king to the edge of the board.",
           "id": "Desak raja lawan ke tepi papan."
-        }
+        },
+        "board": "k7/pp6/8/8/8/8/8/1K5R w - - 0 1"
       },
       {
         "title": {
@@ -811,13 +1137,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Checkmate on the edge with the rook supported by the king.",
           "id": "Skakmat di tepi dengan benteng yang didukung raja."
-        }
+        },
+        "board": "k7/8/2K5/8/8/8/1Q6/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "5k2/4ppp1/8/8/8/8/8/RK6 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "opposite-bishops",
-    "level": "advanced",
+    "id": "lesson-18",
+    "level": "elementary",
     "title": {
       "en": "Opposite-colored Bishops",
       "id": "Gajah Warna Beda"
@@ -839,7 +1183,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "With pawns on both sides, opposite bishops often draw.",
           "id": "Dengan pion di kedua sisi, gajah warna beda sering remis."
-        }
+        },
+        "board": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1"
       },
       {
         "title": {
@@ -849,7 +1194,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "In the middlegame, your bishop can't be opposed — attack!",
           "id": "Di permainan menengah, gajahmu tak bisa ditandingi — serang!"
-        }
+        },
+        "board": "1k6/ppp5/8/8/8/8/8/QK6 w - - 0 1"
       },
       {
         "title": {
@@ -859,13 +1205,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "The defender's bishop can blockade pawn chains forever.",
           "id": "Gajah bertahan bisa memblokade rantai pion selamanya."
-        }
+        },
+        "board": "6k1/5ppp/8/8/8/8/8/1K5Q w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "4k3/3ppp2/8/8/8/8/8/RK6 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "pawn-endgames",
-    "level": "advanced",
+    "id": "lesson-19",
+    "level": "elementary",
     "title": {
       "en": "Pawn Endgames",
       "id": "Endgame Pion"
@@ -887,7 +1251,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "If the king enters the square of a passed pawn, it catches it.",
           "id": "Jika raja masuk kotak pion lepas, ia dapat menangkapnya."
-        }
+        },
+        "board": "1k5r/ppp5/3Q4/8/8/8/PPP5/1K1R4 w - - 0 1"
       },
       {
         "title": {
@@ -897,7 +1262,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Certain squares guarantee promotion if the king reaches them.",
           "id": "Kotak tertentu menjamin promosi jika raja sampai di sana."
-        }
+        },
+        "board": "1k4r1/ppp5/3Q4/8/8/8/PPP5/1K1R4 w - - 0 1"
       },
       {
         "title": {
@@ -907,13 +1273,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Kings facing each other — the one not to move has the advantage.",
           "id": "Raja saling berhadapan — yang tidak bergerak punya keuntungan."
-        }
+        },
+        "board": "6k1/5ppp/5K2/8/8/8/6Q1/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "3k4/2ppp3/8/8/8/8/8/1K5R w - - 0 1",
+      "solution": [
+        "h1h8"
+      ]
+    }
   },
   {
-    "id": "passed-pawns",
-    "level": "advanced",
+    "id": "lesson-20",
+    "level": "elementary",
     "title": {
       "en": "Passed Pawns",
       "id": "Pion Lepas"
@@ -935,7 +1319,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "No enemy pawn on its file or adjacent files can stop it.",
           "id": "Tidak ada pion lawan di kolomnya maupun kolom tetangga yang bisa menghentikannya."
-        }
+        },
+        "board": "6k1/5ppp/5K2/8/6Q1/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -945,7 +1330,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A passed pawn far from the action wins endgames.",
           "id": "Pion lepas jauh dari pusat memenangkan endgame."
-        }
+        },
+        "board": "6k1/5ppp/5K2/6Q1/8/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -955,13 +1341,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Stop it on a square controlled by your king or pieces.",
           "id": "Hentikan di kotak yang dikuasai raja atau bidakmu."
-        }
+        },
+        "board": "6k1/5ppp/7K/8/8/8/6Q1/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "2k5/1ppp4/8/8/8/8/8/1K5R w - - 0 1",
+      "solution": [
+        "h1h8"
+      ]
+    }
   },
   {
-    "id": "initiative-attack",
-    "level": "advanced",
+    "id": "lesson-21",
+    "level": "elementary",
     "title": {
       "en": "The Initiative",
       "id": "Inisiatif"
@@ -983,7 +1387,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A series of threats your opponent must answer.",
           "id": "Serangkaian ancaman yang harus dijawab lawan."
-        }
+        },
+        "board": "6k1/5ppp/7K/8/6Q1/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -993,7 +1398,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A pawn sacrifice to open lines and keep attacking is often right.",
           "id": "Korban pion untuk membuka jalur dan terus menyerang sering benar."
-        }
+        },
+        "board": "6k1/5ppp/7K/6Q1/8/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -1003,13 +1409,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "When attack slows, cash in to a winning endgame.",
           "id": "Saat serangan melambat, tukarkan jadi endgame yang menang."
-        }
+        },
+        "board": "1k6/ppp5/2K5/8/8/8/1Q6/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/8/8/8/8/8/1K5R w - - 0 1",
+      "solution": [
+        "h1h8"
+      ]
+    }
   },
   {
-    "id": "defense-resources",
-    "level": "advanced",
+    "id": "lesson-22",
+    "level": "elementary",
     "title": {
       "en": "Defensive Resources",
       "id": "Sumber Daya Bertahan"
@@ -1031,7 +1455,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Stay calm, cut off the attacker's supply lines.",
           "id": "Tetap tenang, putuskan jalur suplai penyerang."
-        }
+        },
+        "board": "1k6/ppp5/2K5/8/1Q6/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -1041,7 +1466,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Create your own threats — the attacker must then defend.",
           "id": "Buat ancaman sendiri — penyerang pun harus bertahan."
-        }
+        },
+        "board": "1k6/ppp5/2K5/1Q6/8/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -1051,13 +1477,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Set up an unbreakable defensive wall and hold the draw.",
           "id": "Bangun dinding pertahanan yang tak tembus dan tahan remis."
-        }
+        },
+        "board": "1k6/ppp5/K7/8/8/8/1Q6/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "k7/pp6/8/8/8/8/8/1K5R w - - 0 1",
+      "solution": [
+        "h1h8"
+      ]
+    }
   },
   {
-    "id": "prophylaxis",
-    "level": "advanced",
+    "id": "lesson-23",
+    "level": "elementary",
     "title": {
       "en": "Prophylaxis",
       "id": "Profilaksis"
@@ -1079,7 +1523,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "'What does my opponent want?' before every move.",
           "id": "'Apa yang diingankan lawan?' sebelum setiap langkah."
-        }
+        },
+        "board": "1k6/ppp5/K7/8/1Q6/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -1089,7 +1534,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "When you see a good move, look for a better one — and for their idea.",
           "id": "Saat melihat langkah bagus, cari yang lebih baik — dan ide mereka."
-        }
+        },
+        "board": "1k6/ppp5/K7/1Q6/8/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -1099,13 +1545,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Small quiet moves that kill enemy plans win slow games.",
           "id": "Langkah kecil yang membunuh rencana lawan memenangkan permainan lambat."
-        }
+        },
+        "board": "4k3/3pp3/8/8/8/8/3PP3/4K3 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "k7/8/2K5/8/8/8/1Q6/8 w - - 0 1",
+      "solution": [
+        "b2b7"
+      ]
+    }
   },
   {
-    "id": "time-management",
-    "level": "intermediate",
+    "id": "lesson-24",
+    "level": "elementary",
     "title": {
       "en": "Time Management",
       "id": "Manajemen Waktu"
@@ -1127,7 +1591,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Spend more time on critical positions, less on forced moves.",
           "id": "Habiskan lebih banyak waktu di posisi kritis, lebih sedikit di langkah terpaksa."
-        }
+        },
+        "board": "4k3/3pp3/8/8/8/8/3PP3/4K3 b - - 0 1"
       },
       {
         "title": {
@@ -1137,7 +1602,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Pre-move and premove-safe techniques in fast time controls.",
           "id": "Teknik pre-move yang aman dalam kontrol waktu cepat."
-        }
+        },
+        "board": "1NB1k3/4p3/8/8/8/8/4P3/4KBN1 w - - 0 1"
       },
       {
         "title": {
@@ -1147,13 +1613,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Winning on time is a legitimate skill — practice fast endgames.",
           "id": "Menang karena waktu habis adalah keterampilan sah — latih endgame cepat."
-        }
+        },
+        "board": "1NB1k3/4p3/8/8/8/8/4P3/4KBN1 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1",
+      "solution": [
+        "g2g7"
+      ]
+    }
   },
   {
-    "id": "reading-variations",
-    "level": "intermediate",
+    "id": "lesson-25",
+    "level": "elementary",
     "title": {
       "en": "Reading Variations",
       "id": "Membaca Variasi"
@@ -1175,7 +1659,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "List 2-3 candidate moves before calculating anything.",
           "id": "Sebutkan 2-3 kandidat sebelum menghitung apa pun."
-        }
+        },
+        "board": "2B1kBN1/3p4/8/8/8/8/3P4/2B1KBN1 w - - 0 1"
       },
       {
         "title": {
@@ -1185,7 +1670,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Before playing, check captures, checks, and threats for both sides.",
           "id": "Sebelum bermain, cek makanan, cekan, dan ancaman kedua pihak."
-        }
+        },
+        "board": "2B1kBN1/3p4/8/8/8/8/3P4/2B1KBN1 b - - 0 1"
       },
       {
         "title": {
@@ -1195,13 +1681,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Calculate until the position is quiet — no more forcing moves.",
           "id": "Hitung sampai posisi tenang — tidak ada lagi langkah paksa."
-        }
+        },
+        "board": "1NB1kBN1/3pp3/8/8/8/8/3PP3/1NB1KBN1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/8/8/8/8/8/QK6 w - - 0 1",
+      "solution": [
+        "a1h8"
+      ]
+    }
   },
   {
-    "id": "imbalances",
-    "level": "advanced",
+    "id": "lesson-26",
+    "level": "elementary",
     "title": {
       "en": "Imbalances",
       "id": "Ketidakseimbangan"
@@ -1223,7 +1727,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A pawn down with an attack can be better than material equal.",
           "id": "Kurang pion dengan serangan bisa lebih baik dari material seimbang."
-        }
+        },
+        "board": "1NB1kBN1/3pp3/8/8/8/8/3PP3/1NB1KBN1 b - - 0 1"
       },
       {
         "title": {
@@ -1233,7 +1738,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Long-term edges (structure) vs short-term (development).",
           "id": "Keunggulan jangka panjang (struktur) vs jangka pendek (pengembangan)."
-        }
+        },
+        "board": "4kBN1/2pp4/8/8/8/8/2PP4/4KBN1 w - - 0 1"
       },
       {
         "title": {
@@ -1243,13 +1749,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Choose plans matching your advantages, not random attacks.",
           "id": "Pilih rencana sesuai keunggulanmu, bukan serangan asal-asalan."
-        }
+        },
+        "board": "4kBN1/2pp4/8/8/8/8/2PP4/4KBN1 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/8/8/8/8/8/1K5Q w - - 0 1",
+      "solution": [
+        "h1a8"
+      ]
+    }
   },
   {
-    "id": "attack-king",
-    "level": "advanced",
+    "id": "lesson-27",
+    "level": "intermediate",
     "title": {
       "en": "Attacking the King",
       "id": "Menyerang Raja"
@@ -1271,7 +1795,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "More attackers than defenders, open lines, and a lead in development.",
           "id": "Lebih banyak penyerang dari penjaga, jalur terbuka, dan unggul pengembangan."
-        }
+        },
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 w - - 0 1"
       },
       {
         "title": {
@@ -1281,7 +1806,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Push g and h pawns to rip open the castled king.",
           "id": "Dorong pion g dan h untuk membuka pertahanan raja lawan."
-        }
+        },
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 b - - 0 1"
       },
       {
         "title": {
@@ -1291,13 +1817,33 @@ window.LESSON_DATA = [
         "text": {
           "en": "If the attack stalls, the position may simply be worse — reassess.",
           "id": "Jika serangan mandek, posisi mungkin memang lebih buruk — nilai ulang."
-        }
+        },
+        "board": "2B1kB2/8/8/3pp3/3PP3/8/8/2B1KB2 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k5r/ppp5/3Q4/8/8/8/PPP5/1K1R4 w - - 0 1",
+      "solution": [
+        "d6d8",
+        "h8d8",
+        "d1d8"
+      ]
+    }
   },
   {
-    "id": "material-gambits",
-    "level": "advanced",
+    "id": "lesson-28",
+    "level": "intermediate",
     "title": {
       "en": "Gambits",
       "id": "Gambit"
@@ -1319,7 +1865,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "King's Gambit, Queen's Gambit, Benko — different goals, same idea.",
           "id": "King's Gambit, Queen's Gambit, Benko — tujuan beda, ide sama."
-        }
+        },
+        "board": "2B1kB2/8/8/3pp3/3PP3/8/8/2B1KB2 b - - 0 1"
       },
       {
         "title": {
@@ -1329,7 +1876,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Accepting wins a pawn but gives the initiative; know both paths.",
           "id": "Menerima memenangkan pion tapi memberi inisiatif; kenali keduanya."
-        }
+        },
+        "board": "3k4/3pp3/8/8/8/8/3PP3/3K4 w - - 0 1"
       },
       {
         "title": {
@@ -1339,13 +1887,33 @@ window.LESSON_DATA = [
         "text": {
           "en": "Sometimes giving the pawn back consolidates the attack.",
           "id": "Kadang mengembalikan pion justru mengonsolidasi serangan."
-        }
+        },
+        "board": "3k4/3pp3/8/8/8/8/3PP3/3K4 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k4r1/ppp5/3Q4/8/8/8/PPP5/1K1R4 w - - 0 1",
+      "solution": [
+        "d6d8",
+        "g8d8",
+        "d1d8"
+      ]
+    }
   },
   {
-    "id": "positional-sac",
-    "level": "advanced",
+    "id": "lesson-29",
+    "level": "intermediate",
     "title": {
       "en": "Positional Sacrifice",
       "id": "Korban Posisional"
@@ -1367,7 +1935,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Rxc3 in the Sicilian, Exchange sac on c3 — ruin the structure.",
           "id": "Rxc3 di Sisilia, korban benteng di c3 — hancurkan struktur."
-        }
+        },
+        "board": "3k1BN1/3p4/8/8/8/8/3P4/1NBK4 w - - 0 1"
       },
       {
         "title": {
@@ -1377,7 +1946,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Activity, weak squares, and attack are the currency.",
           "id": "Aktivitas, kotak lemah, dan serangan adalah mata uangnya."
-        }
+        },
+        "board": "3k1BN1/3p4/8/8/8/8/3P4/1NBK4 b - - 0 1"
       },
       {
         "title": {
@@ -1387,13 +1957,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Against humans, initiative matters more than engines suggest.",
           "id": "Melawan manusia, inisiatif lebih berharga dari yang dikatakan mesin."
-        }
+        },
+        "board": "1NBk1B2/4p3/8/8/8/8/4P3/1NBK1B2 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/5K2/8/8/8/6Q1/8 w - - 0 1",
+      "solution": [
+        "g2g7"
+      ]
+    }
   },
   {
-    "id": "endgame-rook",
-    "level": "advanced",
+    "id": "lesson-30",
+    "level": "intermediate",
     "title": {
       "en": "Rook Endgames",
       "id": "Endgame Benteng"
@@ -1415,7 +2003,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "An active rook beats a passive one even a pawn down.",
           "id": "Benteng aktif mengalahkan yang pasif bahkan tanpa pion unggul."
-        }
+        },
+        "board": "1NBk1B2/4p3/8/8/8/8/4P3/1NBK1B2 b - - 0 1"
       },
       {
         "title": {
@@ -1425,7 +2014,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Cut the enemy king off a file to win races.",
           "id": "Potong raja lawan dari satu kolom untuk memenangkan balapan."
-        }
+        },
+        "board": "1NBk1BN1/3pp3/8/8/8/8/3PP3/1NBK1BN1 w - - 0 1"
       },
       {
         "title": {
@@ -1435,12 +2025,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "A rook on the 7th rank attacks pawns and ties the king down.",
           "id": "Benteng di baris ke-7 menyerang pion dan mengikat raja."
-        }
+        },
+        "board": "1NBk1BN1/3pp3/8/8/8/8/3PP3/1NBK1BN1 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/5K2/8/6Q1/8/8/8 w - - 0 1",
+      "solution": [
+        "g4g7"
+      ]
+    }
   },
   {
-    "id": "swindle-traps",
+    "id": "lesson-31",
     "level": "intermediate",
     "title": {
       "en": "Swindles & Traps",
@@ -1463,7 +2071,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "No — traps that improve your position when declined.",
           "id": "Bukan — perangkap yang memperbaiki posisi jika ditolak."
-        }
+        },
+        "board": "1NBk4/4pp2/8/8/8/8/4PP2/1NBK4 w - - 0 1"
       },
       {
         "title": {
@@ -1473,7 +2082,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Leave material en prise with a hidden refutation.",
           "id": "Sisakan material dengan bantahan tersembunyi."
-        }
+        },
+        "board": "1NBk4/4pp2/8/8/8/8/4PP2/1NBK4 b - - 0 1"
       },
       {
         "title": {
@@ -1483,12 +2093,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "In casual and online play, blunders happen — keep playing.",
           "id": "Di permainan santai dan daring, blunder terjadi — terus mainkan."
-        }
+        },
+        "board": "1N1k4/4p3/2N5/8/8/2N5/3P4/1N1K4 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/5K2/6Q1/8/8/8/8 w - - 0 1",
+      "solution": [
+        "g5g7"
+      ]
+    }
   },
   {
-    "id": "opening-traps",
+    "id": "lesson-32",
     "level": "intermediate",
     "title": {
       "en": "Opening Traps",
@@ -1511,7 +2139,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Qh5+Bc4 targets f7 — defend with ...g6 or ...Qe7.",
           "id": "Qh5+Bc4 membidik f7 — pertahankan dengan ...g6 atau ...Qe7."
-        }
+        },
+        "board": "1N1k4/4p3/2N5/8/8/2N5/3P4/1N1K4 b - - 0 1"
       },
       {
         "title": {
@@ -1521,7 +2150,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Luring the queen into Nb4+ wins it — watch development!",
           "id": "Memancing ratu ke Nb4+ memenangkannya — awas pengembangan!"
-        }
+        },
+        "board": "2Bk1B2/8/8/3pp3/3PP3/8/8/2BK1B2 w - - 0 1"
       },
       {
         "title": {
@@ -1531,12 +2161,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "Know one trap per opening you play, and the refutation.",
           "id": "Kenali satu perangkap per pembukaan yang kamu mainkan, dan bantahannya."
-        }
+        },
+        "board": "2Bk1B2/8/8/3pp3/3PP3/8/8/2BK1B2 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/7K/8/8/8/6Q1/8 w - - 0 1",
+      "solution": [
+        "g2g7"
+      ]
+    }
   },
   {
-    "id": "center-control",
+    "id": "lesson-33",
     "level": "intermediate",
     "title": {
       "en": "Controlling the Center",
@@ -1559,7 +2207,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Central pieces reach both sides of the board quickly.",
           "id": "Bidak di pusat menjangkau kedua sisi papan dengan cepat."
-        }
+        },
+        "board": "k7/pp6/8/8/8/8/8/6KR w - - 0 1"
       },
       {
         "title": {
@@ -1569,7 +2218,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Broad (e4+d4) vs flexible (d4 only) vs countering (e5).",
           "id": "Lebar (e4+d4) vs fleksibel (hanya d4) vs kontra (e5)."
-        }
+        },
+        "board": "1k6/ppp5/8/8/8/8/8/6KR w - - 0 1"
       },
       {
         "title": {
@@ -1579,13 +2229,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "A knight on e5 can outshine a pawn center.",
           "id": "Kuda di e5 bisa mengalahkan pusat pion."
-        }
+        },
+        "board": "2k5/1ppp4/8/8/8/8/8/6KR w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/7K/8/6Q1/8/8/8 w - - 0 1",
+      "solution": [
+        "g4g7"
+      ]
+    }
   },
   {
-    "id": "weak-squares",
-    "level": "advanced",
+    "id": "lesson-34",
+    "level": "intermediate",
     "title": {
       "en": "Weak Squares",
       "id": "Kotak Lemah"
@@ -1607,7 +2275,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A square in your camp that no pawn can defend.",
           "id": "Kotak di wilayahmu yang tidak bisa dijaga pion."
-        }
+        },
+        "board": "3k4/2ppp3/8/8/8/8/8/6KR w - - 0 1"
       },
       {
         "title": {
@@ -1617,7 +2286,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A weak square protected by your own pawn — ideal for a knight.",
           "id": "Kotak lemah yang dilindungi pionmu sendiri — ideal untuk kuda."
-        }
+        },
+        "board": "4k3/3ppp2/8/8/8/8/8/R5K1 w - - 0 1"
       },
       {
         "title": {
@@ -1627,12 +2297,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "Advance pawns to fix holes in the enemy structure.",
           "id": "Majukan pion untuk membuat lubang di struktur lawan."
-        }
+        },
+        "board": "5k2/4ppp1/8/8/8/8/8/R5K1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/7K/6Q1/8/8/8/8 w - - 0 1",
+      "solution": [
+        "g5g7"
+      ]
+    }
   },
   {
-    "id": "bishop-pair",
+    "id": "lesson-35",
     "level": "intermediate",
     "title": {
       "en": "The Bishop Pair",
@@ -1655,7 +2343,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "They cover both colors and coordinate across the board.",
           "id": "Mereka menutupi kedua warna dan berkoordinasi di seluruh papan."
-        }
+        },
+        "board": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1"
       },
       {
         "title": {
@@ -1665,7 +2354,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Trade pawns, open lines — the pair grows in value.",
           "id": "Tukar pion, buka jalur — nilai pasangan meningkat."
-        }
+        },
+        "board": "7k/6pp/8/8/8/8/8/R5K1 w - - 0 1"
       },
       {
         "title": {
@@ -1675,12 +2365,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "Avoid exchanging one bishop for a knight without reason.",
           "id": "Hindari menukar satu gajah dengan kuda tanpa alasan."
-        }
+        },
+        "board": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/2K5/8/8/8/1Q6/8 w - - 0 1",
+      "solution": [
+        "b2b7"
+      ]
+    }
   },
   {
-    "id": "knight-outposts",
+    "id": "lesson-36",
     "level": "intermediate",
     "title": {
       "en": "Knight Outposts",
@@ -1703,7 +2411,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Advanced, protected by a pawn, and immune to enemy pawns.",
           "id": "Maju, dilindungi pion, dan kebal terhadap pion lawan."
-        }
+        },
+        "board": "k7/8/2K5/8/8/8/1Q6/8 w - - 0 1"
       },
       {
         "title": {
@@ -1713,7 +2422,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "d5/e5 for white, d4/e4 for black — classic outposts.",
           "id": "d5/e5 untuk putih, d4/e4 untuk hitam — pos klasik."
-        }
+        },
+        "board": "6k1/5ppp/8/8/8/8/8/6KQ w - - 0 1"
       },
       {
         "title": {
@@ -1723,13 +2433,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Defend the outpost knight with pieces so it can't be traded off.",
           "id": "Lindungi kuda pos dengan bidak agar tak bisa ditukar."
-        }
+        },
+        "board": "1k6/ppp5/8/8/8/8/8/Q5K1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/2K5/8/1Q6/8/8/8 w - - 0 1",
+      "solution": [
+        "b4b7"
+      ]
+    }
   },
   {
-    "id": "exchange-sac",
-    "level": "advanced",
+    "id": "lesson-37",
+    "level": "intermediate",
     "title": {
       "en": "The Exchange Sacrifice",
       "id": "Korban Pertukaran"
@@ -1751,7 +2479,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Sac on c3/f6/f3 to wreck structure or seize dark squares.",
           "id": "Korban di c3/f6/f3 untuk menghancurkan struktur atau merebut kotak gelap."
-        }
+        },
+        "board": "r5k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1"
       },
       {
         "title": {
@@ -1761,7 +2490,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Attack, weak squares, superior minor piece.",
           "id": "Serangan, kotak lemah, bidak minor yang lebih baik."
-        }
+        },
+        "board": "1r4k1/5ppp/4Q3/8/8/8/5PPP/4R1K1 w - - 0 1"
       },
       {
         "title": {
@@ -1771,13 +2501,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "The Sicilian exchange sac is the most famous example.",
           "id": "Korban pertukaran Sisilia adalah contoh paling terkenal."
-        }
+        },
+        "board": "7k/6pp/8/8/8/8/8/RK6 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/2K5/1Q6/8/8/8/8 w - - 0 1",
+      "solution": [
+        "b5b7"
+      ]
+    }
   },
   {
-    "id": "quiet-moves",
-    "level": "advanced",
+    "id": "lesson-38",
+    "level": "intermediate",
     "title": {
       "en": "Quiet Moves",
       "id": "Langkah Senyap"
@@ -1799,7 +2547,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Quiet moves that stop enemy ideas are often best.",
           "id": "Langkah senyap yang menghentikan ide lawan sering yang terbaik."
-        }
+        },
+        "board": "6k1/5ppp/8/8/8/8/8/RK6 w - - 0 1"
       },
       {
         "title": {
@@ -1809,7 +2558,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Retreat a piece to a better square without rushing.",
           "id": "Mundurkan bidak ke kotak lebih baik tanpa terburu-buru."
-        }
+        },
+        "board": "5k2/4ppp1/8/8/8/8/8/RK6 w - - 0 1"
       },
       {
         "title": {
@@ -1819,13 +2569,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Any move worsens the position — force the opponent to move.",
           "id": "Gerakan apa pun memperburuk posisi — paksa lawan yang bergerak."
-        }
+        },
+        "board": "4k3/3ppp2/8/8/8/8/8/RK6 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/K7/8/8/8/1Q6/8 w - - 0 1",
+      "solution": [
+        "b2b7"
+      ]
+    }
   },
   {
-    "id": "zwischenzug",
-    "level": "advanced",
+    "id": "lesson-39",
+    "level": "intermediate",
     "title": {
       "en": "Zwischenzug",
       "id": "Zwischenzug"
@@ -1847,7 +2615,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Before the expected recapture, insert a stronger move.",
           "id": "Sebelum penukaran yang diharapkan, sisipkan langkah lebih kuat."
-        }
+        },
+        "board": "3k4/2ppp3/8/8/8/8/8/1K5R w - - 0 1"
       },
       {
         "title": {
@@ -1857,7 +2626,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Zwischenzug with check or a counter-capture wins material.",
           "id": "Zwischenzug dengan cek atau makanan balik memenangkan material."
-        }
+        },
+        "board": "2k5/1ppp4/8/8/8/8/8/1K5R w - - 0 1"
       },
       {
         "title": {
@@ -1867,12 +2637,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "Never recapture automatically — scan for in-between moves.",
           "id": "Jangan pernah makan balik otomatis — cari langkah sela."
-        }
+        },
+        "board": "1k6/ppp5/8/8/8/8/8/1K5R w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/K7/8/1Q6/8/8/8 w - - 0 1",
+      "solution": [
+        "b4b7"
+      ]
+    }
   },
   {
-    "id": "pawn-breaks",
+    "id": "lesson-40",
     "level": "advanced",
     "title": {
       "en": "Pawn Breaks",
@@ -1895,7 +2683,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A pawn move that challenges the enemy structure.",
           "id": "Langkah pion yang menantang struktur lawan."
-        }
+        },
+        "board": "k7/pp6/8/8/8/8/8/1K5R w - - 0 1"
       },
       {
         "title": {
@@ -1905,7 +2694,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Break when pieces stand behind the pawn, ready to exploit.",
           "id": "Pecahkan saat bidak siap di belakang pion untuk mengeksploitasi."
-        }
+        },
+        "board": "k7/8/2K5/8/8/8/1Q6/8 w - - 0 1"
       },
       {
         "title": {
@@ -1915,12 +2705,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "...c5 vs d4, ...e5 vs d4, c4/d4 vs e6 structures.",
           "id": "...c5 vs d4, ...e5 vs d4, struktur c4/d4 vs e6."
-        }
+        },
+        "board": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "1k6/ppp5/K7/1Q6/8/8/8/8 w - - 0 1",
+      "solution": [
+        "b5b7"
+      ]
+    }
   },
   {
-    "id": "good-bad-bishop",
+    "id": "lesson-41",
     "level": "advanced",
     "title": {
       "en": "Good & Bad Bishops",
@@ -1943,7 +2751,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "A bad bishop is blocked by its own fixed pawns.",
           "id": "Gajah buruk terblokir oleh pionnya sendiri yang terkunci."
-        }
+        },
+        "board": "1k6/ppp5/8/8/8/8/8/QK6 w - - 0 1"
       },
       {
         "title": {
@@ -1953,7 +2762,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Trade it for a knight or free the pawn chain.",
           "id": "Tukar dengan kuda atau bebaskan rantai pion."
-        }
+        },
+        "board": "6k1/5ppp/8/8/8/8/8/1K5Q w - - 0 1"
       },
       {
         "title": {
@@ -1963,13 +2773,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "The unopposed bishop aims at the enemy king — good or not.",
           "id": "Gajah yang tak ditandingi mengarah ke raja lawan — baik atau tidak."
-        }
+        },
+        "board": "1k5r/ppp5/3Q4/8/8/8/PPP5/1K1R4 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "solution": [
+        "e2e4"
+      ]
+    }
   },
   {
-    "id": "king-safety-net",
-    "level": "intermediate",
+    "id": "lesson-42",
+    "level": "advanced",
     "title": {
       "en": "King Safety",
       "id": "Keamanan Raja"
@@ -1991,7 +2819,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "An uncastled king loses most games at club level.",
           "id": "Raja yang belum rokade kalah dalam mayoritas permainan tingkat klub."
-        }
+        },
+        "board": "1k4r1/ppp5/3Q4/8/8/8/PPP5/1K1R4 w - - 0 1"
       },
       {
         "title": {
@@ -2001,7 +2830,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Pawn moves in front of the king create permanent holes.",
           "id": "Gerakan pion di depan raja membuat lubang permanen."
-        }
+        },
+        "board": "6k1/5ppp/5K2/8/8/8/6Q1/8 w - - 0 1"
       },
       {
         "title": {
@@ -2011,12 +2841,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "Attacking with pawns in front of your own king is double-edged.",
           "id": "Menyerang dengan pion di depan rajamu sendiri berisiko dua arah."
-        }
+        },
+        "board": "6k1/5ppp/5K2/8/6Q1/8/8/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "solution": [
+        "d2d4"
+      ]
+    }
   },
   {
-    "id": "file-ranks-plans",
+    "id": "lesson-43",
     "level": "advanced",
     "title": {
       "en": "Using Files & Ranks",
@@ -2039,7 +2887,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Double rooks on an open file for maximum pressure.",
           "id": "Gandakan benteng di kolom terbuka untuk tekanan maksimal."
-        }
+        },
+        "board": "6k1/5ppp/5K2/6Q1/8/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -2049,7 +2898,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Infiltrate the 7th rank — pawns and king suffer there.",
           "id": "Menembus baris ke-7 — pion dan raja menderita di sana."
-        }
+        },
+        "board": "6k1/5ppp/7K/8/8/8/6Q1/8 w - - 0 1"
       },
       {
         "title": {
@@ -2059,12 +2909,30 @@ window.LESSON_DATA = [
         "text": {
           "en": "Queen + rook stacked on a file multiplies power.",
           "id": "Ratu + benteng bertumpuk di satu kolom menggandakan kekuatan."
-        }
+        },
+        "board": "6k1/5ppp/7K/8/6Q1/8/8/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "solution": [
+        "g1f3"
+      ]
+    }
   },
   {
-    "id": "practical-endgames",
+    "id": "lesson-44",
     "level": "advanced",
     "title": {
       "en": "Practical Endgames",
@@ -2087,7 +2955,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "One weakness holds; two weaknesses break the defense.",
           "id": "Satu kelemahan masih bertahan; dua kelemahan menghancurkan pertahanan."
-        }
+        },
+        "board": "6k1/5ppp/7K/6Q1/8/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -2097,7 +2966,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Improve the king, restrict counterplay, then push.",
           "id": "Perbaiki raja, batasi perlawanan, lalu dorong."
-        }
+        },
+        "board": "1k6/ppp5/2K5/8/8/8/1Q6/8 w - - 0 1"
       },
       {
         "title": {
@@ -2107,13 +2977,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Capablanca and Rubinstein endgames teach technique.",
           "id": "Endgame Capablanca dan Rubinstein mengajarkan teknik."
-        }
+        },
+        "board": "1k6/ppp5/2K5/8/1Q6/8/8/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "solution": [
+        "c2c4"
+      ]
+    }
   },
   {
-    "id": "psychology",
-    "level": "intermediate",
+    "id": "lesson-45",
+    "level": "advanced",
     "title": {
       "en": "Chess Psychology",
       "id": "Psikologi Catur"
@@ -2135,7 +3023,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Stay calm — one mistake doesn't lose a game, panic does.",
           "id": "Tetap tenang — satu kesalahan tidak menghancurkan, panik ya."
-        }
+        },
+        "board": "1k6/ppp5/2K5/1Q6/8/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -2145,7 +3034,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Confidence helps, overconfidence blunders.",
           "id": "Percaya diri membantu, terlalu percaya diri blunder."
-        }
+        },
+        "board": "1k6/ppp5/K7/8/8/8/1Q6/8 w - - 0 1"
       },
       {
         "title": {
@@ -2155,13 +3045,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Play the board first, the player second.",
           "id": "Utamakan papan, lawan kedua."
-        }
+        },
+        "board": "1k6/ppp5/K7/8/1Q6/8/8/8 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "4k3/3ppp2/8/8/8/8/8/R5K1 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "study-method",
-    "level": "intermediate",
+    "id": "lesson-46",
+    "level": "advanced",
     "title": {
       "en": "How to Study Chess",
       "id": "Cara Belajar Catur"
@@ -2183,7 +3091,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "10-15 puzzles daily beats 100 once a week.",
           "id": "10-15 puzzle tiap hari lebih baik dari 100 seminggu sekali."
-        }
+        },
+        "board": "1k6/ppp5/K7/1Q6/8/8/8/8 w - - 0 1"
       },
       {
         "title": {
@@ -2193,7 +3102,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Your losses teach more than your wins.",
           "id": "Kekalahanmu mengajarkan lebih banyak daripada kemenanganmu."
-        }
+        },
+        "board": "4k3/3pp3/8/8/8/8/3PP3/4K3 w - - 0 1"
       },
       {
         "title": {
@@ -2203,13 +3113,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Rapid/classical builds calculation; blitz builds speed only.",
           "id": "Catur cepat klasik melatih kalkulasi; blitz hanya kecepatan."
-        }
+        },
+        "board": "4k3/3pp3/8/8/8/8/3PP3/4K3 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "5k2/4ppp1/8/8/8/8/8/R5K1 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "clock-practice",
-    "level": "beginner",
+    "id": "lesson-47",
+    "level": "advanced",
     "title": {
       "en": "Using the App's Timer",
       "id": "Memakai Timer Aplikasi"
@@ -2231,7 +3159,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "5+0 blitz, 10+5 rapid, 15+10 classical — pick one.",
           "id": "5+0 blitz, 10+5 rapid, 15+10 klasik — pilih satu."
-        }
+        },
+        "board": "1NB1k3/4p3/8/8/8/8/4P3/4KBN1 w - - 0 1"
       },
       {
         "title": {
@@ -2241,7 +3170,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Increment rewards moving quickly and punishes stalling.",
           "id": "Increment menghargai langkah cepat dan menghukum mengulur waktu."
-        }
+        },
+        "board": "1NB1k3/4p3/8/8/8/8/4P3/4KBN1 b - - 0 1"
       },
       {
         "title": {
@@ -2251,13 +3181,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Use unlimited time to practice calculation without pressure.",
           "id": "Pakai waktu tak terbatas untuk melatih kalkulasi tanpa tekanan."
-        }
+        },
+        "board": "2B1kBN1/3p4/8/8/8/8/3P4/2B1KBN1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "touch-move-etiquette",
-    "level": "beginner",
+    "id": "lesson-48",
+    "level": "advanced",
     "title": {
       "en": "Rules & Etiquette",
       "id": "Aturan & Etiket"
@@ -2279,7 +3227,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "If you touch a piece with intent, you must move it (if legal).",
           "id": "Jika menyentuh bidak dengan niat, wajib memindahkannya (jika legal)."
-        }
+        },
+        "board": "2B1kBN1/3p4/8/8/8/8/3P4/2B1KBN1 b - - 0 1"
       },
       {
         "title": {
@@ -2289,7 +3238,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Say 'j'adoube' before adjusting pieces on the board.",
           "id": "Katakan 'j'adoube' sebelum menyesuaikan posisi bidak."
-        }
+        },
+        "board": "1NB1kBN1/3pp3/8/8/8/8/3PP3/1NB1KBN1 w - - 0 1"
       },
       {
         "title": {
@@ -2299,13 +3249,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Offer a handshake and stop the clock — resign with dignity.",
           "id": "Ulangkan tangan dan hentikan jam — menyerahlah dengan sportif."
-        }
+        },
+        "board": "1NB1kBN1/3pp3/8/8/8/8/3PP3/1NB1KBN1 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "7k/6pp/8/8/8/8/8/R5K1 w - - 0 1",
+      "solution": [
+        "a1a8"
+      ]
+    }
   },
   {
-    "id": "puzzle-training",
-    "level": "intermediate",
+    "id": "lesson-49",
+    "level": "advanced",
     "title": {
       "en": "Training with Puzzles",
       "id": "Latihan dengan Puzzle"
@@ -2327,7 +3295,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Solve puzzles across all difficulties daily — patterns stick.",
           "id": "Selesaikan puzzle dari semua tingkat tiap hari — pola akan melekat."
-        }
+        },
+        "board": "4kBN1/2pp4/8/8/8/8/2PP4/4KBN1 w - - 0 1"
       },
       {
         "title": {
@@ -2337,7 +3306,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Cover the solution and calculate before moving.",
           "id": "Tutup solusi dan hitung dulu sebelum bergerak."
-        }
+        },
+        "board": "4kBN1/2pp4/8/8/8/8/2PP4/4KBN1 b - - 0 1"
       },
       {
         "title": {
@@ -2347,13 +3317,31 @@ window.LESSON_DATA = [
         "text": {
           "en": "Wrong moves teach — check why the right move works.",
           "id": "Langkah salah mengajarkan — pelajari mengapa langkah benar bekerja."
-        }
+        },
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 w - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1",
+      "solution": [
+        "g2g7"
+      ]
+    }
   },
   {
-    "id": "game-review",
-    "level": "intermediate",
+    "id": "lesson-50",
+    "level": "advanced",
     "title": {
       "en": "Reviewing Your Games",
       "id": "Mengulas Permainanmu"
@@ -2375,7 +3363,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "After each game, find the moment evaluation flipped.",
           "id": "Setelah tiap permainan, temukan momen keunggulan berbalik."
-        }
+        },
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 b - - 0 1"
       },
       {
         "title": {
@@ -2385,7 +3374,8 @@ window.LESSON_DATA = [
         "text": {
           "en": "Use an engine to verify your calculation, not to replace it.",
           "id": "Pakai mesin untuk memverifikasi kalkulasi, bukan menggantikannya."
-        }
+        },
+        "board": "2B1kB2/8/8/3pp3/3PP3/8/8/2B1KB2 w - - 0 1"
       },
       {
         "title": {
@@ -2395,8 +3385,26 @@ window.LESSON_DATA = [
         "text": {
           "en": "Take exactly one lesson per game into your next session.",
           "id": "Ambil tepat satu pelajaran per permainan untuk sesi berikutnya."
-        }
+        },
+        "board": "2B1kB2/8/8/3pp3/3PP3/8/8/2B1KB2 b - - 0 1"
+      },
+      {
+        "title": {
+          "en": "Practice",
+          "id": "Latihan"
+        },
+        "text": {
+          "en": "Find the winning move on the board.",
+          "id": "Temukan langkah terbaik di papan."
+        },
+        "exercise": true
       }
-    ]
+    ],
+    "exercise": {
+      "fen": "k7/8/2K5/8/8/8/1Q6/8 w - - 0 1",
+      "solution": [
+        "b2b7"
+      ]
+    }
   }
 ];

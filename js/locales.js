@@ -142,6 +142,8 @@ window.LOCALES = {
       "pawn": "Pion"
     },
     "puzzle": {
+      "prev": "Sebelumnya",
+      "solvedCount": "{count} puzzle diselesaikan",
       "available": "{count} teka-teki {label} tersedia",
       "hintStatus": "Petunjuk {level}/{max}: giliran {color} — cari langkah {done} dari {total}",
       "info": "{title} · {difficulty} · rating {rating}{themes}",
@@ -204,6 +206,8 @@ window.LOCALES = {
       }
     },
     "learning": {
+      "progressCount": "{current} dari {total} pelajaran selesai",
+      "exerciseSuccess": "Benar! Pelajaran selesai.",
       "completedToast": "Pelajaran selesai: {title}",
       "done": "Selesai",
       "goal": "Tujuan: {goal}",
@@ -463,6 +467,8 @@ window.LOCALES = {
       "pawn": "Pawn"
     },
     "puzzle": {
+      "prev": "Previous",
+      "solvedCount": "{count} puzzles solved",
       "available": "{count} {label} puzzles available",
       "hintStatus": "Hint {level}/{max}: {color} to move — find move {done} of {total}",
       "info": "{title} · {difficulty} · rating {rating}{themes}",
@@ -525,6 +531,8 @@ window.LOCALES = {
       }
     },
     "learning": {
+      "progressCount": "{current} of {total} lessons completed",
+      "exerciseSuccess": "Correct! Lesson completed.",
       "completedToast": "Lesson completed: {title}",
       "done": "Completed",
       "goal": "Goal: {goal}",
