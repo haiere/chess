@@ -223,7 +223,7 @@ section('DOM static consistency');
     const idRe = /id=["']([^"']+)["']/g;
     let m;
     while ((m = idRe.exec(html)) !== null) idSet.add(m[1]);
-    const jsFiles = ['storage.js','audio.js','pieces.js','engine.js','board-view.js','game.js','puzzle-data.js','puzzle.js','lessons-data.js','lessons.js','app.js'];
+    const jsFiles = ['storage.js','audio.js','pieces.js','engine.js','board-view.js','game.js','puzzle-data.js','puzzle.js','lessons-data.js','lessons.js','main.js','dashboard.js','favorites.js','bridge/puzzle-bridge.js','bridge/learn-bridge.js','bridge/game-bridge.js'];
     const missing = [];
     for (const f of jsFiles) {
         const code = readFileSync(join(root, 'js', f), 'utf8');
@@ -287,7 +287,7 @@ section('i18n');
     ok(missingHtml.length === 0, 'all HTML i18n keys exist', missingHtml.slice(0, 5).join(','));
 
     // all t('...') literals in js must exist
-    const jsFiles = ['game.js', 'puzzle.js', 'lessons.js', 'app.js', 'board-view.js', 'i18n.js'];
+    const jsFiles = ['game.js', 'puzzle.js', 'lessons.js', 'main.js', 'dashboard.js', 'favorites.js', 'board-view.js', 'i18n.js', 'bridge/puzzle-bridge.js', 'bridge/learn-bridge.js', 'bridge/game-bridge.js'];
     const tRe = /\bT\('([a-z][\w.]+)'/g;
     const tRe2 = /I18n\.t\('([a-z][\w.]+)'/g;
     const usedJs = new Set();
@@ -305,9 +305,16 @@ section('i18n');
     for (const k of ['game.white','game.black','pieces.white','pieces.black','pieces.king','pieces.queen','pieces.rook','pieces.bishop','pieces.knight','pieces.pawn'])
         ok(idKeys.has(k), 'dynamic key exists: ' + k);
 
-    // locales.js must be in sync with JSON
-    const gen = readFileSync(join(root, 'js', 'locales.js'), 'utf8');
-    ok(gen.indexOf('"undo"') !== -1 && gen.length > 5000, 'js/locales.js generated and non-trivial');
+    // locales JSON are the single source of truth and must be in sync
+    const idJsonSync = JSON.parse(readFileSync(join(root, 'locales', 'id.json'), 'utf8'));
+    const enJsonSync = JSON.parse(readFileSync(join(root, 'locales', 'en.json'), 'utf8'));
+    const flatKeys2 = (o, p = '') => Object.entries(o).flatMap(([k, v]) =>
+        (v && typeof v === 'object') ? flatKeys2(v, p + k + '.') : [p + k]);
+    const idKeysSync = new Set(flatKeys2(idJsonSync));
+    const enKeysSync = new Set(flatKeys2(enJsonSync));
+    ok(idKeysSync.size > 200, 'id.json non-trivial (' + idKeysSync.size + ' keys)');
+    ok(idKeysSync.size === enKeysSync.size &&
+       [...idKeysSync].every(k => enKeysSync.has(k)), 'id.json and en.json have identical key sets');
 }
 
 console.log('\n========================================');
