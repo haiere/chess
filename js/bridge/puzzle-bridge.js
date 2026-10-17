@@ -158,7 +158,14 @@ export const PuzzleBridge = {
 
     const PM = window.PuzzleMode;
     if (!PM || typeof PM.init !== "function") {
-      if (window.AppSkeleton) { window.AppSkeleton.empty(boardEl, "common.error", true); return null; }
+      if (window.AppSkeleton) {
+        window.AppSkeleton.setRetry(boardEl, function () {
+          const el = document.getElementById("puzzle-board");
+          if (el) { window.AppSkeleton.board(el); setTimeout(init, 150); }
+        });
+        window.AppSkeleton.empty(boardEl, "common.error", true);
+        return null;
+      }
       showPlaceholder(placeholderText("noPuzzleMode"));
       return null;
     }
