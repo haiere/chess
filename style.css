@@ -681,7 +681,8 @@ body.modal-open { overflow: hidden; }
 
 /* --- Desktop lebar: game page jadi 2 kolom --- */
 @media (min-width: 1100px) {
-  .app-main { max-width: 1080px; }
+  .app-layout { grid-template-columns: minmax(280px, 28%) 1fr; }
+  .app-main { max-width: none; }
 
   #page-game.is-active {
     display: grid;

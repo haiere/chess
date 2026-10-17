@@ -95,20 +95,21 @@
 
     <!-- Critical: splash loading (inline agar tampil sebelum stylesheet termuat) -->
     <style>
+      /* Critical: splash loading (inline agar tampil sebelum stylesheet termuat) */
       #app-loading{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
-        align-items:center;justify-content:center;gap:18px;background:#0f1117;color:#e8eaf0;
-        font-family:'Inter',system-ui,sans-serif;transition:opacity .35s ease;}
+        align-items:center;justify-content:center;gap:22px;background:#0f1117;color:#e8eaf0;
+        font-family:'Inter',system-ui,sans-serif;transition:opacity .35s ease}
       #app-loading.done{opacity:0;pointer-events:none}
-      #app-loading .spinner{width:52px;height:52px;border-radius:50%;
-        border:4px solid rgba(77,166,255,.18);border-top-color:#4da6ff;
-        animation:appspin .8s linear infinite}
-      #app-loading .brand{font-size:1.15rem;font-weight:800;letter-spacing:.3px}
-      #app-loading .brand span{color:#4da6ff}
-      #app-loading .msg{font-size:.8rem;color:#8a91a3;animation:apppulse 1.4s ease infinite}
-      @keyframes appspin{to{transform:rotate(360deg)}}
-      @keyframes apppulse{0%,100%{opacity:.45}50%{opacity:1}}
-      @media (prefers-reduced-motion:reduce){#app-loading .spinner{animation:none}
-        #app-loading .msg{animation:none}}
+      #app-loading .sk{position:relative;overflow:hidden;background:#222735;border-radius:12px}
+      #app-loading .sk::after{content:'';position:absolute;inset:0;transform:translateX(-100%);
+        background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+        animation:sk-splash 1.3s ease infinite}
+      #app-loading .sk-board{width:min(64vw,300px);aspect-ratio:1/1;box-shadow:0 8px 32px rgba(0,0,0,.45)}
+      #app-loading .sk-lines{width:min(64vw,300px);display:flex;flex-direction:column;gap:10px}
+      #app-loading .sk-lines .sk{height:14px;border-radius:8px}
+      #app-loading .sk-lines .sk.t{height:20px;width:55%}
+      @keyframes sk-splash{to{transform:translateX(100%)}}
+      @media (prefers-reduced-motion:reduce){#app-loading .sk::after{animation:none}}
     </style>
     <!-- Styling: lihat style.css (Unified Design System v7) -->
 
@@ -116,9 +117,12 @@
 
 <body class="app-body">
   <div id="app-loading" role="status" aria-label="Memuat aplikasi">
-    <div class="spinner" aria-hidden="true"></div>
-    <div class="brand">Hajir<span>Chess</span></div>
-    <div class="msg">Memuat aplikasi…</div>
+    <div class="sk sk-board" aria-hidden="true"></div>
+    <div class="sk-lines" aria-hidden="true">
+      <div class="sk t"></div>
+      <div class="sk"></div>
+      <div class="sk" style="width:80%"></div>
+    </div>
   </div>
 
 
@@ -131,7 +135,7 @@
          HEADER
          ============================================================ -->
     <header class="app-header">
-        <a class="app-brand" href="#game" aria-label="Chess — Hajir Studio">
+        <a class="app-brand" href="#/game" data-route="game" aria-label="Chess — Hajir Studio">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M9 3h6v3l-1 2 2 2v2H8V10l2-2-1-2z"/>
@@ -164,7 +168,7 @@
         <!-- ---------- SIDEBAR NAV (DESKTOP) ---------- -->
         <nav class="app-nav" aria-label="Navigasi utama" data-i18n-attr="aria-label:navigation.mainNavigation">
 
-            <a href="#game" data-route="game">
+            <a href="#/game" data-route="game" >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polygon points="6 3 18 3 16 9 8 9 6 3"/>
@@ -176,7 +180,7 @@
                 <span data-i18n="navigation.play">Main</span>
             </a>
 
-            <a href="#puzzle" data-route="puzzle">
+            <a href="#/puzzle" data-route="puzzle" >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/>
@@ -184,7 +188,7 @@
                 <span data-i18n="navigation.puzzles">Teka-teki</span>
             </a>
 
-            <a href="#learn" data-route="learn">
+            <a href="#/learning" data-route="learning" >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -193,7 +197,7 @@
                 <span data-i18n="navigation.learning">Pembelajaran</span>
             </a>
 
-            <a href="#settings" data-route="settings">
+            <a href="#/settings" data-route="settings" >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="3"/>
@@ -212,7 +216,8 @@
                 <span data-i18n="navigation.about">Tentang</span>
             </a>
 
-        </nav>
+        <div id="side-progress" class="app-card" style="margin-top:auto"></div>
+      </nav>
 
         <!-- ---------- MAIN CONTENT ---------- -->
         <main class="app-main" id="main-content" tabindex="-1">
@@ -281,7 +286,7 @@
             </section>
 
             <!-- ============ PAGE: LEARN ============ -->
-            <section class="app-page" id="page-learn" data-page="learn" aria-labelledby="page-learn-title">
+            <section class="app-page" id="page-learn" data-page="learning" aria-labelledby="page-learn-title">
                 <h1 class="app-page-title" id="page-learn-title" data-i18n="learning.title">Pembelajaran</h1>
                 <p class="app-page-subtitle" data-i18n="learning.subtitle">Pelajari dasar hingga mahir</p>
 
@@ -358,7 +363,7 @@
     <nav class="app-bottomnav" aria-label="Navigasi utama" data-i18n-attr="aria-label:navigation.mainNavigation">
         <div class="app-bottomnav-inner">
 
-            <a href="#game" data-route="game">
+            <a href="#/game" data-route="game" >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <polygon points="6 3 18 3 16 9 8 9 6 3"/>
@@ -370,7 +375,7 @@
                 <span data-i18n="navigation.play">Main</span>
             </a>
 
-            <a href="#puzzle" data-route="puzzle">
+            <a href="#/puzzle" data-route="puzzle" >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M9 3a2 2 0 0 1 2 2v1h2V5a2 2 0 1 1 4 0v3h2a2 2 0 0 1 2 2v2h-1a2 2 0 1 1 0 4h1v2a2 2 0 0 1-2 2h-3v-1a2 2 0 1 0-4 0v1H7a2 2 0 0 1-2-2v-3h1a2 2 0 1 0 0-4H5V8a2 2 0 0 1 2-2h2z"/>
@@ -378,7 +383,7 @@
                 <span data-i18n="navigation.puzzles">Teka-teki</span>
             </a>
 
-            <a href="#learn" data-route="learn">
+            <a href="#/learning" data-route="learning" >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -387,7 +392,7 @@
                 <span data-i18n="navigation.learning">Pembelajaran</span>
             </a>
 
-            <a href="#settings" data-route="settings">
+            <a href="#/settings" data-route="settings" >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="3"/>
@@ -397,7 +402,8 @@
             </a>
 
         </div>
-    </nav>
+    <div id="side-progress" class="app-card" style="margin-top:auto"></div>
+      </nav>
     
     <script type="module" src="js/main.js"></script>
 

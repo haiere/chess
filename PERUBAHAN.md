@@ -150,3 +150,37 @@ scripts/build.mjs, PERUBAHAN.md. Terhapus: style.ext.css, folder css/.
   dihapus; entri loader mati dibersihkan dari js/main.js.
 - npm run build OK; cap sync android OK.
 - Test: 413 PASSED / 0 FAILED. Lint: 32/32 file JS OK.
+
+---
+
+# Update Besar: Web Murni + Konten Lengkap + Skeleton
+
+- Capacitor/Android dihapus total: folder android/, capacitor.config.json,
+  resources/, semua @capacitor/* deps & script. dependencies = {} (vanilla JS,
+  tanpa npm runtime). npm run build OK sebagai website biasa.
+- Router hash rapi: #/game #/puzzle #/puzzle/qlv01..50 #/learning
+  #/learning/lesson-01..50 #/settings (+ alias lama & query ?id=).
+- 50 puzzle (qlv01-50, 4 tingkat) tervalidasi engine + generator scripts/gen-puzzles.js.
+- 50 lesson bilingual EN primer + ID, 4 level (beginner/elementary/intermediate/
+  advanced), contoh FEN tiap langkah, exercise interaktif board 8x8
+  (42 mate-in-1 tervalidasi + 8 latihan pembukaan), TANPA kuis.
+- Skeleton shimmer (CSS animation, timeout 8 dtk -> error state + retry),
+  empty/error state di puzzle & learning & sidebar.
+- Layout: desktop dual-screen 28%/72%, mobile bottom-nav + safe-area, tablet adaptif.
+- Sidebar progress: lesson progressCount + puzzle solvedCount.
+- i18n: key terstruktur, default id, html lang sinkron, missing-key collector,
+  fallback tak mentah, bahasa+tema persist di localStorage (guard anti-rusak).
+- selectPuzzle idempotent; puzzle prev/next sinkron route; markDone lesson.
+- Lint 32/32 OK | Test 563/0 | Build OK.
+
+---
+
+# Hotfix: Splash Skeleton + Regresi Papan
+
+- Splash loading diganti spinner -> skeleton shimmer (blok papan aspect-ratio 1/1
+  + garis teks, animasi CSS, prefers-reduced-motion).
+- Fix regresi: sisa panggilan initAndroidIntegration() (Capacitor) yang crash
+  boot -> halaman tidak aktif, papan 0x0 invisible.
+- Fix loader: entri ./data/Lesson.js (file sudah dihapus) -> 404.
+- Terverifikasi browser: skeleton tampil->hilang, papan persegi 64 petak di
+  320x568/768x1024/1366x768/1920x1080, console bersih, test 563/0, build OK.
