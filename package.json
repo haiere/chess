@@ -11,7 +11,9 @@
     "format": "prettier --write \"js/**/*.js\" \"tests/**/*.mjs\" \"scripts/**/*.mjs\" \"*.html\" \"*.css\"",
     "test": "node tests/run.mjs",
     "test:data": "node tests/data-validation.test.mjs",
-    "audit:puzzles": "node scripts/audit-puzzles.mjs"
+    "audit:puzzles": "node scripts/audit-puzzles.mjs",
+    "audit:i18n": "node scripts/audit-i18n.mjs",
+    "audit": "npm run audit:puzzles && npm run audit:i18n"
   },
   "devDependencies": {
     "eslint": "^9.13.0",
