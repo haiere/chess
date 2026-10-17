@@ -1,13 +1,12 @@
 /**
- * js/main.js — v6.
+ * js/main.js — v6.1.
  * - Guard: kalau sudah load, skip.
- * - Tambah i18n-extend.
  * - Semua dynamic import.
+ * - v6.1: hapus bridge/i18n-extend (duplikat base); fix initSidebarProgress.
  */
 const BRIDGE_IMPORTS = [
   "./i18n.js",
   "./components/LanguageSwitcher.js",
-  "./bridge/i18n-extend.js",       // ← TAMBAH (sebelumnya hilang)
   "./bridge/visual-polish.js",
   "./bridge/id-shim.js",
   "./bridge/game-bridge.js",
@@ -114,7 +113,7 @@ function showRoute(route, param) {
   if (main && main.focus) { try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); } }
 }
 
-const bridgeInit = { game: false, puzzle: false, learn: false };
+const bridgeInit = { game: false, puzzle: false, learn: false, settings: false };
 function initBridgeForRoute(route, param) {
   if (route === "game" && !bridgeInit.game) {
     bridgeInit.game = true;
@@ -312,11 +311,15 @@ function initSidebarProgress() {
   setTimeout(() => {
     try {
       const T = window.I18n ? window.I18n.t : k => k;
-      const lp = JSON.parse((window.AppStorage && AppStorage.get("lessonProgress")) || "{}");
+      // AppStorage.get sudah mengembalikan parsed value; JANGAN JSON.parse lagi.
+      const lpRaw = (window.AppStorage && AppStorage.get("lessonProgress")) || {};
+      const lp = (lpRaw && typeof lpRaw === "object" && !Array.isArray(lpRaw)) ? lpRaw : {};
+      const doneCount = Object.keys(lp).length;
+      const totalLessons = (window.LESSON_DATA && Array.isArray(window.LESSON_DATA) && window.LESSON_DATA.length) || 50;
       const cnt = window.PuzzleMode && PuzzleMode.solvedCount ? PuzzleMode.solvedCount() : 0;
       sp.innerHTML =
-        '<h3 class="app-card-title">' + T("learning.progress") + '</h3>' +
-        '<div class="text-sub">' + T("learning.progressCount", { current: Object.keys(lp).length, total: 50 }) + '</div>' +
+        '<h3 class="app-card-title">' + T("learning.title") + '</h3>' +
+        '<div class="text-sub">' + T("learning.progress", { done: doneCount, total: totalLessons }) + '</div>' +
         '<h3 class="app-card-title" style="margin-top:8px">' + T("puzzle.title") + '</h3>' +
         '<div class="text-sub">' + T("puzzle.solvedCount", { count: cnt }) + '</div>';
     } catch (e) { window.AppSkeleton && AppSkeleton.empty(sp, "common.error", false); }
@@ -346,9 +349,9 @@ async function boot() {
     PuzzleBridge: typeof window.PuzzleBridge, LearnBridge: typeof window.LearnBridge
   });
 
-  restoreTheme();initThemeToggle();
+  restoreTheme(); initThemeToggle();
   initSidebarProgress();
-  
+
   bindSettings();
 
   const current = parseHash();
