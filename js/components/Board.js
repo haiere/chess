@@ -108,4 +108,4 @@ export function renderBoard(container, engine, opts = {}) {
       container.appendChild(sq);
     }
   }
-                                         }
+}
