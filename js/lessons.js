@@ -1,5 +1,11 @@
 /* Lessons mode — step cards with optional static example boards and
-   optional quizzes. Progress persisted in AppStorage. */
+   optional exercises. Progress persisted in AppStorage.
+
+   v6.3 (Fase 1.3):
+   - Export `LessonsMode.openLesson(id)` agar deep-link #/learning/:id berfungsi.
+   - Guard init(): semua addEventListener null-safe.
+   - Multi-ID fallback untuk container utama (lessonList/learn-content, lessonDetail).
+*/
 (function () {
     'use strict';
 
@@ -8,6 +14,13 @@
     const LANG = () => (window.I18n && window.I18n.getLang ? window.I18n.getLang() : "id");
     const pick = (v) => (v && typeof v === "object" ? (v[LANG()] || v.en || Object.values(v)[0]) : v);
     const $ = (id) => document.getElementById(id);
+    const $el = (...ids) => {
+        for (const id of ids) {
+            const el = document.getElementById(id);
+            if (el) return el;
+        }
+        return null;
+    };
     const PROGRESS_KEY = 'lessonProgress';
 
     let progress = S.get(PROGRESS_KEY, {});
@@ -19,23 +32,26 @@
     function save() { S.set(PROGRESS_KEY, progress); }
     function isDone(id) { return !!progress[id]; }
 
+    function toast(msg, type) {
+        if (window.GameMode && window.GameMode.toast) window.GameMode.toast(msg, type);
+    }
+
     function renderList() {
-        const list = $('lessonList');
-        const detail = $('lessonDetail');
-        if (!list || !detail) return;
+        const list = $el('lessonList', 'learn-content');
+        const detail = $el('lessonDetail');
+        if (!list) return;
         const data = window.LESSON_DATA;
         if (!Array.isArray(data) || data.length === 0) {
             if (window.AppSkeleton) {
                 window.AppSkeleton.setRetry(list, renderList);
                 window.AppSkeleton.empty(list, 'common.error', true);
             }
-            detail.classList.add('hidden');
+            if (detail) detail.classList.add('hidden');
             return;
         }
         list.innerHTML = '';
-        detail.classList.add('hidden');
+        if (detail) detail.classList.add('hidden');
         list.classList.remove('hidden');
-        // Filter: level, pencarian judul/deskripsi, favorit saja
         const q = (window.__lessonQ || '').toLowerCase();
         const lv = window.__lessonLevel || 'all';
         const favOnly = !!window.__lessonFav;
@@ -82,68 +98,83 @@
                 if (!window.Favorites) return;
                 const on = Favorites.toggle('lesson', lesson.id);
                 star.classList.toggle('on', on);
-                if (window.GameMode && GameMode.toast) GameMode.toast(T(on ? 'favorites.added' : 'favorites.removed'), 'success');
+                toast(T(on ? 'favorites.added' : 'favorites.removed'), 'success');
                 if (window.__lessonFav && !on) renderList();
             };
             star.addEventListener('click', onFav);
             star.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') onFav(ev); });
             card.append(badge, body, state, star);
-            card.addEventListener('click', () => openLesson(lesson));
+            card.addEventListener('click', () => openLessonInternal(lesson));
             list.appendChild(card);
         }
         const done = window.LESSON_DATA.filter(l => isDone(l.id)).length;
-        const p = $('lessonProgressText');
+        const p = $el('lessonProgressText', 'learn-progress');
         if (p) p.textContent = T('learning.progress', { done, total: window.LESSON_DATA.length });
     }
 
-    function openLesson(lesson, step) {
+    function openLessonInternal(lesson, step) {
+        if (!lesson) return;
         currentLesson = lesson;
         stepIndex = step || 0;
         try { S.set('lastLesson', lesson.id); } catch (e) {}
-        $('lessonList').classList.add('hidden');
-        $('lessonDetail').classList.remove('hidden');
+        const list = $el('lessonList', 'learn-content');
+        const detail = $el('lessonDetail');
+        if (list) list.classList.add('hidden');
+        if (detail) detail.classList.remove('hidden');
         renderStep();
     }
 
     function renderStep() {
         const lesson = currentLesson;
+        if (!lesson || !Array.isArray(lesson.steps) || !lesson.steps.length) return;
         const step = lesson.steps[stepIndex];
-        $('lessonTitle').textContent = pick(lesson.title);
-        $('lessonGoal').textContent = T('learning.goal', { goal: pick(lesson.goal) });
-        $('lessonStepCount').textContent = T('learning.stepCounter', { current: stepIndex + 1, total: lesson.steps.length });
-        $('lessonStepTitle').textContent = pick(step.title);
-        $('lessonStepText').textContent = pick(step.text);
+        if (!step) return;
 
-        const wrap = $('lessonBoardWrap');
-        const boardEl = $('lessonBoard');
+        const tEl = $el('lessonTitle');
+        if (tEl) tEl.textContent = pick(lesson.title);
+        const gEl = $el('lessonGoal');
+        if (gEl) gEl.textContent = T('learning.goal', { goal: pick(lesson.goal) });
+        const cEl = $el('lessonStepCount');
+        if (cEl) cEl.textContent = T('learning.stepCounter', { current: stepIndex + 1, total: lesson.steps.length });
+        const stEl = $el('lessonStepTitle');
+        if (stEl) stEl.textContent = pick(step.title);
+        const txtEl = $el('lessonStepText');
+        if (txtEl) txtEl.textContent = pick(step.text);
+
+        const wrap = $el('lessonBoardWrap');
+        const boardEl = $el('lessonBoard');
         if (step.board && Chess.validateFEN(step.board)) {
-            wrap.classList.remove('hidden');
-            if (!exampleBoard) exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
-            exampleBoard.setState(Chess.parseFEN(step.board), {});
-        } else wrap.classList.add('hidden');
+            if (wrap) wrap.classList.remove('hidden');
+            if (boardEl && window.BoardView) {
+                if (!exampleBoard) exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
+                exampleBoard.setState(Chess.parseFEN(step.board), {});
+            }
+        } else if (wrap) {
+            wrap.classList.add('hidden');
+        }
 
-        // Latihan interaktif (board 8x8) — tanpa kuis
-        const exWrap = $('lessonQuizWrap');
+        const exWrap = $el('lessonQuizWrap');
         if (exWrap) exWrap.classList.add('hidden');
-        if (step.exercise && currentLesson && currentLesson.exercise) {
-            wrap.classList.remove('hidden');
-            if (!exampleBoard) exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
-            const ex = currentLesson.exercise;
-            exampleBoard.setState(Chess.parseFEN(ex.fen), {});
+
+        if (step.exercise && lesson.exercise && boardEl) {
+            if (wrap) wrap.classList.remove('hidden');
+            if (!exampleBoard && window.BoardView) exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
+            const ex = lesson.exercise;
+            try { exampleBoard.setState(Chess.parseFEN(ex.fen), {}); } catch (e) { /* noop */ }
             boardEl.style.pointerEvents = 'auto';
             boardEl.style.cursor = 'pointer';
             let sel = null, idx = 0;
             const finish = () => {
                 boardEl.style.pointerEvents = 'none';
-                SFX.play('success');
-                window.GameMode && window.GameMode.toast(T('learning.exerciseSuccess'), 'success');
+                SFX && SFX.play('success');
+                toast(T('learning.exerciseSuccess'), 'success');
                 markDone(currentLesson.id);
             };
             boardEl.onclick = (ev) => {
                 const sqEl = ev.target.closest('.square');
                 if (!sqEl) return;
                 const r = +sqEl.dataset.row, c = +sqEl.dataset.col;
-                const st = exampleBoard.state;
+                const st = exampleBoard && exampleBoard.state;
                 if (!st) return;
                 const piece = st.board[r][c];
                 if (!sel) {
@@ -170,18 +201,20 @@
                     }
                     sel = null;
                     exampleBoard.setState(st, {});
-                    SFX.play('error');
+                    SFX && SFX.play('error');
                 }
             };
-        } else {
+        } else if (boardEl) {
             boardEl.style.pointerEvents = 'none';
             boardEl.style.cursor = 'default';
             boardEl.onclick = null;
         }
 
-        $('btnLessonPrev').disabled = stepIndex === 0;
+        const prevBtn = $el('btnLessonPrev', 'btn-learn-prev');
+        if (prevBtn) prevBtn.disabled = stepIndex === 0;
+        const nextBtn = $el('btnLessonNext', 'btn-learn-next');
         const last = stepIndex === lesson.steps.length - 1;
-        $('btnLessonNext').textContent = last ? T('learning.done') : T('learning.next');
+        if (nextBtn) nextBtn.textContent = last ? T('learning.done') : T('learning.next');
     }
 
     function markDone(id) {
@@ -192,14 +225,15 @@
     }
 
     function next() {
+        if (!currentLesson) return;
         if (stepIndex < currentLesson.steps.length - 1) {
             stepIndex++;
             renderStep();
         } else {
             progress[currentLesson.id] = true;
             save();
-            SFX.play('success');
-            window.GameMode.toast(T('learning.completedToast', { title: pick(currentLesson.title) }), 'success');
+            SFX && SFX.play('success');
+            toast(T('learning.completedToast', { title: pick(currentLesson.title) }), 'success');
             renderList();
         }
     }
@@ -211,29 +245,56 @@
         progress = {};
         save();
         renderList();
-        window.GameMode.toast(T('learning.resetToast'), 'success');
+        toast(T('learning.resetToast'), 'success');
+    }
+
+    function openLesson(idOrLesson) {
+        if (!idOrLesson) return;
+        if (typeof idOrLesson === 'string') {
+            const data = window.LESSON_DATA;
+            if (!Array.isArray(data)) return;
+            const found = data.find(l => l.id === idOrLesson);
+            if (found) openLessonInternal(found, 0);
+            return;
+        }
+        if (typeof idOrLesson === 'object') {
+            openLessonInternal(idOrLesson, 0);
+        }
     }
 
     window.LessonsMode = {
+        openLesson(id) { openLesson(id); },
+        openLessonById(id) { openLesson(id); },
         rerender() {
             if (currentLesson) renderStep(); else renderList();
         },
         init() {
-            const qIn = document.getElementById('lesson-search');
+            const bind = (ids, evt, fn) => {
+                const el = Array.isArray(ids) ? $el(...ids) : $el(ids);
+                if (el) el.addEventListener(evt, fn);
+            };
+            const qIn = $el('lesson-search');
             if (qIn && !qIn.__bound) { qIn.__bound = true;
                 qIn.addEventListener('input', () => { window.__lessonQ = qIn.value; renderList(); }); }
-            const lvSel = document.getElementById('lesson-level');
+            const lvSel = $el('lesson-level');
             if (lvSel && !lvSel.__bound) { lvSel.__bound = true;
                 lvSel.addEventListener('change', () => { window.__lessonLevel = lvSel.value; renderList(); }); }
-            const favChk = document.getElementById('lesson-fav-only');
+            const favChk = $el('lesson-fav-only');
             if (favChk && !favChk.__bound) { favChk.__bound = true;
                 favChk.addEventListener('change', () => { window.__lessonFav = favChk.checked; renderList(); }); }
-            $('btnLessonBack').addEventListener('click', renderList);
-            $('btnLessonPrev').addEventListener('click', prev);
-            $('btnLessonNext').addEventListener('click', next);
-            $('btnLessonRepeat').addEventListener('click', () => openLesson(currentLesson, 0));
-            $('btnLessonReset').addEventListener('click', resetProgress);
-            renderList();
+
+            bind(['btnLessonBack'], 'click', renderList);
+            bind(['btnLessonPrev', 'btn-learn-prev'], 'click', prev);
+            bind(['btnLessonNext', 'btn-learn-next'], 'click', next);
+            bind(['btnLessonRepeat'], 'click', () => currentLesson && openLessonInternal(currentLesson, 0));
+            bind(['btnLessonReset'], 'click', resetProgress);
+
+            try {
+                const m = (location.hash || '').match(/^#\/learning\/([^/?]+)/);
+                if (m) openLesson(m[1]);
+            } catch (e) {}
+
+            if (!currentLesson) renderList();
         }
     };
 })();
