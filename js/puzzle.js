@@ -3,10 +3,9 @@
    all persisted via AppStorage. PuzzleProvider abstracts the data source
    so an external dataset can replace PUZZLE_DATA without UI changes.
 
-   v6.1 (Fase 1.1):
-   - puzzle.solved → puzzle.completed (status solved)
-   - puzzle.inProgress + params → puzzle.turnStatus + params (in-progress status)
-   - learning.resetToast → puzzle.resetToast (reset puzzle progress)
+   v6.2 (Fase 1.1): puzzle.completed, puzzle.turnStatus, puzzle.resetToast.
+   v6.3 (Fase 1.3): multi-ID helper ($el) + guard init(),
+   sehingga puzzle mode tidak crash jika bridge tidak tersedia.
 */
 (function () {
     'use strict';
@@ -83,10 +82,27 @@
     let sessionStart = Date.now();
 
     const $ = (id) => document.getElementById(id);
+    const $el = (...ids) => {
+        for (const id of ids) {
+            const el = document.getElementById(id);
+            if (el) return el;
+        }
+        return null;
+    };
+    function setDisabled(el, v) { if (el) el.disabled = v; }
+    function on(ids, evt, fn) {
+        const el = Array.isArray(ids) ? $el(...ids) : $el(ids);
+        if (el) el.addEventListener(evt, fn);
+        return el;
+    }
+
     function saveStats() { S.set('puzzleStats', stats); S.set('puzzleSeen', Array.from(seen)); }
 
     function activeColor() { return puzzle ? Chess.parseFEN(puzzle.fen).currentPlayer : 'white'; }
-    function currentDiff() { return $('pzDifficulty').value; }
+    function currentDiff() {
+        const sel = $el('pzDifficulty', 'puzzle-difficulty');
+        return (sel && sel.value) || 'easy';
+    }
 
     function lastMovePlayed() {
         if (!puzzle || stepIndex === 0) return null;
@@ -110,14 +126,14 @@
             const to = Chess.parseSquare(puzzle.solution[stepIndex].slice(2, 4));
             if (to) marks.hintTo = to;
         }
-        board.setState(state, marks);
+        if (board) board.setState(state, marks);
         updateStatusUI();
         updateStatsUI();
         updateNavUI();
     }
 
     function updateStatusUI() {
-        const el = $('pzStatus');
+        const el = $el('pzStatus', 'puzzle-status');
         if (!el) return;
         if (!puzzle) { el.textContent = T('puzzle.pick'); el.className = 'pz-status'; return; }
         const total = Math.ceil(puzzle.solution.length / 2);
@@ -139,7 +155,7 @@
     }
 
     function updateStatsUI() {
-        const el = $('pzStats');
+        const el = $el('pzStats', 'puzzle-stats');
         if (!el) return;
         const total = Math.floor((Date.now() - sessionStart) / 1000) + (stats.seconds || 0);
         el.textContent = T('puzzle.statsLine', {
@@ -153,7 +169,7 @@
         if (!provider) return;
         const diff = currentDiff();
         const n = provider.count(diff);
-        const info = $('pzInfo');
+        const info = $el('pzInfo', 'puzzle-info');
         if (info) {
             info.textContent = puzzle
                 ? T('puzzle.info', {
@@ -165,15 +181,15 @@
                 : T('puzzle.available', { count: n, label: T(DIFF_KEY[diff]) });
         }
         const inProgress = puzzle && stepIndex < puzzle.solution.length && !beforeWrong;
-        $('btnPzHint').disabled = !inProgress || hintStage >= HINT_STAGES;
-        $('btnPzSolution').disabled = !inProgress;
-        $('btnPzRetry').disabled = !beforeWrong;
-        $('btnPzPrev').disabled = !n;
-        $('btnPzNext').disabled = !n;
+        setDisabled($el('btnPzHint', 'btn-puzzle-hint'), !inProgress || hintStage >= HINT_STAGES);
+        setDisabled($el('btnPzSolution', 'btn-puzzle-solution'), !inProgress);
+        setDisabled($el('btnPzRetry', 'btn-puzzle-retry'), !beforeWrong);
+        setDisabled($el('btnPzPrev', 'btn-puzzle-prev'), !n);
+        setDisabled($el('btnPzNext', 'btn-puzzle-next'), !n);
     }
 
     function startPuzzle(p) {
-        if (!p) { window.GameMode.toast(T('puzzle.noPuzzles'), 'error'); return; }
+        if (!p) { window.GameMode && window.GameMode.toast && window.GameMode.toast(T('puzzle.noPuzzles'), 'error'); return; }
         puzzle = p;
         state = Chess.parseFEN(p.fen);
         stepIndex = 0;
@@ -188,7 +204,7 @@
             seen = keep.size ? keep : new Set(Array.from(seen).slice(-50));
         }
         saveStats();
-        board.setOrientation(activeColor());
+        if (board) board.setOrientation(activeColor());
         render();
         renderBrowseList();
     }
@@ -234,7 +250,7 @@
     function handleCorrectMove(mv) {
         state = Chess.applyMove(state, mv).state;
         stepIndex++;
-        SFX.play(stepIndex >= puzzle.solution.length ? 'success' : 'move');
+        SFX && SFX.play(stepIndex >= puzzle.solution.length ? 'success' : 'move');
         if (stepIndex >= puzzle.solution.length) {
             onSolved();
             render();
@@ -253,9 +269,9 @@
         stats.mistakes++;
         stats.streak = 0;
         saveStats();
-        SFX.play('error');
-        board.setMarks({ ...board.marks, wrongSquare: { row: mv.toRow, col: mv.toCol } });
-        window.GameMode.toast(T('puzzle.toastWrong'), 'error');
+        SFX && SFX.play('error');
+        if (board && board.marks) board.setMarks({ ...board.marks, wrongSquare: { row: mv.toRow, col: mv.toCol } });
+        window.GameMode && window.GameMode.toast && window.GameMode.toast(T('puzzle.toastWrong'), 'error');
         updateStatusUI();
         updateStatsUI();
         updateNavUI();
@@ -278,7 +294,7 @@
         stats.seconds = (stats.seconds || 0) + total;
         sessionStart = Date.now();
         saveStats();
-        window.GameMode.toast(T('puzzle.toastSolved', { streak: stats.streak }), 'success');
+        window.GameMode && window.GameMode.toast && window.GameMode.toast(T('puzzle.toastSolved', { streak: stats.streak }), 'success');
         updateStatsUI();
     }
 
@@ -316,11 +332,11 @@
         sessionStart = Date.now();
         saveStats();
         render();
-        window.GameMode.toast(T('puzzle.resetToast'), 'success');
+        window.GameMode && window.GameMode.toast && window.GameMode.toast(T('puzzle.resetToast'), 'success');
     }
 
     function renderBrowseList() {
-        const listEl = $('puzzleList');
+        const listEl = $el('puzzleList', 'puzzle-list');
         if (!listEl || !provider) return;
         const q = (window.__puzzleQ || '').toLowerCase();
         const favOnly = !!window.__puzzleFav;
@@ -378,40 +394,52 @@
     window.PuzzleMode = {
         init() {
             provider = new PuzzleProvider(window.PUZZLE_DATA);
-            board = new BoardView($('puzzleBoard'), { showCoords: S.get('coords', true), onSquareClick });
-            board.onDrop = (fr, fc, tr, tc) => {
-                if (!puzzle || stepIndex >= puzzle.solution.length || beforeWrong) return;
-                const mv = Chess.legalMovesFrom(state, fr, fc).find(m => m.toRow === tr && m.toCol === tc);
-                if (!mv) { selected = null; legalSel = []; render(); return; }
-                tryUserMove(mv);
-            };
-            const qIn = document.getElementById('puzzle-search');
+            const boardEl = $el('puzzleBoard', 'puzzle-board');
+            if (boardEl && window.BoardView) {
+                board = new BoardView(boardEl, { showCoords: S.get('coords', true), onSquareClick });
+                board.onDrop = (fr, fc, tr, tc) => {
+                    if (!puzzle || stepIndex >= puzzle.solution.length || beforeWrong) return;
+                    const mv = Chess.legalMovesFrom(state, fr, fc).find(m => m.toRow === tr && m.toCol === tc);
+                    if (!mv) { selected = null; legalSel = []; render(); return; }
+                    tryUserMove(mv);
+                };
+            } else {
+                board = null;
+            }
+
+            const qIn = $el('puzzle-search');
             if (qIn && !qIn.__bound) { qIn.__bound = true;
                 qIn.addEventListener('input', () => { window.__puzzleQ = qIn.value; renderBrowseList(); }); }
-            const favChk = document.getElementById('puzzle-fav-only');
+            const favChk = $el('puzzle-fav-only');
             if (favChk && !favChk.__bound) { favChk.__bound = true;
                 favChk.addEventListener('change', () => { window.__puzzleFav = favChk.checked; renderBrowseList(); }); }
-            $('pzDifficulty').addEventListener('change', () => { startPuzzle(provider.random(currentDiff(), seen)); renderBrowseList(); });
-            $('btnPzRandom').addEventListener('click', () => startPuzzle(provider.random(currentDiff(), seen)));
-            $('btnPzNext').addEventListener('click', () => {
+
+            on(['pzDifficulty', 'puzzle-difficulty'], 'change', () => {
+                startPuzzle(provider.random(currentDiff(), seen));
+                renderBrowseList();
+            });
+            on(['btnPzRandom', 'btn-puzzle-random'], 'click', () => startPuzzle(provider.random(currentDiff(), seen)));
+            on(['btnPzNext', 'btn-puzzle-next'], 'click', () => {
                 const nxt = provider.nextAfter(puzzle ? puzzle.id : null, currentDiff(), +1) ||
                             provider.random(currentDiff(), new Set());
                 startPuzzle(nxt);
-                try { location.hash = '/puzzle/' + nxt.id; } catch (e) {}
+                if (nxt) { try { location.hash = '#/puzzle/' + nxt.id; } catch (e) {} }
             });
-            $('btnPzPrev').addEventListener('click', () => {
+            on(['btnPzPrev', 'btn-puzzle-prev'], 'click', () => {
                 const prv = provider.nextAfter(puzzle ? puzzle.id : null, currentDiff(), -1) ||
                             provider.random(currentDiff(), new Set());
                 startPuzzle(prv);
-                try { location.hash = '/puzzle/' + prv.id; } catch (e) {}
+                if (prv) { try { location.hash = '#/puzzle/' + prv.id; } catch (e) {} }
             });
-            $('btnPzDaily').addEventListener('click', () => startPuzzle(provider.daily(currentDiff())));
-            $('btnPzHint').addEventListener('click', hint);
-            $('btnPzSolution').addEventListener('click', showSolution);
-            $('btnPzRetry').addEventListener('click', retry);
-            $('btnPzReset').addEventListener('click', resetProgress);
+            on(['btnPzDaily', 'btn-puzzle-daily'], 'click', () => startPuzzle(provider.daily(currentDiff())));
+            on(['btnPzHint', 'btn-puzzle-hint'], 'click', hint);
+            on(['btnPzSolution', 'btn-puzzle-solution'], 'click', showSolution);
+            on(['btnPzRetry', 'btn-puzzle-retry'], 'click', retry);
+            on(['btnPzReset', 'btn-puzzle-reset'], 'click', resetProgress);
+
             render();
             updateStatsUI();
+
             try {
                 const m = (location.hash || '').match(/^#\/puzzle\/([^/?]+)/);
                 if (m && provider.byId(m[1])) startPuzzle(provider.byId(m[1]));
@@ -419,7 +447,8 @@
         },
         selectPuzzle(id) {
             try {
-                const p = provider && provider.byId(id);
+                if (!provider) return;
+                const p = provider.byId(id);
                 if (!p) return;
                 if (puzzle && puzzle.id === id) return;
                 startPuzzle(p);
