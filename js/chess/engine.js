@@ -69,7 +69,6 @@
         const ranks = parts[0].split('/');
         if (ranks.length !== 8) return false;
 
-        // Struktur + hitung raja + larang pion di rank 1/8
         let whiteKings = 0, blackKings = 0;
         for (let r = 0; r < 8; r++) {
             let count = 0;
@@ -90,7 +89,6 @@
         if (parts[3] !== '-' && !/^[a-h][36]$/.test(parts[3])) return false;
         if (isNaN(parseInt(parts[4], 10)) || isNaN(parseInt(parts[5], 10))) return false;
 
-        // Posisi legal: lawan tidak boleh sedang skak saat giliran pemain ini
         try {
             const board = parseFENBoard(parts[0]);
             const currentPlayer = parts[1] === 'w' ? 'white' : 'black';
@@ -160,7 +158,6 @@
         }
         const pawnDir = byColor === 'white' ? -1 : 1;
         for (const dc of [-1, 1]) {
-            // A pawn attacks one row forward; it sits one row BEHIND the target.
             const pr = row - pawnDir;
             const p = inBounds(pr, col + dc) ? board[pr][col + dc] : null;
             if (p && p.color === byColor && p.type === 'pawn') return true;
@@ -219,7 +216,6 @@
         function addMove(tr, tc, special) {
             if (!inBounds(tr, tc)) return;
             const target = b[tr][tc];
-            // Raja tidak pernah boleh menjadi target tangkapan.
             if (target && target.type === 'king') return;
             if (!target || target.color === enemy) {
                 moves.push({
@@ -269,7 +265,6 @@
                         });
                     }
                 }
-                // mark promotion moves
                 for (const m of moves) {
                     if (m.piece === piece && m.toRow === promoRow) m.promotion = 'queen';
                 }
@@ -314,7 +309,6 @@
         return moves;
     }
 
-    /** Apply a move to a board clone and return the new board. */
     function boardAfter(board, move) {
         const nb = cloneBoard(board);
         const piece = nb[move.fromRow][move.fromCol];
@@ -357,11 +351,6 @@
         return all;
     }
 
-    /**
-     * Find the legal move matching a "from-to" string such as "e2e4".
-     * Optional promotion piece suffix ("e7e8q") is ignored for matching
-     * since the returned move carries a default promotion of queen.
-     */
     function findMove(state, fromTo) {
         if (typeof fromTo !== 'string' || fromTo.length < 4) return null;
         const from = parseSquare(fromTo.slice(0, 2));
@@ -371,12 +360,6 @@
         return moves.find(m => m.toRow === to.row && m.toCol === to.col) || null;
     }
 
-    /* ---------- move application (immutable) ---------- */
-
-    /**
-     * Apply a legal move and return { state, move } with the enriched move
-     * (captured piece, SAN notation with check/mate suffix).
-     */
     function applyMove(state, move) {
         const piece = state.board[move.fromRow][move.fromCol];
         const newState = {
@@ -388,7 +371,6 @@
             fullmoveNumber: state.fullmoveNumber
         };
 
-        // captured reference for history
         let captured = move.captured;
         if (move.special === 'en-passant') {
             const dir = piece.color === 'white' ? 1 : -1;
@@ -427,8 +409,6 @@
         return { state: newState, move: enriched };
     }
 
-    /* ---------- SAN ---------- */
-
     function moveToSAN(state, move) {
         let san;
         if (move.special === 'kingside-castle') san = 'O-O';
@@ -463,8 +443,6 @@
         };
     }
 
-    /* ---------- game status ---------- */
-
     function status(state) {
         const check = isInCheck(state, state.currentPlayer);
         const legal = allLegalMoves(state, state.currentPlayer);
@@ -492,12 +470,12 @@
                 if (p.type === 'pawn' || p.type === 'rook' || p.type === 'queen') return false;
                 minor.push({ type: p.type, color: p.color, row: r, col: c });
             }
-        if (minor.length === 0) return true;                       // K vs K
-        if (minor.length === 1) return true;                       // K+minor vs K
+        if (minor.length === 0) return true;
+        if (minor.length === 1) return true;
         if (minor.length === 2 && minor[0].type === 'bishop' && minor[1].type === 'bishop'
             && minor[0].color !== minor[1].color
             && ((minor[0].row + minor[0].col) % 2) === ((minor[1].row + minor[1].col) % 2)) {
-            return true;                                           // same-color bishops
+            return true;
         }
         return false;
     }
