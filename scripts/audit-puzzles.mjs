@@ -1,16 +1,4 @@
 #!/usr/bin/env node
-/**
- * scripts/audit-puzzles.mjs
- * Validasi semua PUZZLE_DATA:
- *  - FEN struktural & legal (raja tunggal, pion bukan di rank 1/8,
- *    lawan tidak sedang skak saat giliran pemain ini).
- *  - Solusi dapat di-replay tanpa langkah ilegal.
- *  - Tidak ada langkah yang menangkap raja.
- *  - Tidak ada raja yang hilang setelah langkah.
- *  - ID unik.
- *  - Field wajib: id, fen, solution, difficulty.
- * Exit 0 jika semua valid, exit 1 jika ada FAIL.
- */
 import fs from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';
@@ -32,7 +20,7 @@ loadInto(sandbox, 'js/puzzle-data.js');
 const Chess = sandbox.window.Chess;
 const puzzles = sandbox.window.PUZZLE_DATA;
 
-if (!Chess) { console.error('FATAL: window.Chess tidak ditemukan setelah memuat engine.js'); process.exit(2); }
+if (!Chess) { console.error('FATAL: window.Chess tidak ditemukan'); process.exit(2); }
 if (!Array.isArray(puzzles)) { console.error('FATAL: window.PUZZLE_DATA tidak ditemukan'); process.exit(2); }
 
 const DIFFS = ['easy', 'medium', 'hard', 'expert'];
