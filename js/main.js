@@ -1,10 +1,11 @@
 /**
- * js/main.js — v6.2.
+ * js/main.js — v6.3.
  * - Guard: kalau sudah load, skip.
  * - Semua dynamic import.
- * - v6.1: hapus bridge/i18n-extend (duplikat base); fix initSidebarProgress.
- * - v6.2: hapus puzzle/provider.js (dead code); resetAllProgress robust;
- *          btn-reset-all handler; <html lang> sync; hapus dead normalize().
+ * - v6.1: hapus bridge/i18n-extend.
+ * - v6.2: hapus puzzle/provider.js; resetAllProgress robust; <html lang> sync.
+ * - v6.3: param dispatch (selectPuzzle/openLesson) keluar dari bridge check,
+ *         sehingga deep-link #/puzzle/:id dan #/learning/:id selalu diproses.
  */
 const BRIDGE_IMPORTS = [
   "./i18n.js",
@@ -111,30 +112,35 @@ function showRoute(route, param) {
 }
 
 const bridgeInit = { game: false, puzzle: false, learn: false, settings: false };
+
 function initBridgeForRoute(route, param) {
-  if (route === "game" && !bridgeInit.game) {
-    bridgeInit.game = true;
-    if (window.GameBridge && window.GameBridge.init) {
+  if (route === "game") {
+    if (window.GameBridge && window.GameBridge.init && !bridgeInit.game) {
+      bridgeInit.game = true;
       try { window.GameBridge.init(); }
       catch (e) { console.error("[main-v6] GameBridge.init() throw:", e); }
     }
   }
   if (route === "puzzle") {
-    if (window.PuzzleBridge && window.PuzzleBridge.init) {
-      try {
-        if (!bridgeInit.puzzle) { bridgeInit.puzzle = true; window.PuzzleBridge.init(); }
-        if (param && window.PuzzleMode && window.PuzzleMode.selectPuzzle) window.PuzzleMode.selectPuzzle(param);
-      }
+    if (window.PuzzleBridge && window.PuzzleBridge.init && !bridgeInit.puzzle) {
+      bridgeInit.puzzle = true;
+      try { window.PuzzleBridge.init(); }
       catch (e) { console.error("[main-v6] PuzzleBridge.init() throw:", e); }
+    }
+    if (param && window.PuzzleMode && typeof window.PuzzleMode.selectPuzzle === "function") {
+      try { window.PuzzleMode.selectPuzzle(param); }
+      catch (e) { console.error("[main-v6] PuzzleMode.selectPuzzle throw:", e); }
     }
   }
   if (route === "learning") {
-    if (window.LearnBridge && window.LearnBridge.init) {
-      try {
-        if (!bridgeInit.learn) { bridgeInit.learn = true; window.LearnBridge.init(); }
-        if (param && window.LessonsMode && window.LessonsMode.openLesson) window.LessonsMode.openLesson(param);
-      }
+    if (window.LearnBridge && window.LearnBridge.init && !bridgeInit.learn) {
+      bridgeInit.learn = true;
+      try { window.LearnBridge.init(); }
       catch (e) { console.error("[main-v6] LearnBridge.init() throw:", e); }
+    }
+    if (param && window.LessonsMode && typeof window.LessonsMode.openLesson === "function") {
+      try { window.LessonsMode.openLesson(param); }
+      catch (e) { console.error("[main-v6] LessonsMode.openLesson throw:", e); }
     }
   }
   if (route === "settings" && !bridgeInit.settings) {
@@ -145,6 +151,7 @@ function initBridgeForRoute(route, param) {
     }
   }
 }
+
 function initThemeToggle() {
   const btn = document.getElementById("btn-theme");
   if (!btn || btn.__bound) return;
@@ -183,10 +190,6 @@ function initLangSwitcher() {
   });
 }
 
-/**
- * Sinkronkan atribut <html lang> dengan bahasa aktif I18n.
- * Dipanggil saat boot dan setiap I18n.setLang() (jika tersedia).
- */
 function applyLangToDocument() {
   try {
     if (window.I18n && typeof window.I18n.getLang === "function") {
@@ -208,21 +211,15 @@ function wrapI18nSetLang() {
   window.I18n.__langWrapped = true;
 }
 
-/* ---------- Reset helpers (progress vs settings) ---------- */
-
-// Prefix internal AppStorage (lihat js/utils/storage.js).
+/* ---------- Reset helpers ---------- */
 const STORAGE_PREFIX = "hajir-chess:";
 
-// Semua key milik PROGRESS (bukan settings). Termasuk kemungkinan key favorites
-// yang bisa ditulis oleh modul Favorites.
 const PROGRESS_KEYS = [
   "puzzleStats", "puzzleSeen", "lessonProgress",
   "lastPuzzle", "lastLesson",
   "favPuzzles", "favLessons", "favorites", "favorites_puzzle", "favorites_lesson",
   "dashboardProgress", "streak", "bestStreak", "practiceStreak"
 ];
-
-// Key milik SETTINGS (bukan progress).
 const SETTINGS_KEYS = ["theme", "boardTheme", "sound", "coords", "animations"];
 
 function removeKeysExplicit(keys) {
@@ -233,32 +230,23 @@ function removeKeysExplicit(keys) {
     } catch (e) {}
   }
 }
-
 function removeKeysByPattern(regex) {
   try {
-    // Hapus via localStorage langsung untuk key yang mungkin ditulis modul lain
-    // (Favorites, Dashboard) tanpa lewat AppStorage.
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
       if (!k || !k.startsWith(STORAGE_PREFIX)) continue;
       const bare = k.slice(STORAGE_PREFIX.length);
-      if (regex.test(bare)) {
-        try { localStorage.removeItem(k); } catch (e) {}
-      }
+      if (regex.test(bare)) { try { localStorage.removeItem(k); } catch (e) {} }
     }
   } catch (e) {}
 }
-
 function resetAllProgress() {
   removeKeysExplicit(PROGRESS_KEYS);
-  // Wildcard: tangkap key progress yang belum dikenal
   removeKeysByPattern(/^(puzzle|lesson|fav|dashboard|streak|progress|last)/i);
 }
-
 function resetAllSettings() {
   removeKeysExplicit(SETTINGS_KEYS);
 }
-
 function refreshSidebarProgress() {
   try { initSidebarProgress(); } catch (e) {}
 }
@@ -322,7 +310,6 @@ function bindSettings() {
       if (!confirm(T("settings.resetSettingsConfirm"))) return;
       resetAllSettings();
       if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
-      // Re-apply default visual state
       document.documentElement.removeAttribute("data-board-theme");
       document.documentElement.setAttribute("data-animations", "on");
     });
@@ -355,14 +342,12 @@ function bindSettings() {
   }
 }
 
-
-// Util skeleton & state kosong/error (dipakai bridge/lessons/puzzle)
+/* ---------- Skeleton & empty state ---------- */
 window.AppSkeleton = {
   _t: new WeakMap(),
   _arm(el) {
     clearTimeout(this._t.get(el));
     this._t.set(el, setTimeout(() => {
-      // timeout pengaman: skeleton tak tampil selamanya
       if (el && el.querySelector(".skeleton")) this.empty(el, "common.error", true);
     }, 8000));
   },
@@ -390,7 +375,6 @@ window.AppSkeleton = {
       '</div>';
     const b = el.querySelector("[data-retry]");
     if (b) b.addEventListener("click", () => {
-      // Retry tanpa reload penuh agar route (#/puzzle/qlv01) tidak rusak
       const fn = el.__retry || (() => location.reload());
       try { fn(); } catch (e) { location.reload(); }
     });
@@ -405,7 +389,6 @@ function initSidebarProgress() {
   setTimeout(() => {
     try {
       const T = window.I18n ? window.I18n.t : k => k;
-      // AppStorage.get sudah mengembalikan parsed value; JANGAN JSON.parse lagi.
       const lpRaw = (window.AppStorage && AppStorage.get("lessonProgress")) || {};
       const lp = (lpRaw && typeof lpRaw === "object" && !Array.isArray(lpRaw)) ? lpRaw : {};
       const doneCount = Object.keys(lp).length;
@@ -462,7 +445,6 @@ async function boot() {
 
   if (window.Dashboard && Dashboard.init) { try { Dashboard.init(); } catch (e) {} }
 
-  // Keyboard shortcut desktop: ← → / R / H (abaikan input & screen reader)
   document.addEventListener("keydown", (e) => {
     if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
     const t = e.target;
@@ -477,7 +459,6 @@ async function boot() {
     e.preventDefault();
   });
 
-  // PWA: registrasi service worker (opsional — app normal jika gagal)
   if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   }
@@ -501,7 +482,6 @@ if (bootPromise && bootPromise.catch) {
   bootPromise.catch(e => console.error("[main-v6] boot gagal:", e));
 }
 
-// Sembunyikan splash loading setelah boot selesai (fade-out, lalu hapus)
 function hideAppLoading() {
   const el = document.getElementById("app-loading");
   if (!el) return;
@@ -509,5 +489,4 @@ function hideAppLoading() {
   setTimeout(() => el.remove(), 400);
 }
 if (bootPromise && bootPromise.then) bootPromise.then(hideAppLoading);
-// Fallback pengaman: selalu hilangkan splash walau boot lambat/gagal
 setTimeout(hideAppLoading, 10000);
