@@ -11,7 +11,7 @@
     'use strict';
 
     const S = window.AppStorage, SFX = window.SFX;
-    const T = (k, p) => window.I18n.t(k, p);
+   const T = (k, p) => (window.I18n && typeof window.I18n.t === 'function') ? window.I18n.t(k, p) : k;
     const DIFFICULTIES = ['easy', 'medium', 'hard', 'expert'];
     const DIFF_KEY = { easy: 'puzzle.easy', medium: 'puzzle.medium', hard: 'puzzle.hard', expert: 'puzzle.expert' };
     const HINT_STAGES = 3;
@@ -173,7 +173,7 @@
         if (info) {
             info.textContent = puzzle
                 ? T('puzzle.info', {
-                    title: (window.I18n.lang === 'en' && puzzle.title_en) ? puzzle.title_en : (puzzle.title || puzzle.id),
+                    title: ((window.I18n && typeof window.I18n.getLang === 'function' && window.I18n.getLang() === 'en' && puzzle.title_en) ? puzzle.title_en : (puzzle.title || puzzle.id)),
                     difficulty: T(DIFF_KEY[puzzle.difficulty]),
                     rating: puzzle.rating || '?',
                     themes: puzzle.themes ? ' · ' + puzzle.themes.join(', ') : ''
