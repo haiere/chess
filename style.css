@@ -140,11 +140,11 @@ html {
 
 body.app-body {
   margin: 0;
-  padding: 0;
+  padding: calc(var(--header-h) + var(--safe-top)) 0 0 0;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  overflow-x: clip;
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
@@ -202,13 +202,14 @@ button, a, select, input { font: inherit; color: inherit; }
 .app-header {
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--space-3);
-  padding: calc(10px + var(--safe-top)) var(--space-4) 10px;
+  padding: calc(10px + var(--safe-top)) calc(var(--space-4) + var(--safe-right)) 10px calc(var(--space-4) + var(--safe-left));
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 50;
-  min-height: var(--header-h);
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  min-height: calc(var(--header-h) + var(--safe-top));
+  box-sizing: border-box;
 }
 .app-brand {
   display: flex; align-items: center; gap: 10px;
@@ -361,14 +362,24 @@ button, a, select, input { font: inherit; color: inherit; }
 .app-select:hover, select:hover { border-color: var(--accent); }
 
 /* ---------- 11. BOARD ---------- */
-#board-container, #puzzle-board-container { width: 100%; }
-.board-container, .board {
+#board-container, #puzzle-board-container, #lesson-board-container { width: 100%; }
+
+.board,
+.board-container,
+#board,
+#puzzle-board,
+#puzzleBoard,
+#lesson-board,
+#lessonBoard,
+.chess-board {
   width: 100%;
-  max-width: min(560px, calc(100dvh - 260px));
+  max-width: min(640px, calc(100dvh - 200px));
   aspect-ratio: 1 / 1;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
+  display: grid !important;
+  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
+  height: auto !important;
+  max-height: none !important;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-md);
@@ -377,6 +388,22 @@ button, a, select, input { font: inherit; color: inherit; }
   -webkit-user-select: none;
   touch-action: none;
   margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Semua child board selalu persegi dan tidak overflow */
+.board > *,
+.board-container > *,
+#board > *,
+#puzzle-board > *,
+#puzzleBoard > *,
+#lesson-board > *,
+#lessonBoard > *,
+.chess-board > * {
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
 }
 
 .square {
@@ -741,9 +768,9 @@ body.modal-open { overflow: hidden; }
 .state-box .btn{margin-top:4px;}
 
 /* ---------- 21. RESPONSIVE SAFETY GUARDS (v7) ---------- */
-html, body { overflow-x: clip; }
+html { overflow-x: clip; }
 img, svg, video, canvas { max-width: 100%; height: auto; }
-/* Board safety net: selalu persegi, tidak pernah melebihi viewport */
+/* (board styling sudah dikonsolidasi di Blok C) */
 .board, .board-container, .chess-board, #puzzle-board, #lesson-board {
   aspect-ratio: 1 / 1;
   max-width: min(100%, 560px, calc(100dvh - 200px));
