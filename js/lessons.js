@@ -10,7 +10,7 @@
     'use strict';
 
     const S = window.AppStorage, SFX = window.SFX;
-    const T = (k, p) => window.I18n.t(k, p);
+   const T = (k, p) => (window.I18n && typeof window.I18n.t === 'function') ? window.I18n.t(k, p) : k;
     const LANG = () => (window.I18n && window.I18n.getLang ? window.I18n.getLang() : "id");
     const pick = (v) => (v && typeof v === "object" ? (v[LANG()] || v.en || Object.values(v)[0]) : v);
     const $ = (id) => document.getElementById(id);
