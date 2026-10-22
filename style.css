@@ -140,11 +140,12 @@ html {
 
 body.app-body {
   margin: 0;
+  /* Padding top dikurangi agar tidak dobel dengan padding .app-main */
   padding: calc(var(--header-h) + var(--safe-top)) 0 0 0;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow-x: clip;
+  overflow-x: hidden;
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
@@ -207,10 +208,10 @@ button, a, select, input { font: inherit; color: inherit; }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
   min-height: calc(var(--header-h) + var(--safe-top));
   box-sizing: border-box;
-}
+} 
 .app-brand {
   display: flex; align-items: center; gap: 10px;
   font-weight: 700; font-size: 1.05rem; letter-spacing: .2px;
@@ -270,7 +271,9 @@ button, a, select, input { font: inherit; color: inherit; }
 
 /* ---------- 7. MAIN & PAGES ---------- */
 .app-main {
-  padding: var(--space-5);
+  padding: var(--space-4);
+  /* Beri space bawah yang banyak agar tidak tertutup bottom nav */
+  padding-bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + 4rem) !important;
   min-width: 0;
   max-width: 760px;
   width: 100%;
@@ -362,48 +365,62 @@ button, a, select, input { font: inherit; color: inherit; }
 .app-select:hover, select:hover { border-color: var(--accent); }
 
 /* ---------- 11. BOARD ---------- */
-#board-container, #puzzle-board-container, #lesson-board-container { width: 100%; }
+/* Wadah luar papan: mencegah papan memanjang liar */
+#board-container, #puzzle-board-container, #lesson-board-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 0;
+}
 
+/* Papan Catur: Dikunci mati 8x8 dan persegi 1:1 */
 .board,
-.board-container,
+.chess-board,
 #board,
 #puzzle-board,
 #puzzleBoard,
 #lesson-board,
-#lessonBoard,
-.chess-board {
-  width: 100%;
-  max-width: min(640px, calc(100dvh - 200px));
-  aspect-ratio: 1 / 1;
+#lessonBoard {
+  width: 100% !important;
+  max-width: min(100%, 640px) !important;
+  aspect-ratio: 1 / 1 !important;
+  height: auto !important;
+  max-height: calc(100dvh - 200px) !important;
   display: grid !important;
   grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
   grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
-  height: auto !important;
-  max-height: none !important;
   border-radius: var(--radius-md);
-  overflow: hidden;
+  overflow: hidden !important;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border);
   user-select: none;
-  -webkit-user-select: none;
   touch-action: none;
-  margin: 0 auto;
+  margin: 0 auto !important;
   box-sizing: border-box;
+  /* KUNCI: Jangan biarkan konten merusak grid */
+  place-content: stretch !important; 
 }
 
-/* Semua child board selalu persegi dan tidak overflow */
+/* Setiap kotak dipaksa persegi sempurna */
 .board > *,
-.board-container > *,
+.chess-board > *,
 #board > *,
 #puzzle-board > *,
 #puzzleBoard > *,
 #lesson-board > *,
 #lessonBoard > *,
-.chess-board > * {
-  min-width: 0;
-  min-height: 0;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
+.square {
+  aspect-ratio: 1 / 1 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .square {
@@ -443,12 +460,13 @@ button, a, select, input { font: inherit; color: inherit; }
   border: calc(2px + .35vw) solid var(--sq-capture); z-index: 1;
 }
 
+/* Bidak di dalam kotak */
 .piece-img {
-  width: 88%; height: 88%;
-  object-fit: contain;
-  position: relative; z-index: 2;
-  pointer-events: none;
-}
+  width: 85% !important;
+  height: 85% !important;
+  object-fit: contain !important;
+  position: absolute;
+} 
 
 .coord-label {
   position: absolute;
