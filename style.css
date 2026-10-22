@@ -272,13 +272,15 @@ button, a, select, input { font: inherit; color: inherit; }
 /* ---------- 7. MAIN & PAGES ---------- */
 .app-main {
   padding: var(--space-4);
-  /* Beri space bawah yang banyak agar tidak tertutup bottom nav */
-  padding-bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + 4rem) !important;
+  /* Padding bawah ekstra: tinggi bottom nav + safe area + 4rem jarak aman */
+  padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom) + 4rem) !important;
   min-width: 0;
   max-width: 760px;
   width: 100%;
   margin: 0 auto;
-  display: flex; flex-direction: column; gap: var(--space-4);
+  display: flex; 
+  flex-direction: column; 
+  gap: var(--space-4);
 }
 .app-page { display: none; flex-direction: column; gap: var(--space-4); }
 .app-page.is-active { display: flex; animation: page-in var(--t-base); }
@@ -365,7 +367,7 @@ button, a, select, input { font: inherit; color: inherit; }
 .app-select:hover, select:hover { border-color: var(--accent); }
 
 /* ---------- 11. BOARD ---------- */
-/* Wadah luar papan: mencegah papan memanjang liar */
+/* Wadah luar papan: memastikan papan selalu berada di tengah dan tidak melar */
 #board-container, #puzzle-board-container, #lesson-board-container {
   width: 100%;
   display: flex;
@@ -375,7 +377,7 @@ button, a, select, input { font: inherit; color: inherit; }
   padding: 0;
 }
 
-/* Papan Catur: Dikunci mati 8x8 dan persegi 1:1 */
+/* Papan Catur: DIKUNCI MATI 8x8 dan Persegi */
 .board,
 .chess-board,
 #board,
@@ -399,11 +401,11 @@ button, a, select, input { font: inherit; color: inherit; }
   touch-action: none;
   margin: 0 auto !important;
   box-sizing: border-box;
-  /* KUNCI: Jangan biarkan konten merusak grid */
+  /* KUNCI: Memaksa konten agar tidak melar ke bawah */
   place-content: stretch !important; 
 }
 
-/* Setiap kotak dipaksa persegi sempurna */
+/* Setiap kotak dipaksa persegi sempurna dan tidak boleh meluap */
 .board > *,
 .chess-board > *,
 #board > *,
@@ -466,7 +468,7 @@ button, a, select, input { font: inherit; color: inherit; }
   height: 85% !important;
   object-fit: contain !important;
   position: absolute;
-} 
+}
 
 .coord-label {
   position: absolute;
