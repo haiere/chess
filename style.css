@@ -1,15 +1,15 @@
 /* ============================================================
-   Hajir Chess — Unified Design System v7.2
-   Patch v7.2 (WAJIB, mematikan bug "kotak hitam raksasa"):
-   - .app-main   : flex: none !important  (tidak melar)
-   - .app-card   : flex: 0 0 auto !important (kartu tidak melar)
-   - #board-container & friends : flex: none !important
-   Patch v7.1 sebelumnya:
-   - .app-card selalu kolom vertikal
-   - .board dipaksa 8×8 (fix papan hancur di mobile)
-   - .lesson-card & .lesson-card-body rapi
-   - .lang-switcher tetap tampil di Settings versi mobile
-   - Jarak aman bawah ditambah
+   Hajir Chess — Unified Design System v7.3
+   Patch v7.3 (mematikan bug "kotak hitam raksasa" & list hancur):
+   - .app-main    : display: block  (tidak melar ke bawah)
+   - .app-page    : display: block saat is-active
+   - .app-card    : display: flex + flex: none (kartu tidak melar,
+                    anak-anaknya tetap rapi via gap)
+   - .item-list / .item-row / .item-body  (browser puzzle)
+   - .lesson-list / .lesson-card / .lesson-card-body (browser lesson)
+   - min-width: 0 + ellipsis → judul panjang tidak menabrak bintang
+   - .board / #puzzle-board / dst dipaksa 8×8
+   Patch v7.1 sebelumnya: bottom-nav safe-area, lang-switcher mobile.
    ============================================================ */
 
 /* ---------- 1. DESIGN TOKENS ---------- */
@@ -127,33 +127,23 @@
 
 /* ---------- 2. RESET & BASE ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-
 html { -webkit-text-size-adjust: 100%; }
 
 body.app-body {
-  margin: 0;
-  padding: 0;
+  margin: 0; padding: 0;
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   overflow-x: hidden;
   font-family: var(--font);
-  font-size: 15px;
-  line-height: 1.5;
-  background: var(--bg);
-  color: var(--text);
+  font-size: 15px; line-height: 1.5;
+  background: var(--bg); color: var(--text);
 }
 
 img, svg { display: block; max-width: 100%; }
 button, a, select, input { font: inherit; color: inherit; }
 
 ::selection { background: var(--accent-soft); }
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
@@ -171,21 +161,13 @@ button, a, select, input { font: inherit; color: inherit; }
 .text-sub    { color: var(--text-2); font-size: .82rem; }
 .flex-gap-4  { display: flex; gap: var(--space-1); }
 
-.app-skip {
+.app-skip, .skip-link {
   position: absolute; left: -9999px; top: 0; z-index: 1000;
   background: var(--accent); color: var(--accent-contrast);
-  padding: var(--space-2) var(--space-4);
-  border-radius: 0 0 var(--radius-sm) 0;
-  text-decoration: none; font-weight: 600;
-}
-.app-skip:focus { left: 0; }
-.skip-link {
-  position: absolute; left: -9999px; top: 0; z-index: 1000;
-  background: var(--accent); color: var(--accent-contrast);
-  padding: 10px 16px; border-radius: var(--radius3); font-weight: 600;
+  padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 600;
   text-decoration: none;
 }
-.skip-link:focus { left: 8px; top: 8px; }
+.app-skip:focus, .skip-link:focus { left: 8px; top: 8px; }
 
 /* ---------- 4. HEADER ---------- */
 .app-header {
@@ -238,68 +220,74 @@ button, a, select, input { font: inherit; color: inherit; }
   display: flex; align-items: center; gap: var(--space-3);
   padding: 10px var(--space-3);
   border-radius: var(--radius-sm);
-  color: var(--text-2);
-  text-decoration: none;
-  font-weight: 500;
+  color: var(--text-2); text-decoration: none; font-weight: 500;
   transition: background var(--t-fast), color var(--t-fast);
   position: relative;
 }
 .app-nav a svg { width: 20px; height: 20px; flex-shrink: 0; }
 .app-nav a:hover { background: var(--surface-2); color: var(--text); }
 .app-nav a[aria-current="page"] {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
+  background: var(--accent-soft); color: var(--accent); font-weight: 600;
 }
 .app-nav a[aria-current="page"]::before {
   content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
   width: 3px; border-radius: 3px; background: var(--accent);
 }
 
-/* ---------- 7. MAIN & PAGES ---------- */
+/* ============================================================
+   7. MAIN & PAGES — KUNCI ANTI "KOTAK HITAM RAKSASA"
+   ============================================================ */
 .app-main {
-  padding: var(--space-5);
-  padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom) + 3rem);
+  display: block !important;          /* KUNCI: block → tidak melar */
+  padding: var(--space-4) !important;
+  padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom) + 4rem) !important;
   min-width: 0;
-  max-width: 760px;
   width: 100%;
+  max-width: 760px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  flex: none !important;          /* KUNCI #1 */
 }
 
-.app-page {
-  display: none;
-  flex-direction: column;
-  gap: var(--space-4);
-  height: auto !important;
+.app-page { display: none; }
+.app-page.is-active {
+  display: block !important;          /* KUNCI: block saat aktif */
+  animation: page-in var(--t-base);
 }
-.app-page.is-active { display: flex; animation: page-in var(--t-base); }
 @keyframes page-in {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Spacing antar blok dalam halaman (karena display:block abaikan gap) */
+.app-page.is-active > * + * {
+  margin-top: var(--space-4);
+}
+.app-page.is-active > :first-child {
+  margin-top: 0;
+}
+
 .app-page-title { font-size: 1.45rem; font-weight: 800; margin: 0; }
-.app-page-subtitle { color: var(--text-2); margin: calc(-1 * var(--space-2)) 0 0; }
+.app-page-subtitle { color: var(--text-2); margin: 0; }
+.app-page.is-active > .app-page-title + .app-page-subtitle {
+  margin-top: var(--space-1);
+}
 
 /* ---------- 8. CARDS ---------- */
 .app-card {
+  display: flex !important;           /* layout internal tetap flex */
+  flex-direction: column !important;
+  gap: var(--space-3);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
-  display: flex !important;
-  flex-direction: column !important;
-  gap: var(--space-3);
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
   box-shadow: var(--shadow-sm);
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
-  flex: 0 0 auto !important;      /* KUNCI #2 */
+  flex: none !important;              /* anti stretch bila parent flex */
+  height: auto !important;
+  min-height: 0 !important;
 }
 .app-card:hover { border-color: color-mix(in srgb, var(--border) 60%, var(--accent)); }
 .app-card-title { font-size: .95rem; font-weight: 700; margin: 0; }
@@ -357,22 +345,24 @@ button, a, select, input { font: inherit; color: inherit; }
   border: 1px solid var(--border);
   background: var(--surface-2);
   color: var(--text);
-  font-size: .86rem;
-  min-height: 40px;
+  font-size: .86rem; min-height: 40px;
   cursor: pointer;
   transition: border-color var(--t-fast);
 }
 .app-select:hover, select:hover { border-color: var(--accent); }
 
-/* ---------- 11. BOARD (MUTLAK 8×8) ---------- */
+/* ============================================================
+   11. BOARD — PAPAN CATUR MATI 8×8 (ANTI GEPENG / RAKSASA)
+   ============================================================ */
 #board-container,
 #puzzle-board-container,
 #lesson-board-container,
 #lessonBoardWrap {
   width: 100%;
-  display: block;
+  display: block !important;
   margin: 0 auto;
-  flex: none !important;          /* KUNCI #3 */
+  padding: 0;
+  flex: none !important;
 }
 
 .board,
@@ -393,12 +383,12 @@ button, a, select, input { font: inherit; color: inherit; }
   margin: 0 auto !important;
   border-radius: var(--radius-md);
   overflow: hidden !important;
-  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
-  box-sizing: border-box;
 }
 
 .board > *,
@@ -406,17 +396,11 @@ button, a, select, input { font: inherit; color: inherit; }
   aspect-ratio: 1 / 1 !important;
   width: 100% !important;
   height: 100% !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  min-width: 0; min-height: 0;
 }
 
-.square {
-  position: relative;
-  cursor: pointer;
-}
+.square { position: relative; cursor: pointer; }
 .square.light { background: var(--sq-light); }
 .square.dark  { background: var(--sq-dark); }
 @media (hover: hover) {
@@ -424,18 +408,9 @@ button, a, select, input { font: inherit; color: inherit; }
   .square.dark:hover  { filter: brightness(1.12); }
 }
 
-.square.last-move::before {
-  content: ''; position: absolute; inset: 0;
-  background: var(--sq-lastmove);
-}
-.square.selected::before {
-  content: ''; position: absolute; inset: 0;
-  background: var(--sq-selected);
-}
-.square.in-check::before {
-  content: ''; position: absolute; inset: 0;
-  background: var(--sq-check);
-}
+.square.last-move::before { content: ''; position: absolute; inset: 0; background: var(--sq-lastmove); }
+.square.selected::before  { content: ''; position: absolute; inset: 0; background: var(--sq-selected); }
+.square.in-check::before  { content: ''; position: absolute; inset: 0; background: var(--sq-check); }
 .square.kb-focus { outline: 3px solid var(--accent); outline-offset: -3px; z-index: 2; }
 
 .square.legal-move::after {
@@ -504,8 +479,8 @@ button, a, select, input { font: inherit; color: inherit; }
   font-variant-numeric: tabular-nums; font-weight: 700; font-size: .95rem;
   background: var(--surface-2); padding: 4px 10px; border-radius: 6px;
 }
-.player-timer.low-time { color: var(--danger); animation: pulse 1s infinite; }
-@keyframes pulse { 50% { opacity: .55; } }
+.player-timer.low-time { color: var(--danger); animation: pulse-op 1s infinite; }
+@keyframes pulse-op { 50% { opacity: .55; } }
 
 .captured-row { display: flex; flex-wrap: wrap; gap: 2px; min-height: 22px; }
 .captured-piece { width: 20px; height: 20px; object-fit: contain; }
@@ -524,38 +499,71 @@ button, a, select, input { font: inherit; color: inherit; }
 .move-number { color: var(--text-3); }
 .move-white, .move-black { font-weight: 600; font-variant-numeric: tabular-nums; }
 
-/* ---------- 13. LESSONS ---------- */
+/* ============================================================
+   13. LIST: PUZZLE (.item-*) & LESSON (.lesson-*)
+   ANTI TUMPANG-TINDIH: flex-row + min-width: 0 + ellipsis
+   ============================================================ */
 .learn-container, .settings-page {
   width: 100%; max-width: 680px; margin: 0 auto;
   display: flex; flex-direction: column; gap: var(--space-4);
 }
 
-.lesson-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.item-list, .lesson-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
   width: 100%;
 }
 
-.lesson-card {
+.item-row, .lesson-card {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  justify-content: space-between;
+  justify-content: space-between !important;
   gap: var(--space-3);
-  width: 100%;
-  padding: var(--space-3);
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  width: 100% !important;
+  padding: 12px 16px !important;
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
   cursor: pointer;
-  text-align: left;
-  box-sizing: border-box;
+  box-sizing: border-box !important;
+  text-align: left !important;
   transition: border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
 }
-.lesson-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-.lesson-card.done { border-color: var(--success); }
+.item-row:hover, .lesson-card:hover {
+  border-color: var(--accent) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.item-row.active, .lesson-card.done { border-color: var(--accent) !important; }
+.lesson-card.done { border-color: var(--success) !important; }
+
+.item-body, .lesson-card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;             /* KUNCI: cegah teks dorong bintang */
+  gap: 4px;
+}
+.item-body strong, .lesson-card-body strong {
+  font-size: .95rem !important;
+  font-weight: 600 !important;
+  color: var(--text) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left !important;
+}
+.item-body small, .lesson-card-body small {
+  font-size: .8rem !important;
+  color: var(--text-3) !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left !important;
+}
 
 .lesson-badge {
   flex: 0 0 auto !important;
@@ -568,34 +576,11 @@ button, a, select, input { font: inherit; color: inherit; }
 }
 .lesson-card.done .lesson-badge { background: var(--success-soft); color: var(--success); }
 
-.lesson-card-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-width: 0;
-  gap: 2px;
-}
-.lesson-card-body strong {
-  font-size: .95rem;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.lesson-card-body small {
-  font-size: .8rem;
-  color: var(--text-3);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.lesson-state,
-.fav-btn {
+.lesson-state, .fav-btn {
   flex: 0 0 auto !important;
   flex-shrink: 0 !important;
   white-space: nowrap;
+  margin-left: 10px;
 }
 .lesson-state { font-size: .78rem; color: var(--text-3); font-weight: 600; }
 .lesson-card.done .lesson-state { color: var(--success); }
@@ -604,12 +589,11 @@ button, a, select, input { font: inherit; color: inherit; }
   display: inline-flex; align-items: center; justify-content: center;
   width: 28px; height: 28px;
   border-radius: 50%;
-  color: var(--text-3);
-  font-size: 1rem;
+  color: var(--text-3); font-size: 1rem;
   cursor: pointer;
   transition: color var(--t-fast), background var(--t-fast);
 }
-.fav-btn:hover, .fav-btn:focus-visible { color: var(--warning); background: var(--surface-2); }
+.fav-btn:hover, .fav-btn:focus-visible { color: var(--warning); background: var(--surface); }
 .fav-btn.on { color: var(--warning); }
 
 #lessonDetail { display: flex; flex-direction: column; gap: var(--space-3); }
@@ -706,10 +690,7 @@ body.modal-open { overflow: hidden; }
   #lang-slot-settings .lang-switcher { display: flex !important; width: 100%; }
   #lang-slot-settings .lang-switcher select,
   #lang-slot-settings .lang-switcher__select {
-    width: 100%;
-    max-width: 100%;
-    padding: 10px;
-    font-size: 1rem;
+    width: 100%; max-width: 100%; padding: 10px; font-size: 1rem;
   }
 }
 
@@ -746,7 +727,7 @@ body.modal-open { overflow: hidden; }
   .app-main {
     max-width: 100%;
     padding: var(--space-4) var(--space-4)
-             calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-5));
+             calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-5)) !important;
   }
   .toast-container { bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + 12px); }
   .modal-overlay { padding: var(--space-3); align-items: flex-end; }
@@ -759,7 +740,7 @@ body.modal-open { overflow: hidden; }
 
 @media (max-width: 480px) {
   .app-page-title { font-size: 1.3rem; }
-  .app-main { padding-left: var(--space-3); padding-right: var(--space-3); }
+  .app-main { padding-left: var(--space-3) !important; padding-right: var(--space-3) !important; }
   .app-card { padding: var(--space-3); }
   .btn-row { gap: 6px; }
   .btn-row button, .btn { flex: 1 1 auto; padding: 9px 10px; }
@@ -770,16 +751,20 @@ body.modal-open { overflow: hidden; }
   .board, .board-container { max-width: min(560px, calc(100dvh - 200px)) !important; }
 }
 
+/* Layout 2-kolom khusus halaman game di desktop */
 @media (min-width: 1100px) {
   .app-layout { grid-template-columns: minmax(280px, 28%) 1fr; }
   .app-main { max-width: none; }
 
   #page-game.is-active {
-    display: grid;
+    display: grid !important;           /* override .app-page.is-active block */
     grid-template-columns: minmax(340px, 560px) minmax(280px, 1fr);
     gap: var(--space-4);
     align-items: start;
   }
+  /* matikan margin antar-blok yang dipakai display:block */
+  #page-game.is-active > * { margin-top: 0 !important; }
+
   #page-game .app-page-title,
   #page-game .app-page-subtitle { grid-column: 1 / -1; margin-bottom: 0; }
 
@@ -809,17 +794,26 @@ body.modal-open { overflow: hidden; }
 }
 
 /* ---------- 20. SKELETON & STATES ---------- */
-.skeleton{position:relative;overflow:hidden;background:var(--surface-2);border-radius:var(--radius-sm);}
-.skeleton::after{content:'';position:absolute;inset:0;transform:translateX(-100%);
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
-  animation:sk-shimmer 1.4s infinite;}
-@keyframes sk-shimmer{to{transform:translateX(100%)}}
-.skeleton--line{height:14px;margin:8px 0;}
-.skeleton--title{height:20px;width:55%;margin:4px 0 10px;}
-.skeleton--card{height:64px;border-radius:var(--radius-md);margin:10px 0;}
-.skeleton--board{width:100%;aspect-ratio:1/1;border-radius:var(--radius-md);}
+.skeleton {
+  position: relative; overflow: hidden;
+  background: var(--surface-2) !important;
+  border-radius: var(--radius-md) !important;
+  animation: pulse-skeleton 1.2s ease-in-out infinite !important;
+}
+@keyframes pulse-skeleton {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+.skeleton--line  { height: 14px; margin: 8px 0; }
+.skeleton--title { height: 20px; width: 55%; margin: 4px 0 10px; }
+.skeleton--card  { height: 64px; border-radius: var(--radius-md); margin: 10px 0; }
+.skeleton--board { width: 100%; aspect-ratio: 1/1; border-radius: var(--radius-md); }
 
-.state-box{display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 16px;
-  text-align:center;color:var(--text-2);font-size:.88rem;}
-.state-box svg{width:36px;height:36px;color:var(--text-3);}
-.state-box .btn{margin-top:4px;}
+.state-box {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 28px 16px; text-align: center;
+  color: var(--text-2); font-size: .88rem;
+}
+.state-box svg { width: 36px; height: 36px; color: var(--text-3); }
+.state-box .btn { margin-top: 4px; }
