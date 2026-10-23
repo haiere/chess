@@ -62,16 +62,10 @@ function safeSet(k, v) {
   } catch (e) {}
 }
 function detectInitial() {
+  // KUNCI: Selalu default ke Indonesia, abaikan bahasa browser.
   const saved = safeGet(STORAGE_KEY);
   if (saved && SUPPORTED.includes(saved)) return saved;
-  const nav = navigator || {}, cands = [];
-  if (Array.isArray(nav.languages)) cands.push(...nav.languages);
-  if (nav.language) cands.push(nav.language);
-  for (const c of cands) {
-    const code = String(c || "").toLowerCase().split("-")[0];
-    if (SUPPORTED.includes(code)) return code;
-  }
-  return DEFAULT_LANG;
+  return DEFAULT_LANG; 
 }
 function getNested(obj, path) {
   if (!obj || !path) return undefined;
