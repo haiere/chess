@@ -6,12 +6,14 @@
    v6.2 (Fase 1.1): puzzle.completed, puzzle.turnStatus, puzzle.resetToast.
    v6.3 (Fase 1.3): multi-ID helper ($el) + guard init(),
    sehingga puzzle mode tidak crash jika bridge tidak tersedia.
+   v6.4: FIX "Try Again" raksasa — bersihkan #puzzle-board-container
+   sebelum membuat BoardView, sehingga skeleton / state nyangkut hilang.
 */
 (function () {
     'use strict';
 
     const S = window.AppStorage, SFX = window.SFX;
-   const T = (k, p) => (window.I18n && typeof window.I18n.t === 'function') ? window.I18n.t(k, p) : k;
+    const T = (k, p) => (window.I18n && typeof window.I18n.t === 'function') ? window.I18n.t(k, p) : k;
     const DIFFICULTIES = ['easy', 'medium', 'hard', 'expert'];
     const DIFF_KEY = { easy: 'puzzle.easy', medium: 'puzzle.medium', hard: 'puzzle.hard', expert: 'puzzle.expert' };
     const HINT_STAGES = 3;
@@ -394,6 +396,16 @@
     window.PuzzleMode = {
         init() {
             provider = new PuzzleProvider(window.PUZZLE_DATA);
+
+            // KUNCI v6.4: Bersihkan container dari sisa render lama
+            // (misal skeleton "Try Again" raksasa yang nyangkut) SEBELUM
+            // membuat BoardView baru. Ini memastikan boardEl yang dipakai
+            // adalah elemen segar di dalam #puzzle-board-container.
+            const boardContainer = $el('puzzle-board-container');
+            if (boardContainer) {
+                boardContainer.innerHTML = '<div id="puzzle-board" class="board"></div>';
+            }
+
             const boardEl = $el('puzzleBoard', 'puzzle-board');
             if (boardEl && window.BoardView) {
                 board = new BoardView(boardEl, { showCoords: S.get('coords', true), onSquareClick });
