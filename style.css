@@ -1,17 +1,19 @@
 /* ============================================================
-   Hajir Chess — Unified Design System v7.1
-   Satu sumber kebenaran: tokens, komponen, halaman.
-   Patch v7.1:
-   - .app-card selalu kolom vertikal (fix puzzle terbelah)
+   Hajir Chess — Unified Design System v7.2
+   Patch v7.2 (WAJIB, mematikan bug "kotak hitam raksasa"):
+   - .app-main   : flex: none !important  (tidak melar)
+   - .app-card   : flex: 0 0 auto !important (kartu tidak melar)
+   - #board-container & friends : flex: none !important
+   Patch v7.1 sebelumnya:
+   - .app-card selalu kolom vertikal
    - .board dipaksa 8×8 (fix papan hancur di mobile)
-   - .lesson-card & .lesson-card-body rapi (fix tumpang tindih)
+   - .lesson-card & .lesson-card-body rapi
    - .lang-switcher tetap tampil di Settings versi mobile
-   - Jarak aman bawah ditambah (anti tertutup bottom nav)
+   - Jarak aman bawah ditambah
    ============================================================ */
 
 /* ---------- 1. DESIGN TOKENS ---------- */
 :root {
-  /* Warna — dark (default) */
   --bg: #0f1117;
   --bg-soft: #14171f;
   --surface: #1a1e28;
@@ -30,23 +32,18 @@
   --success-soft: rgba(34, 197, 94, .12);
   --warning: #f5b544;
 
-  /* Skala spacing */
   --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
   --space-4: 16px; --space-5: 24px; --space-6: 32px;
 
-  /* Skala radius */
   --radius-sm: 8px;  --radius-md: 12px; --radius-lg: 16px;
 
-  /* Shadow */
   --shadow-sm: 0 1px 3px rgba(0,0,0,.25);
   --shadow-md: 0 4px 16px rgba(0,0,0,.35);
   --shadow-lg: 0 12px 32px rgba(0,0,0,.45);
 
-  /* Motion */
   --t-fast: 120ms cubic-bezier(.4,0,.2,1);
   --t-base: 180ms cubic-bezier(.4,0,.2,1);
 
-  /* Board — classic */
   --sq-light: #f0d9b5;
   --sq-dark: #b58863;
   --sq-lastmove: rgba(255, 213, 79, .45);
@@ -55,22 +52,18 @@
   --sq-legal: rgba(20, 85, 180, .40);
   --sq-capture: rgba(220, 60, 60, .60);
 
-  /* Board — alias lama (dipakai sebagian JS) */
   --board-light: var(--sq-light);
   --board-dark: var(--sq-dark);
 
-  /* Layout */
   --nav-w: 240px;
   --header-h: 60px;
   --bottomnav-h: 64px;
 
-  /* Safe areas */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 
-  /* Alias lama (kompatibilitas JS bridge) */
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --surface2: var(--surface-2);
   --text2: var(--text-2);
@@ -83,7 +76,6 @@
   --text-muted: var(--text-3);
   --focus: var(--accent);
 
-  /* Alias --app-* (sebelumnya inline di index.html) */
   --app-bg: var(--bg);
   --app-bg-soft: var(--bg-soft);
   --app-surface: var(--surface);
@@ -127,7 +119,6 @@
   --shadow-lg: 0 12px 32px rgba(20,30,60,.14);
 }
 
-/* Board themes */
 [data-board-theme="emerald"]  { --sq-light: #eaeed2; --sq-dark: #769656; }
 [data-board-theme="midnight"] { --sq-light: #dee3f0; --sq-dark: #4a5a8a; }
 [data-board-theme="rose"]     { --sq-light: #f7e3e6; --sq-dark: #b06a7a; }
@@ -268,13 +259,23 @@ button, a, select, input { font: inherit; color: inherit; }
 /* ---------- 7. MAIN & PAGES ---------- */
 .app-main {
   padding: var(--space-5);
+  padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom) + 3rem);
   min-width: 0;
   max-width: 760px;
   width: 100%;
   margin: 0 auto;
-  display: flex; flex-direction: column; gap: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: none !important;          /* KUNCI #1 */
 }
-.app-page { display: none; flex-direction: column; gap: var(--space-4); }
+
+.app-page {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: auto !important;
+}
 .app-page.is-active { display: flex; animation: page-in var(--t-base); }
 @keyframes page-in {
   from { opacity: 0; transform: translateY(6px); }
@@ -298,6 +299,7 @@ button, a, select, input { font: inherit; color: inherit; }
   box-sizing: border-box;
   box-shadow: var(--shadow-sm);
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  flex: 0 0 auto !important;      /* KUNCI #2 */
 }
 .app-card:hover { border-color: color-mix(in srgb, var(--border) 60%, var(--accent)); }
 .app-card-title { font-size: .95rem; font-weight: 700; margin: 0; }
@@ -370,6 +372,7 @@ button, a, select, input { font: inherit; color: inherit; }
   width: 100%;
   display: block;
   margin: 0 auto;
+  flex: none !important;          /* KUNCI #3 */
 }
 
 .board,
@@ -609,7 +612,6 @@ button, a, select, input { font: inherit; color: inherit; }
 .fav-btn:hover, .fav-btn:focus-visible { color: var(--warning); background: var(--surface-2); }
 .fav-btn.on { color: var(--warning); }
 
-/* Detail pelajaran */
 #lessonDetail { display: flex; flex-direction: column; gap: var(--space-3); }
 #lessonStepText { white-space: pre-line; color: var(--text-2); }
 
@@ -699,7 +701,6 @@ body.modal-open { overflow: hidden; }
 }
 .lang-switcher select:hover, .lang-switcher__select:hover { border-color: var(--accent); }
 
-/* Di mobile: sembunyikan HANYA di header; tetap tampil di Settings */
 @media (max-width: 899px) {
   .app-header .lang-switcher { display: none !important; }
   #lang-slot-settings .lang-switcher { display: flex !important; width: 100%; }
