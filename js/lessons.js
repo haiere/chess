@@ -1,245 +1,263 @@
-/* Lessons mode — step cards with optional static example boards and
-   optional interactive exercises. Progress persisted in AppStorage.
+/**
+ * Learning Mode — controller.
+ * update v7.3
+ * - I18n konsisten, board reset saat lesson berubah, layout stabil.
+ */
 
-   v7.1 patch:
-   - renderList(): struktur card: badge | body | state | (star opsional)
-   - Star favorit hanya dirender bila window.Favorites tersedia.
-   - Board container di-reset saat ganti step agar tidak buram. */
-(function () {
-    'use strict';
+import { BoardView } from './board-view.js';
+import { i18n } from './i18n.js';
 
-    const S = window.AppStorage, SFX = window.SFX;
-    const T = (k, p) => window.I18n.t(k, p);
-    const LANG = () => (window.I18n && window.I18n.getLang ? window.I18n.getLang() : 'id');
-    const pick = (v) => (v && typeof v === 'object' ? (v[LANG()] || v.en || Object.values(v)[0]) : v);
+const T = (key, params, defaultValue) =>
+  i18n.t(key, params, defaultValue ? { defaultValue } : undefined);
+
+const STORAGE_KEY = 'chess:lesson-progress';
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : { completed: [], current: null };
+  } catch (_) { return { completed: [], current: null }; }
+}
+
+function saveProgress(p) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch (_) {}
+}
+
+function pickLocalized(obj) {
+  if (!obj) return '';
+  if (typeof obj === 'string') return obj;
+  const lang = i18n.getLang();
+  return obj[lang] || obj.en || '';
+}
+
+class LessonsMode {
+  constructor({ provider, root }) {
+    this.provider = provider;
+    this.root = root;
+    this.progress = loadProgress();
+    this.currentLesson = null;
+    this.stepIndex = 0;
+    this.board = null;
+    this.state = 'idle'; // idle | playing | correct | incorrect
+
+    this._cacheEls();
+    this._bindEvents();
+    this._listenRoute();
+    this._listenI18n();
+  }
+
+  _cacheEls() {
     const $ = (id) => document.getElementById(id);
-    const PROGRESS_KEY = 'lessonProgress';
-
-    let progress = S.get(PROGRESS_KEY, {});
-    if (!progress || typeof progress !== 'object') progress = {};
-    let currentLesson = null;
-    let stepIndex = 0;
-    let exampleBoard = null;
-
-    function save() { S.set(PROGRESS_KEY, progress); }
-    function isDone(id) { return !!progress[id]; }
-
-    /* ---------------- LIST ---------------- */
-    function renderList() {
-        const list = $('lessonList');
-        const detail = $('lessonDetail');
-        if (!list || !detail) return;
-        const data = window.LESSON_DATA;
-        if (!Array.isArray(data) || data.length === 0) {
-            window.AppSkeleton && window.AppSkeleton.empty(list, 'common.error', true);
-            detail.classList.add('hidden');
-            return;
-        }
-        list.innerHTML = '';
-        detail.classList.add('hidden');
-        list.classList.remove('hidden');
-
-        for (const lesson of data) {
-            const card = document.createElement('button');
-            card.type = 'button';
-            card.className = 'lesson-card' + (isDone(lesson.id) ? ' done' : '');
-
-            const badge = document.createElement('span');
-            badge.className = 'lesson-badge ' + pick(lesson.level);
-            badge.textContent = pick(lesson.level);
-
-            const body = document.createElement('span');
-            body.className = 'lesson-card-body';
-            const title = document.createElement('strong');
-            title.textContent = pick(lesson.title);
-            const desc = document.createElement('small');
-            desc.textContent = pick(lesson.description);
-            body.append(title, desc);
-
-            const state = document.createElement('span');
-            state.className = 'lesson-state';
-            state.textContent = isDone(lesson.id)
-                ? T('learning.done')
-                : T('learning.stepsCount', { count: lesson.steps.length });
-
-            card.append(badge, body, state);
-
-            // Bintang favorit — opsional, hanya bila modul Favorites tersedia.
-            if (window.Favorites && typeof Favorites.has === 'function') {
-                const star = document.createElement('span');
-                const isOn = Favorites.has('lesson', lesson.id);
-                star.className = 'fav-btn' + (isOn ? ' on' : '');
-                star.setAttribute('role', 'button');
-                star.setAttribute('tabindex', '0');
-                star.setAttribute('aria-label', T(isOn ? 'favorites.remove' : 'favorites.add'));
-                star.textContent = '\u2605';
-
-                const onFav = (ev) => {
-                    if (ev) { ev.stopPropagation(); ev.preventDefault(); }
-                    if (!window.Favorites) return;
-                    const on = Favorites.toggle('lesson', lesson.id);
-                    star.classList.toggle('on', on);
-                    star.setAttribute('aria-label', T(on ? 'favorites.remove' : 'favorites.add'));
-                    window.GameMode && window.GameMode.toast(
-                        T(on ? 'favorites.added' : 'favorites.removed'), 'success'
-                    );
-                };
-                star.addEventListener('click', onFav);
-                star.addEventListener('keydown', (ev) => {
-                    if (ev.key === 'Enter' || ev.key === ' ') onFav(ev);
-                });
-                card.append(star);
-            }
-
-            card.addEventListener('click', () => openLesson(lesson));
-            list.appendChild(card);
-        }
-
-        const done = window.LESSON_DATA.filter(l => isDone(l.id)).length;
-        const p = $('lessonProgressText');
-        if (p) p.textContent = T('learning.progress', { done, total: window.LESSON_DATA.length });
-    }
-
-    /* ---------------- DETAIL ---------------- */
-    function openLesson(lesson, step) {
-        currentLesson = lesson;
-        stepIndex = step || 0;
-        $('lessonList').classList.add('hidden');
-        $('lessonDetail').classList.remove('hidden');
-        renderStep();
-    }
-
-    function renderStep() {
-        const lesson = currentLesson;
-        const step = lesson.steps[stepIndex];
-        $('lessonTitle').textContent = pick(lesson.title);
-        $('lessonGoal').textContent = T('learning.goal', { goal: pick(lesson.goal) });
-        $('lessonStepCount').textContent = T('learning.stepCounter', {
-            current: stepIndex + 1, total: lesson.steps.length
-        });
-        $('lessonStepTitle').textContent = pick(step.title);
-        $('lessonStepText').textContent = pick(step.text);
-
-        const wrap = $('lessonBoardWrap');
-        const boardEl = $('lessonBoard');
-
-        // Reset board pada setiap step agar tidak buram / state nyangkut
-        wrap.classList.add('hidden');
-        boardEl.style.pointerEvents = 'none';
-        boardEl.style.cursor = 'default';
-        boardEl.onclick = null;
-
-        if (step.board && Chess.validateFEN(step.board)) {
-            wrap.classList.remove('hidden');
-            if (!exampleBoard) exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
-            exampleBoard.setState(Chess.parseFEN(step.board), {});
-        } else if (step.exercise && lesson.exercise) {
-            wrap.classList.remove('hidden');
-            if (!exampleBoard) exampleBoard = new BoardView(boardEl, { interactive: false, showCoords: true });
-            const ex = lesson.exercise;
-            exampleBoard.setState(Chess.parseFEN(ex.fen), {});
-            boardEl.style.pointerEvents = 'auto';
-            boardEl.style.cursor = 'pointer';
-
-            let sel = null, idx = 0;
-            const finish = () => {
-                boardEl.style.pointerEvents = 'none';
-                boardEl.style.cursor = 'default';
-                SFX.play('success');
-                window.GameMode && window.GameMode.toast(T('learning.exerciseSuccess'), 'success');
-                markDone(currentLesson.id);
-            };
-            boardEl.onclick = (ev) => {
-                const sqEl = ev.target.closest('.square');
-                if (!sqEl) return;
-                const r = +sqEl.dataset.row, c = +sqEl.dataset.col;
-                const st = exampleBoard.state;
-                if (!st) return;
-                const piece = st.board[r][c];
-                if (!sel) {
-                    if (piece && piece.color === st.currentPlayer) {
-                        sel = { r, c };
-                        const legal = Chess.legalMovesFrom(st, r, c);
-                        exampleBoard.setState(st, {
-                            selected: { row: r, col: c },
-                            legal: legal.map(m => ({ row: m.toRow, col: m.toCol })),
-                        });
-                    }
-                } else {
-                    const got = 'abcdefgh'[sel.c] + (8 - sel.r) + 'abcdefgh'[c] + (8 - r);
-                    if (got === ex.solution[idx]) {
-                        const mv = Chess.legalMovesFrom(st, sel.r, sel.c)
-                            .find(m => m.toRow === r && m.toCol === c);
-                        if (mv) {
-                            const res = Chess.applyMove(st, mv);
-                            exampleBoard.setState(res.state, {});
-                            sel = null; idx++;
-                            if (idx >= ex.solution.length) finish();
-                            return;
-                        }
-                    }
-                    sel = null;
-                    exampleBoard.setState(st, {});
-                    SFX.play('error');
-                }
-            };
-        }
-
-        // Kuis (jika ada) — tersembunyi default; biarkan kode lama mengisi.
-        const exWrap = $('lessonQuizWrap');
-        if (exWrap) exWrap.classList.add('hidden');
-
-        $('btnLessonPrev').disabled = stepIndex === 0;
-        const last = stepIndex === lesson.steps.length - 1;
-        $('btnLessonNext').textContent = last ? T('learning.done') : T('learning.next');
-    }
-
-    function markDone(id) {
-        if (!id) return;
-        progress[id] = true;
-        save();
-        renderList();
-    }
-
-    function next() {
-        if (!currentLesson) return;
-        if (stepIndex < currentLesson.steps.length - 1) {
-            stepIndex++;
-            renderStep();
-        } else {
-            progress[currentLesson.id] = true;
-            save();
-            SFX.play('success');
-            window.GameMode && window.GameMode.toast(
-                T('learning.completedToast', { title: pick(currentLesson.title) }), 'success'
-            );
-            renderList();
-        }
-    }
-
-    function prev() {
-        if (stepIndex > 0) { stepIndex--; renderStep(); }
-    }
-
-    function resetProgress() {
-        if (!confirm(T('learning.resetConfirm'))) return;
-        progress = {};
-        save();
-        renderList();
-        window.GameMode && window.GameMode.toast(T('learning.resetToast'), 'success');
-    }
-
-    window.LessonsMode = {
-        rerender() {
-            if (currentLesson) renderStep(); else renderList();
-        },
-        init() {
-            $('btnLessonBack').addEventListener('click', renderList);
-            $('btnLessonPrev').addEventListener('click', prev);
-            $('btnLessonNext').addEventListener('click', next);
-            $('btnLessonRepeat').addEventListener('click', () => openLesson(currentLesson, 0));
-            $('btnLessonReset').addEventListener('click', resetProgress);
-            renderList();
-        }
+    this.els = {
+      title: $('lesson-title'),
+      subtitle: $('lesson-subtitle'),
+      boardContainer: $('lesson-board-container'),
+      status: $('lesson-status'),
+      stepTitle: $('lesson-step-title'),
+      stepBody: $('lesson-step-body'),
+      prevBtn: $('lesson-prev'),
+      nextBtn: $('lesson-next'),
+      completeBtn: $('lesson-complete'),
+      tryAgainBtn: $('lesson-try-again'),
+      progressEl: $('lesson-progress'),
+      levelEl: $('lesson-level')
     };
-})();
+  }
+
+  _bindEvents() {
+    this.els.nextBtn?.addEventListener('click', () => this._nextStep());
+    this.els.prevBtn?.addEventListener('click', () => this._prevStep());
+    this.els.completeBtn?.addEventListener('click', () => this._complete());
+    this.els.tryAgainBtn?.addEventListener('click', () => this._resetStep());
+  }
+
+  _listenRoute() {
+    window.addEventListener('hashchange', () => this._applyRoute());
+  }
+
+  _listenI18n() {
+    i18n.onChange(() => {
+      this._renderStatic();
+      this._renderStep();
+    });
+  }
+
+  mount() {
+    this._renderStatic();
+    this._applyRoute();
+  }
+
+  _applyRoute() {
+    const hash = location.hash || '#/learning';
+    const m = hash.match(/^#\/learning\/([^/]+)/);
+    const id = m ? m[1] : null;
+    const lesson = id ? this.provider.getById(id) : this.provider.getFirst();
+    if (!lesson) {
+      if (this.els.status) this.els.status.textContent = T('learning.noLesson', null, 'Lesson not found.');
+      return;
+    }
+    if (this.currentLesson && this.currentLesson.id === lesson.id && this.board) return;
+    this._loadLesson(lesson);
+  }
+
+  _loadLesson(lesson) {
+    this.currentLesson = lesson;
+    this.stepIndex = 0;
+    this.state = 'idle';
+
+    if (this.board) this.board.destroy();
+    if (this.els.boardContainer) {
+      this.board = new BoardView({
+        el: this.els.boardContainer,
+        orientation: 'w',
+        onSquareClick: (sq) => this._onSquareClick(sq)
+      });
+    }
+
+    this._renderStatic();
+    this._renderStep();
+  }
+
+  _currentStep() {
+    return this.currentLesson?.steps?.[this.stepIndex] || null;
+  }
+
+  _renderStatic() {
+    if (!this.currentLesson) return;
+    if (this.els.title) this.els.title.textContent = pickLocalized(this.currentLesson.title);
+    if (this.els.subtitle) this.els.subtitle.textContent = pickLocalized(this.currentLesson.summary);
+    if (this.els.prevBtn) this.els.prevBtn.textContent = T('learning.previous', null, 'Previous');
+    if (this.els.nextBtn) this.els.nextBtn.textContent = T('learning.next', null, 'Next');
+    if (this.els.completeBtn) this.els.completeBtn.textContent = T('learning.markComplete', null, 'Mark Complete');
+    if (this.els.tryAgainBtn) this.els.tryAgainBtn.textContent = T('learning.tryAgain', null, 'Try Again');
+    if (this.els.levelEl) this.els.levelEl.textContent = pickLocalized(this.currentLesson.levelLabel) || '';
+    this._renderProgress();
+  }
+
+  _renderProgress() {
+    if (!this.els.progressEl || !this.currentLesson) return;
+    const total = this.currentLesson.steps?.length || 1;
+    const cur = Math.min(this.stepIndex + 1, total);
+    this.els.progressEl.textContent = `${cur} / ${total}`;
+    this.els.progressEl.setAttribute('aria-valuenow', cur);
+    this.els.progressEl.setAttribute('aria-valuemax', total);
+  }
+
+  _renderStep() {
+    const step = this._currentStep();
+    if (!step) return;
+
+    if (this.els.stepTitle) {
+      this.els.stepTitle.textContent =
+        pickLocalized(step.title) || `${T('learning.step', null, 'Step')} ${this.stepIndex + 1}`;
+    }
+    if (this.els.stepBody) {
+      this.els.stepBody.textContent = pickLocalized(step.body) || '';
+    }
+
+    if (step.board?.fen && this.board) {
+      this.board.setPosition(step.board.fen);
+      this.board.clearHighlights();
+    }
+
+    if (step.exercise && this.els.status) {
+      this.els.status.textContent = T('learning.exercise', null, 'Exercise');
+    }
+
+    this._renderProgress();
+    this._renderButtons();
+  }
+
+  _renderButtons() {
+    const total = this.currentLesson?.steps?.length || 0;
+    if (this.els.prevBtn) this.els.prevBtn.disabled = this.stepIndex === 0;
+    if (this.els.nextBtn) this.els.nextBtn.disabled = this.stepIndex >= total - 1;
+    if (this.els.tryAgainBtn) {
+      this.els.tryAgainBtn.hidden = !this._currentStep()?.exercise;
+    }
+  }
+
+  _onSquareClick(sq) {
+    const step = this._currentStep();
+    if (!step?.exercise) return;
+    if (this.state === 'correct') return;
+
+    if (!this._pendingFrom) {
+      this._pendingFrom = sq;
+      this.board.setSelected(sq);
+      this.board.setLegalMoves(
+        step.exercise.solution.filter(s => s.from === sq).map(s => s.to)
+      );
+      return;
+    }
+    const from = this._pendingFrom;
+    const to = sq;
+    this._pendingFrom = null;
+    this.board.clearHighlights();
+
+    const ok = step.exercise.solution.some(s => s.from === from && s.to === to);
+    if (ok) {
+      this.state = 'correct';
+      this.board.setLastMove({ from, to });
+      if (this.els.status) {
+        this.els.status.textContent = T('learning.correct', null, 'Correct!');
+        this.els.status.dataset.state = 'correct';
+      }
+    } else {
+      this.state = 'incorrect';
+      if (this.els.status) {
+        this.els.status.textContent = T('learning.incorrect', null, 'Not quite.');
+        this.els.status.dataset.state = 'incorrect';
+      }
+    }
+  }
+
+  _resetStep() {
+    this.state = 'idle';
+    this._pendingFrom = null;
+    const step = this._currentStep();
+    if (step?.exercise?.board?.fen) this.board?.setPosition(step.exercise.board.fen);
+    this.board?.clearHighlights();
+    if (this.els.status) this.els.status.textContent = '';
+  }
+
+  _nextStep() {
+    const total = this.currentLesson?.steps?.length || 0;
+    if (this.stepIndex < total - 1) {
+      this.stepIndex++;
+      this.state = 'idle';
+      this._renderStep();
+    }
+  }
+
+  _prevStep() {
+    if (this.stepIndex > 0) {
+      this.stepIndex--;
+      this.state = 'idle';
+      this._renderStep();
+    }
+  }
+
+  _complete() {
+    if (!this.currentLesson) return;
+    if (!this.progress.completed.includes(this.currentLesson.id)) {
+      this.progress.completed.push(this.currentLesson.id);
+    }
+    this.progress.current = this.currentLesson.id;
+    saveProgress(this.progress);
+    this._renderStatic();
+    if (this.els.status) {
+      this.els.status.textContent = T('learning.completed', null, 'Completed');
+      this.els.status.dataset.state = 'solved';
+    }
+  }
+}
+
+export function initLessonsMode(provider) {
+  const root = document.getElementById('page-learning');
+  if (!root) return null;
+  const mode = new LessonsMode({ provider, root });
+  mode.mount();
+  if (typeof window !== 'undefined') window.LessonsMode = mode;
+  return mode;
+         }
