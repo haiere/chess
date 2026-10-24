@@ -2,30 +2,21 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
 const PIECES = { wK: '♔', wQ: '♕', wR: '♖', wB: '♗', wN: '♘', wP: '♙', bK: '♚', bQ: '♛', bR: '♜', bB: '♝', bN: '♞', bP: '♟' };
 
-export class BoardView {
-  constructor(options = {}) {
-    // Robustness: accept string ID, DOM element, or { el: ... }
-    if (typeof options === 'string') {
-      this.el = document.getElementById(options);
-      this.onSquareClick = () => {};
-    } else if (options instanceof HTMLElement) {
-      this.el = options;
-      this.onSquareClick = () => {};
-    } else {
-      this.el = options.el;
-      this.onSquareClick = options.onSquareClick || (() => {});
-    }
+class BoardView {
+  constructor(el, options = {}) {
+    this.el = typeof el === 'string' ? document.getElementById(el) : el;
+    if (!this.el) return console.error("Board container not found!");
 
-    if (!this.el) {
-      console.error("BoardView: Container element not found!");
-      return;
-    }
-
-    this.orientation = options.orientation === 'b' ? 'b' : 'w';
+    this.orientation = options.orientation === 'black' || options.orientation === 'b' ? 'b' : 'w';
+    this.showCoords = options.showCoords !== false;
+    this.onSquareClick = options.onSquareClick || (() => {});
+    this.onDrop = null;
+    
     this._pieces = {};
     this._selected = null;
     this._legalMoves = [];
     this._lastMove = null;
+    this._checkSquare = null;
     
     this._build();
   }
@@ -33,12 +24,55 @@ export class BoardView {
   _build() {
     this.el.innerHTML = '';
     this.el.classList.add('board-wrapper');
-    
     this._boardEl = document.createElement('div');
     this._boardEl.className = 'board';
-    this._boardEl.setAttribute('role', 'grid');
     this.el.appendChild(this._boardEl);
+    this._renderAll();
+  }
+
+  // Fungsi ini menjembatani state dari engine.js (game.js) ke visual
+  setState(engineState, opts = {}) {
+    if (!engineState) return;
     
+    // Terjemahkan array board engine ke format { square: {color, type} }
+    this._pieces = {};
+    if (engineState.board) {
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const p = engineState.board[r][c];
+          if (p) {
+            const sq = FILES[c] + RANKS[r];
+            this._pieces[sq] = { color: p.color === 'white' ? 'w' : 'b', type: p.type.toUpperCase()[0] };
+          }
+        }
+      }
+    }
+
+    this._selected = opts.selected ? (FILES[opts.selected.col] + RANKS[opts.selected.row]) : null;
+    
+    // Terjemahkan legalMoves dari engine
+    this._legalMoves = [];
+    if (opts.legalMoves) {
+      opts.legalMoves.forEach(m => {
+        this._legalMoves.push(FILES[m.toCol] + RANKS[m.toRow]);
+      });
+    }
+    
+    if (opts.lastMove) {
+      this._lastMove = {
+        from: FILES[opts.lastMove.fromCol] + RANKS[opts.lastMove.fromRow],
+        to: FILES[opts.lastMove.toCol] + RANKS[opts.lastMove.toRow]
+      };
+    } else {
+      this._lastMove = null;
+    }
+
+    if (opts.checkSquare) {
+      this._checkSquare = FILES[opts.checkSquare.col] + RANKS[opts.checkSquare.row];
+    } else {
+      this._checkSquare = null;
+    }
+
     this._renderAll();
   }
 
@@ -55,8 +89,12 @@ export class BoardView {
         const isLight = (FILES.indexOf(f) + RANKS.indexOf(r)) % 2 === 0;
         cell.className = `square ${isLight ? 'light' : 'dark'}`;
         cell.dataset.square = sq;
-        
-        // Piece
+
+        if (this._lastMove && (sq === this._lastMove.from || sq === this._lastMove.to)) cell.classList.add('last-move');
+        if (sq === this._checkSquare) cell.classList.add('in-check');
+        if (sq === this._selected) cell.classList.add('selected');
+        if (this._legalMoves.includes(sq)) cell.classList.add('legal-target');
+
         const p = this._pieces[sq];
         if (p) {
           const span = document.createElement('span');
@@ -65,40 +103,36 @@ export class BoardView {
           cell.appendChild(span);
         }
 
-        if (this._lastMove && (sq === this._lastMove.from || sq === this._lastMove.to)) cell.classList.add('last-move');
-        if (sq === this._selected) cell.classList.add('selected');
-        if (this._legalMoves.includes(sq)) cell.classList.add('legal-target');
+        // Koordinat
+        if (this.showCoords) {
+           if ((this.orientation === 'w' && r === '1') || (this.orientation === 'b' && r === '8')) {
+              const el = document.createElement('span'); el.className = 'coord-file'; el.textContent = f; cell.appendChild(el);
+           }
+           if ((this.orientation === 'w' && f === 'a') || (this.orientation === 'b' && f === 'h')) {
+              const el = document.createElement('span'); el.className = 'coord-rank'; el.textContent = r; cell.appendChild(el);
+           }
+        }
 
-        cell.addEventListener('click', () => this.onSquareClick(sq));
+        cell.addEventListener('click', () => {
+           const row = RANKS.indexOf(r);
+           const col = FILES.indexOf(f);
+           this.onSquareClick(row, col);
+        });
+        
         frag.appendChild(cell);
       }
     }
     this._boardEl.replaceChildren(frag);
   }
 
-  setPosition(fenOrBoard) {
-    if (typeof fenOrBoard === 'object') {
-      this._pieces = { ...fenOrBoard };
-    } else {
-      this._pieces = {};
-      const rows = (fenOrBoard || '').split(' ')[0]?.split('/') || [];
-      rows.forEach((row, r) => {
-        let fileIdx = 0;
-        for (const ch of row) {
-          if (/\d/.test(ch)) { fileIdx += parseInt(ch, 10); continue; }
-          this._pieces[FILES[fileIdx] + RANKS[r]] = { color: ch === ch.toUpperCase() ? 'w' : 'b', type: ch.toUpperCase() };
-          fileIdx++;
-        }
-      });
-    }
+  setOrientation(o) {
+    this.orientation = (o === 'black' || o === 'b') ? 'b' : 'w';
     this._renderAll();
   }
-
-  setOrientation(o) { this.orientation = o === 'b' ? 'b' : 'w'; this._renderAll(); }
-  setSelected(sq) { this._selected = sq; this._renderAll(); }
-  setLegalMoves(moves) { this._legalMoves = moves || []; this._renderAll(); }
-  setLastMove(move) { this._lastMove = move; this._renderAll(); }
-  clearHighlights() { this._selected = null; this._legalMoves = []; this._lastMove = null; this._renderAll(); }
+  setCoords(show) {
+    this.showCoords = show;
+    this._renderAll();
+  }
 }
 
 window.BoardView = BoardView;
