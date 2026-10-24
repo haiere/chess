@@ -1,15 +1,18 @@
 /**
- * js/main.js — v6.3.
+ * js/main.js — v6.1.
  * - Guard: kalau sudah load, skip.
+ * - Tambah i18n-extend.
  * - Semua dynamic import.
- * - v6.1: hapus bridge/i18n-extend.
- * - v6.2: hapus puzzle/provider.js; resetAllProgress robust; <html lang> sync.
- * - v6.3: param dispatch (selectPuzzle/openLesson) keluar dari bridge check,
- *         sehingga deep-link #/puzzle/:id dan #/learning/:id selalu diproses.
+ *
+ * v6.1 changes:
+ *   - bridgeInit gains `settings: false` slot.
+ *   - SettingsBridge guard flag moved inside the existence check.
+ *   - ROUTES uses canonical "learning" (not "learn").
  */
 const BRIDGE_IMPORTS = [
   "./i18n.js",
   "./components/LanguageSwitcher.js",
+  "./bridge/i18n-extend.js",       // ← TAMBAH (sebelumnya hilang)
   "./bridge/visual-polish.js",
   "./bridge/id-shim.js",
   "./bridge/game-bridge.js",
@@ -19,8 +22,6 @@ const BRIDGE_IMPORTS = [
 
 const USER_MODULES = [
   { path: "./storage.js",           globals: ["AppStorage", "Storage"] },
-  { path: "./favorites.js",         globals: ["Favorites"] },
-  { path: "./dashboard.js",         globals: ["Dashboard"] },
   { path: "./utils/storage.js",     globals: ["AppStorage", "Storage"] },
   { path: "./utils/theme.js",       globals: ["Theme"] },
   { path: "./audio.js",             globals: ["SFX", "Audio", "Sound"] },
@@ -34,6 +35,7 @@ const USER_MODULES = [
   { path: "./components/Icon.js",   globals: ["Icon"] },
   { path: "./game.js",              globals: ["GameMode", "Game", "Mode"] },
   { path: "./puzzle-data.js",       globals: ["PuzzleData"] },
+  { path: "./puzzle/provider.js",   globals: ["PuzzleProvider", "Provider"] },
   { path: "./puzzle.js",            globals: ["PuzzleMode", "Puzzle", "Mode"] },
   { path: "./lessons-data.js",      globals: ["LessonsData"] },
   { path: "./lessons.js",           globals: ["LessonsMode", "Lessons", "Mode"] }
@@ -79,7 +81,12 @@ async function loadUserModules() {
   console.info("[main-v6] user modules:", loaded.length, "of", USER_MODULES.length);
 }
 
-const ROUTES = ["dashboard", "game", "puzzle", "learn", "settings", "about"];
+// v6.1: canonical route names — "learning", not "learn".
+const ROUTES = ["game", "puzzle", "learning", "settings", "about"];
+function normalize(hash) {
+  const r = (hash || "").replace(/^#\/?/, "").trim();
+  return ROUTES.includes(r) ? r : "game";
+}
 function parseHash() {
   let h = (location.hash || "#/game").replace(/^#\/?/, "");
   let query = {};
@@ -111,47 +118,43 @@ function showRoute(route, param) {
   if (main && main.focus) { try { main.focus({ preventScroll: true }); } catch (e) { main.focus(); } }
 }
 
+// v6.1: `settings` slot added so the guard flag is explicit.
 const bridgeInit = { game: false, puzzle: false, learn: false, settings: false };
-
 function initBridgeForRoute(route, param) {
-  if (route === "game") {
-    if (window.GameBridge && window.GameBridge.init && !bridgeInit.game) {
-      bridgeInit.game = true;
+  if (route === "game" && !bridgeInit.game) {
+    bridgeInit.game = true;
+    if (window.GameBridge && window.GameBridge.init) {
       try { window.GameBridge.init(); }
       catch (e) { console.error("[main-v6] GameBridge.init() throw:", e); }
     }
   }
   if (route === "puzzle") {
-    if (window.PuzzleBridge && window.PuzzleBridge.init && !bridgeInit.puzzle) {
-      bridgeInit.puzzle = true;
-      try { window.PuzzleBridge.init(); }
+    if (window.PuzzleBridge && window.PuzzleBridge.init) {
+      try {
+        if (!bridgeInit.puzzle) { bridgeInit.puzzle = true; window.PuzzleBridge.init(); }
+        if (param && window.PuzzleMode && window.PuzzleMode.selectPuzzle) window.PuzzleMode.selectPuzzle(param);
+      }
       catch (e) { console.error("[main-v6] PuzzleBridge.init() throw:", e); }
-    }
-    if (param && window.PuzzleMode && typeof window.PuzzleMode.selectPuzzle === "function") {
-      try { window.PuzzleMode.selectPuzzle(param); }
-      catch (e) { console.error("[main-v6] PuzzleMode.selectPuzzle throw:", e); }
     }
   }
   if (route === "learning") {
-    if (window.LearnBridge && window.LearnBridge.init && !bridgeInit.learn) {
-      bridgeInit.learn = true;
-      try { window.LearnBridge.init(); }
+    if (window.LearnBridge && window.LearnBridge.init) {
+      try {
+        if (!bridgeInit.learn) { bridgeInit.learn = true; window.LearnBridge.init(); }
+        if (param && window.LessonsMode && window.LessonsMode.openLesson) window.LessonsMode.openLesson(param);
+      }
       catch (e) { console.error("[main-v6] LearnBridge.init() throw:", e); }
-    }
-    if (param && window.LessonsMode && typeof window.LessonsMode.openLesson === "function") {
-      try { window.LessonsMode.openLesson(param); }
-      catch (e) { console.error("[main-v6] LessonsMode.openLesson throw:", e); }
     }
   }
   if (route === "settings" && !bridgeInit.settings) {
-    bridgeInit.settings = true;
+    // v6.1: flag flips only once the bridge actually initialises.
     if (window.SettingsBridge && window.SettingsBridge.init) {
+      bridgeInit.settings = true;
       try { window.SettingsBridge.init(); }
       catch (e) { console.error("[main-v6] SettingsBridge.init() throw:", e); }
     }
   }
 }
-
 function initThemeToggle() {
   const btn = document.getElementById("btn-theme");
   if (!btn || btn.__bound) return;
@@ -190,67 +193,6 @@ function initLangSwitcher() {
   });
 }
 
-function applyLangToDocument() {
-  try {
-    if (window.I18n && typeof window.I18n.getLang === "function") {
-      const lang = window.I18n.getLang();
-      if (lang) document.documentElement.setAttribute("lang", lang);
-    }
-  } catch (e) {}
-}
-
-function wrapI18nSetLang() {
-  if (!window.I18n || typeof window.I18n.setLang !== "function") return;
-  if (window.I18n.__langWrapped) return;
-  const orig = window.I18n.setLang.bind(window.I18n);
-  window.I18n.setLang = function (lang) {
-    const r = orig(lang);
-    applyLangToDocument();
-    return r;
-  };
-  window.I18n.__langWrapped = true;
-}
-
-/* ---------- Reset helpers ---------- */
-const STORAGE_PREFIX = "hajir-chess:";
-
-const PROGRESS_KEYS = [
-  "puzzleStats", "puzzleSeen", "lessonProgress",
-  "lastPuzzle", "lastLesson",
-  "favPuzzles", "favLessons", "favorites", "favorites_puzzle", "favorites_lesson",
-  "dashboardProgress", "streak", "bestStreak", "practiceStreak"
-];
-const SETTINGS_KEYS = ["theme", "boardTheme", "sound", "coords", "animations"];
-
-function removeKeysExplicit(keys) {
-  for (const k of keys) {
-    try {
-      if (window.AppStorage && window.AppStorage.remove) window.AppStorage.remove(k);
-      else if (window.localStorage) localStorage.removeItem(STORAGE_PREFIX + k);
-    } catch (e) {}
-  }
-}
-function removeKeysByPattern(regex) {
-  try {
-    for (let i = localStorage.length - 1; i >= 0; i--) {
-      const k = localStorage.key(i);
-      if (!k || !k.startsWith(STORAGE_PREFIX)) continue;
-      const bare = k.slice(STORAGE_PREFIX.length);
-      if (regex.test(bare)) { try { localStorage.removeItem(k); } catch (e) {} }
-    }
-  } catch (e) {}
-}
-function resetAllProgress() {
-  removeKeysExplicit(PROGRESS_KEYS);
-  removeKeysByPattern(/^(puzzle|lesson|fav|dashboard|streak|progress|last)/i);
-}
-function resetAllSettings() {
-  removeKeysExplicit(SETTINGS_KEYS);
-}
-function refreshSidebarProgress() {
-  try { initSidebarProgress(); } catch (e) {}
-}
-
 function bindSettings() {
   const themeSel = document.getElementById("setting-theme");
   if (themeSel && !themeSel.__bound) {
@@ -268,67 +210,6 @@ function bindSettings() {
       } catch (err) {}
     });
   }
-  const soundSel = document.getElementById("setting-sound");
-  if (soundSel && !soundSel.__bound) {
-    soundSel.__bound = true;
-    const savedSound = (window.AppStorage && AppStorage.get("sound"));
-    soundSel.value = savedSound === false ? "off" : "on";
-    soundSel.addEventListener("change", e => {
-      try { AppStorage.set("sound", e.target.value === "on"); } catch (err) {}
-      if (window.SFX) { try { window.SFX.enabled = e.target.value === "on"; } catch (err) {} }
-    });
-  }
-  const animSel = document.getElementById("setting-animations");
-  if (animSel && !animSel.__bound) {
-    animSel.__bound = true;
-    const savedAnim = (window.AppStorage && AppStorage.get("animations"));
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    animSel.value = savedAnim === false || (savedAnim == null && reduced) ? "off" : "on";
-    document.documentElement.setAttribute("data-animations", animSel.value);
-    animSel.addEventListener("change", e => {
-      document.documentElement.setAttribute("data-animations", e.target.value);
-      try { AppStorage.set("animations", e.target.value === "on"); } catch (err) {}
-    });
-  }
-  const btnResetProgress = document.getElementById("btn-reset-progress");
-  if (btnResetProgress && !btnResetProgress.__bound) {
-    btnResetProgress.__bound = true;
-    btnResetProgress.addEventListener("click", () => {
-      const T = window.I18n ? window.I18n.t : k => k;
-      if (!confirm(T("settings.resetProgressConfirm"))) return;
-      resetAllProgress();
-      if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
-      refreshSidebarProgress();
-      if (window.Dashboard && Dashboard.render) { try { Dashboard.render(); } catch (e) {} }
-    });
-  }
-  const btnResetSettings = document.getElementById("btn-reset-settings");
-  if (btnResetSettings && !btnResetSettings.__bound) {
-    btnResetSettings.__bound = true;
-    btnResetSettings.addEventListener("click", () => {
-      const T = window.I18n ? window.I18n.t : k => k;
-      if (!confirm(T("settings.resetSettingsConfirm"))) return;
-      resetAllSettings();
-      if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
-      document.documentElement.removeAttribute("data-board-theme");
-      document.documentElement.setAttribute("data-animations", "on");
-    });
-  }
-  const btnResetAll = document.getElementById("btn-reset-all");
-  if (btnResetAll && !btnResetAll.__bound) {
-    btnResetAll.__bound = true;
-    btnResetAll.addEventListener("click", () => {
-      const T = window.I18n ? window.I18n.t : k => k;
-      if (!confirm(T("settings.resetConfirm"))) return;
-      resetAllProgress();
-      resetAllSettings();
-      if (window.GameMode && GameMode.toast) GameMode.toast(T("settings.resetToast"), "success");
-      refreshSidebarProgress();
-      if (window.Dashboard && Dashboard.render) { try { Dashboard.render(); } catch (e) {} }
-      document.documentElement.removeAttribute("data-board-theme");
-      document.documentElement.setAttribute("data-animations", "on");
-    });
-  }
   const boardSel = document.getElementById("setting-board-theme");
   if (boardSel && !boardSel.__bound) {
     boardSel.__bound = true;
@@ -342,12 +223,14 @@ function bindSettings() {
   }
 }
 
-/* ---------- Skeleton & empty state ---------- */
+
+// Util skeleton & state kosong/error (dipakai bridge/lessons/puzzle)
 window.AppSkeleton = {
   _t: new WeakMap(),
   _arm(el) {
     clearTimeout(this._t.get(el));
     this._t.set(el, setTimeout(() => {
+      // timeout pengaman: skeleton tak tampil selamanya
       if (el && el.querySelector(".skeleton")) this.empty(el, "common.error", true);
     }, 8000));
   },
@@ -368,18 +251,14 @@ window.AppSkeleton = {
   board(el) { if (el) { el.innerHTML = '<div class="skeleton skeleton--board" aria-hidden="true"></div>'; this._arm(el); } },
   empty(el, key, retry) {
     if (!el) return;
-    el.innerHTML = '<div class="state-box" role="status" aria-live="polite"><p>' +
+    el.innerHTML = '<div class="state-box" role="status"><p>' +
       (window.I18n ? window.I18n.t(key) : key) + '</p>' +
       (retry ? '<button class="btn accent" data-retry>' +
         (window.I18n ? window.I18n.t("common.retry") : "Retry") + '</button>' : '') +
       '</div>';
     const b = el.querySelector("[data-retry]");
-    if (b) b.addEventListener("click", () => {
-      const fn = el.__retry || (() => location.reload());
-      try { fn(); } catch (e) { location.reload(); }
-    });
-  },
-  setRetry(el, fn) { if (el) el.__retry = fn; }
+    if (b) b.addEventListener("click", () => location.reload());
+  }
 };
 
 function initSidebarProgress() {
@@ -389,14 +268,11 @@ function initSidebarProgress() {
   setTimeout(() => {
     try {
       const T = window.I18n ? window.I18n.t : k => k;
-      const lpRaw = (window.AppStorage && AppStorage.get("lessonProgress")) || {};
-      const lp = (lpRaw && typeof lpRaw === "object" && !Array.isArray(lpRaw)) ? lpRaw : {};
-      const doneCount = Object.keys(lp).length;
-      const totalLessons = (window.LESSON_DATA && Array.isArray(window.LESSON_DATA) && window.LESSON_DATA.length) || 50;
+      const lp = JSON.parse((window.AppStorage && AppStorage.get("lessonProgress")) || "{}");
       const cnt = window.PuzzleMode && PuzzleMode.solvedCount ? PuzzleMode.solvedCount() : 0;
       sp.innerHTML =
-        '<h3 class="app-card-title">' + T("learning.title") + '</h3>' +
-        '<div class="text-sub">' + T("learning.progress", { done: doneCount, total: totalLessons }) + '</div>' +
+        '<h3 class="app-card-title">' + T("learning.progress") + '</h3>' +
+        '<div class="text-sub">' + T("learning.progressCount", { current: Object.keys(lp).length, total: 50 }) + '</div>' +
         '<h3 class="app-card-title" style="margin-top:8px">' + T("puzzle.title") + '</h3>' +
         '<div class="text-sub">' + T("puzzle.solvedCount", { count: cnt }) + '</div>';
     } catch (e) { window.AppSkeleton && AppSkeleton.empty(sp, "common.error", false); }
@@ -414,8 +290,6 @@ async function boot() {
   if (window.I18n && window.I18n.init) {
     try { window.I18n.init(); } catch (e) { console.warn("[main-v6] I18n.init gagal:", e); }
   }
-  wrapI18nSetLang();
-  applyLangToDocument();
 
   await loadUserModules();
 
@@ -428,9 +302,9 @@ async function boot() {
     PuzzleBridge: typeof window.PuzzleBridge, LearnBridge: typeof window.LearnBridge
   });
 
-  restoreTheme(); initThemeToggle();
+  restoreTheme();initThemeToggle();
   initSidebarProgress();
-
+  
   bindSettings();
 
   const current = parseHash();
@@ -443,32 +317,11 @@ async function boot() {
   }
   showRoute(current.route, current.param);
 
-  if (window.Dashboard && Dashboard.init) { try { Dashboard.init(); } catch (e) {} }
-
-  document.addEventListener("keydown", (e) => {
-    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
-    const t = e.target;
-    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-    const r = parseHash().route;
-    const click = (id) => { const b = id && document.getElementById(id); if (b && !b.disabled) b.click(); };
-    if (e.key === "ArrowRight")      click(r === "learning" ? "btn-learn-next"  : r === "puzzle" ? "btn-puzzle-next"  : null);
-    else if (e.key === "ArrowLeft")  click(r === "learning" ? "btn-learn-prev"  : null);
-    else if (e.key === "r" || e.key === "R") click(r === "puzzle" ? "btn-puzzle-retry" : null);
-    else if (e.key === "h" || e.key === "H") click(r === "puzzle" ? "btn-puzzle-hint"  : null);
-    else return;
-    e.preventDefault();
-  });
-
-  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  }
-
   initLangSwitcher();
   initBridgeForRoute(current.route, current.param);
 
   document.addEventListener("route:change", e => {
     if (e && e.detail && e.detail.route) initBridgeForRoute(e.detail.route, e.detail.param);
-    applyLangToDocument();
   });
 
   console.log("%c[main-v6] Siap.", "color:#10b981;font-weight:bold");
@@ -482,6 +335,7 @@ if (bootPromise && bootPromise.catch) {
   bootPromise.catch(e => console.error("[main-v6] boot gagal:", e));
 }
 
+// Sembunyikan splash loading setelah boot selesai (fade-out, lalu hapus)
 function hideAppLoading() {
   const el = document.getElementById("app-loading");
   if (!el) return;
@@ -489,4 +343,5 @@ function hideAppLoading() {
   setTimeout(() => el.remove(), 400);
 }
 if (bootPromise && bootPromise.then) bootPromise.then(hideAppLoading);
+// Fallback pengaman: selalu hilangkan splash walau boot lambat/gagal
 setTimeout(hideAppLoading, 10000);
