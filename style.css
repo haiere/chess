@@ -1,18 +1,14 @@
 /* ==========================================================================
-   Hajir Chess — Unified Design System v8.0
-   Merge: "Design System" (token baru) sebagai basis + Patch v7.3.
-   Keputusan merge:
-   - Token dari design system baru jadi sumber utama; token lama v7.3
-     yang masih dipakai komponen (--accent-soft, --nav-w, --t-*, dst.)
-     dipertahankan sebagai alias.
-   - Semua patch anti-bug v7.3 dipertahankan: .app-page display:block,
-     kartu flex + flex:none, list (item-*/lesson-*) anti tumpang-tindih,
-     papan dipaksa grid 8x8 + aspect-ratio (important untuk lawan
-     inline style dari JS), ellipsis judul panjang.
-   - Kelas duplikat disatukan: .app-page=~.page, .modal-overlay=~.modal-backdrop,
-     .legal-move=~.legal-target, .icon-btn & .btn tetap keduanya.
-   - Tema papan = gabungan kedua file (neon/emerald dedup, midnight/rose/bw/ocean/wood/marble/classic).
-   - Breakpoint desktop distandarkan ke 1024px; layout 2 kolom game tetap >=1100px.
+   Hajir Chess — Unified Design System v8.1
+   Merge: v8.0 core + legacy compat layer from the previous "simple" CSS.
+   Keputusan:
+   - v8.0 tetap utuh sebagai basis.
+   - Lapisan kompatibilitas (§27) menambah: bare <button> styles,
+     .actions-grid, ellipsis pada .app-bottomnav span, alias --app-muted,
+     defensive .square [class*="piece-"] sizing, .btn-row--split.
+   - Semua patch anti-bug v7.3 dipertahankan.
+   - Tema papan digabung (classic/wood/marble/neon/emerald/ocean/midnight/rose/bw).
+   - Breakpoint desktop 1024px; layout game 2-kolom ≥1100px.
    ========================================================================== */
 
 /* ---------- 1. TOKENS ---------- */
@@ -28,6 +24,7 @@
   --text: #e8ecf3;
   --text-muted: #9aa3b2;
   --text-subtle: #6b7383;
+  --app-muted: var(--text-muted);      /* alias: dipakai inline di #learn-progress */
 
   /* Accent */
   --accent: #7aa2ff;
@@ -143,6 +140,7 @@
   --text: #1a1f2a;
   --text-muted: #5c6472;
   --text-subtle: #8a92a0;
+  --app-muted: var(--text-muted);
   --accent: #3355cc;
   --accent-hover: #2244bb;
   --accent-fg: #ffffff;
@@ -280,7 +278,6 @@ p { margin: 0 0 var(--space-3); }
 .icon-btn:active { transform: scale(.96); }
 
 /* ---------- 5. LAYOUT ---------- */
-/* Grid layout (v7.3) */
 .app-layout {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
@@ -288,7 +285,6 @@ p { margin: 0 0 var(--space-3); }
   min-height: 0;
 }
 
-/* Flex shell (design system baru) */
 .app-shell {
   display: flex;
   flex: 1;
@@ -308,7 +304,7 @@ p { margin: 0 0 var(--space-3); }
   flex-direction: column;
   gap: var(--space-1);
 }
-.app-sidebar { display: none; } /* mobile: hidden, .app-nav tetap via .app-layout */
+.app-sidebar { display: none; }
 
 .app-nav a {
   display: flex; align-items: center; gap: var(--space-3);
@@ -332,21 +328,19 @@ p { margin: 0 0 var(--space-3); }
    7. MAIN & PAGES — KUNCI ANTI "KOTAK HITAM RAKSASA"
    ============================================================ */
 .app-main {
-  display: block;                    /* KUNCI: block → tidak melar */
+  display: block;
   flex: 1;
   min-width: 0;
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
   padding: var(--space-4);
-  /* Kompensasi bottom nav mobile */
   padding-bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-8));
 }
 
-/* Dua konvensi halaman: .app-page.is-active (lama) & .page (baru) */
 .app-page, .page { display: none; }
 .app-page.is-active, .page[aria-hidden="false"] {
-  display: block;                    /* KUNCI: block saat aktif */
+  display: block;
   animation: page-in var(--t-base);
 }
 @keyframes page-in {
@@ -354,7 +348,6 @@ p { margin: 0 0 var(--space-3); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Spacing antar blok dalam halaman (karena display:block abaikan gap) */
 .app-page.is-active > * + * { margin-top: var(--space-4); }
 .app-page.is-active > :first-child { margin-top: 0; }
 
@@ -365,7 +358,7 @@ p { margin: 0 0 var(--space-3); }
 
 /* ---------- 8. CARDS ---------- */
 .app-card {
-  display: flex;                     /* layout internal tetap flex */
+  display: flex;
   flex-direction: column;
   gap: var(--space-3);
   background: var(--surface);
@@ -376,7 +369,7 @@ p { margin: 0 0 var(--space-3); }
   min-width: 0;
   box-sizing: border-box;
   box-shadow: var(--shadow-sm);
-  flex: none;                        /* anti stretch bila parent flex */
+  flex: none;
   height: auto;
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
@@ -422,13 +415,11 @@ p { margin: 0 0 var(--space-3); }
 .btn:disabled, .btn-row button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
 .btn svg { flex: 0 0 auto; }
 
-/* Primary (dua konvensi: .accent lama & --primary baru) */
 .btn.accent, .btn--primary, .btn-row button.accent {
   background: var(--accent); color: var(--accent-fg); border-color: transparent;
 }
 .btn.accent:hover:not(:disabled), .btn--primary:hover:not(:disabled) { background: var(--accent-hover); }
 
-/* Danger */
 .btn.danger, .btn--danger, .btn-row button.danger {
   color: var(--danger);
   border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
@@ -437,11 +428,9 @@ p { margin: 0 0 var(--space-3); }
   background: var(--danger-soft); border-color: var(--danger);
 }
 
-/* Ghost */
 .btn--ghost { background: transparent; border-color: transparent; }
 .btn--ghost:hover:not(:disabled) { background: var(--surface-hover); }
 
-/* Sizes */
 .btn.small, .btn--sm { padding: 6px 10px; font-size: var(--fs-sm); min-height: 32px; }
 .btn--lg { min-height: 48px; padding: var(--space-3) var(--space-5); font-size: var(--fs-md); }
 .btn--block { width: 100%; }
@@ -449,7 +438,8 @@ p { margin: 0 0 var(--space-3); }
 .btn.active { border-color: var(--accent); color: var(--accent); }
 
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.btn-row.btns-spread { justify-content: space-between; }
+.btn-row.btns-spread,
+.btn-row--split { justify-content: space-between; }
 
 /* ---------- 10. FORM ---------- */
 .app-select, select {
@@ -476,7 +466,7 @@ p { margin: 0 0 var(--space-3); }
   .settings-grid { grid-template-columns: 180px 1fr; align-items: center; }
 }
 
-/* ---------- 11. BOARD — PAPAN CATUR MATI 8×8 (ANTI GEPENG / RAKSASA) ---------- */
+/* ---------- 11. BOARD — PAPAN CATUR MATI 8×8 ---------- */
 #board-container,
 #puzzle-board-container,
 #lesson-board-container,
@@ -507,7 +497,7 @@ p { margin: 0 0 var(--space-3); }
 #lessonBoardWrap .board {
   width: 100%;
   max-width: min(100%, var(--board-max));
-  aspect-ratio: 1 / 1 !important;    /* !important: lawan inline style JS */
+  aspect-ratio: 1 / 1 !important;
   height: auto !important;
   display: grid !important;
   grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
@@ -539,19 +529,18 @@ p { margin: 0 0 var(--space-3); }
   background: var(--sq-light);
   transition: filter var(--t-fast);
 }
+.square.light { background: var(--sq-light); }
 .square.dark, .square[data-square-color="dark"] { background: var(--sq-dark); }
 @media (hover: hover) {
   .square:hover { filter: brightness(1.05); }
   .square.dark:hover { filter: brightness(1.12); }
 }
 
-/* Highlights via overlay ::before (tetap di belakang piece, z-index piece = 2) */
 .square.last-move::before { content: ''; position: absolute; inset: 0; background: var(--sq-lastmove); }
 .square.selected::before  { content: ''; position: absolute; inset: 0; background: var(--sq-selected); }
 .square.in-check::before   { content: ''; position: absolute; inset: 0; background: var(--sq-check); }
 .square.kb-focus { outline: 3px solid var(--accent); outline-offset: -3px; z-index: 2; }
 
-/* Legal target — dot; capture — ring (dua konvensi kelas disatukan) */
 .square.legal-move::after, .square.legal-target::after {
   content: ''; position: absolute;
   width: 26%; height: 26%; border-radius: 50%;
@@ -563,7 +552,6 @@ p { margin: 0 0 var(--space-3); }
   border: calc(2px + .35vw) solid var(--sq-capture); z-index: 1; pointer-events: none;
 }
 
-/* Piece — dua representasi: unicode (.piece) & gambar (.piece-img) */
 .piece-img {
   width: 88%; height: 88%;
   object-fit: contain;
@@ -594,7 +582,6 @@ p { margin: 0 0 var(--space-3); }
   filter: drop-shadow(0 1px 1px rgba(255,255,255,.35));
 }
 
-/* Coordinates — dua konvensi kelas disatukan */
 .coord, .coord-label {
   position: absolute;
   font-size: clamp(8px, 1.5vw, 12px);
@@ -628,7 +615,6 @@ p { margin: 0 0 var(--space-3); }
 .square.good-move { box-shadow: inset 0 0 0 4px var(--success); }
 @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} }
 
-/* Status text panel (mode puzzle/lesson) */
 .status-text {
   font-size: var(--fs-md);
   font-weight: 600;
@@ -733,7 +719,6 @@ p { margin: 0 0 var(--space-3); }
 
 /* ============================================================
    16. LIST: PUZZLE (.item-*) & LESSON (.lesson-*)
-   ANTI TUMPANG-TINDIH: flex-row + min-width: 0 + ellipsis
    ============================================================ */
 .learn-container, .settings-page {
   width: 100%; max-width: 680px; margin: 0 auto;
@@ -776,7 +761,7 @@ p { margin: 0 0 var(--space-3); }
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  min-width: 0;                    /* KUNCI: cegah teks dorong bintang */
+  min-width: 0;
   gap: 4px;
 }
 .item-body strong, .lesson-card-body strong {
@@ -878,7 +863,7 @@ body.modal-open { overflow: hidden; }
   width: max-content; max-width: calc(100vw - 32px);
 }
 .toast, .toast-container .toast {
-  position: static;                    /* toast standalone boleh fixed */
+  position: static;
   transform: none;
   background: var(--surface-2); border: 1px solid var(--border-strong);
   border-left: 4px solid var(--accent);
@@ -893,7 +878,6 @@ body.modal-open { overflow: hidden; }
 }
 .toast.success { border-left-color: var(--success); }
 .toast.error   { border-left-color: var(--danger); }
-/* Toast standalone (tanpa container) tetap fixed di tengah bawah */
 .toast:not(.toast-container .toast) {
   position: fixed;
   left: 50%;
@@ -1009,18 +993,16 @@ body.modal-open { overflow: hidden; }
   .coord, .coord-label { font-size: 8px; }
 }
 
-/* Layout 2-kolom khusus halaman game di desktop */
 @media (min-width: 1100px) {
   .app-layout { grid-template-columns: minmax(280px, 28%) 1fr; }
   .app-main { max-width: none; }
 
   #page-game.is-active {
-    display: grid;                    /* override .app-page.is-active block */
+    display: grid;
     grid-template-columns: minmax(340px, 560px) minmax(280px, 1fr);
     gap: var(--space-4);
     align-items: start;
   }
-  /* matikan margin antar-blok yang dipakai display:block */
   #page-game.is-active > * { margin-top: 0 !important; }
 
   #page-game .app-page-title,
@@ -1116,3 +1098,74 @@ body.modal-open { overflow: hidden; }
   .action-row .btn { min-width: 0; flex: 1 1 calc(50% - var(--space-2)); }
   .square .piece { font-size: clamp(16px, 6.5vw, 36px); }
 }
+
+/* ==========================================================================
+   27. COMPATIBILITY LAYER
+   Bagian ini menggabungkan sisa-sisa "simple CSS" agar HTML lama dan
+   bridge yang masih memakai elemen/kelas berikut tetap tampil benar.
+   Semua selector di sini ber-specificity rendah sehingga v8.0 tetap
+   menang bila ada aturan yang lebih spesifik.
+   ========================================================================== */
+
+/* 27.1 Bare <button> — hanya styling dasar; .btn / .btn-row button /
+       .icon-btn / .lesson-card / .promotion-btn tetap menang karena
+       specificity lebih tinggi. Menjamin #btn-reset-all dan tombol
+       modal (tanpa .btn) tetap konsisten secara visual. */
+button {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 9px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast),
+              transform var(--t-fast);
+}
+button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--border-strong); }
+button:active:not(:disabled) { transform: translateY(1px); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* 27.2 .actions-grid — grid 3 kolom dari "simple CSS" untuk panel aksi
+       yang dikelola bridge (kompatibel dengan HTML lama & fragment). */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+/* 27.3 Ellipsis pada label bottom-nav. "Pembelajaran" / "Pengaturan"
+       dapat terpotong rapi di 320-360px tanpa membuat nav melar. */
+.app-bottomnav a span, .app-bottomnav__item span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 27.4 Defensive sizing — kalau bridge membuat elemen piece tanpa
+       kelas .piece (mis. <div class="piece-wK">) di dalam .square,
+       aturan ini memberi base layout yang sama dengan .square .piece.
+       Aturan .square .piece (0-2-0) tetap menang bila kelas .piece
+       juga ada. */
+.square [class*="piece-"] {
+  width: 88%;
+  height: 88%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(20px, 7vw, 44px);
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* 27.5 Fallback warna piece di luar .square (mis. preview/promotion
+       yang tidak dibungkus .square) — dipertahankan dari "simple CSS". */
+.piece-wK, .piece-wQ, .piece-wR, .piece-wB, .piece-wN, .piece-wP { color: #fafafa; }
+.piece-bK, .piece-bQ, .piece-bR, .piece-bB, .piece-bN, .piece-bP { color: #111; } 
