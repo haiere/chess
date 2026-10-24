@@ -1,187 +1,247 @@
-/* BoardView — reusable interactive chessboard renderer.
-   Used by Game mode, Puzzle mode, and as a static example board in Lessons.
-   Supports mouse, touch (pointer events with capture), and keyboard. */
-(function () {
-    'use strict';
+/**
+ * BoardView — papan catur 8x8 yang selalu persegi.
+ * - Grid: grid-template-columns/rows: repeat(8, minmax(0, 1fr)); aspect-ratio: 1/1.
+ * - Render parsial: pakai DocumentFragment + replaceChildren (tanpa innerHTML = '').
+ * - Keyboard: arrow keys, Enter/Space untuk pilih.
+ * - Orientation: 'w' | 'b'.
+ * - Tidak menyimpan ukuran papan; semuanya via CSS.
+ */
 
-    class BoardView {
-        constructor(container, opts) {
-            opts = opts || {};
-            this.el = container;
-            this.orientation = opts.orientation || 'white';
-            this.showCoords = opts.showCoords !== undefined ? opts.showCoords : true;
-            this.interactive = opts.interactive !== undefined ? opts.interactive : true;
-            this.onSquareClick = opts.onSquareClick || null;
-            this.onDrop = null;
-            this.state = null;
-            this.marks = {};
-            this._drag = null;
-            this._suppressClick = false;
-            this.kbFocus = null;
-            this.el.setAttribute('tabindex', this.interactive ? '0' : '-1');
-            this.el.addEventListener('keydown', (e) => this._onKeyDown(e));
-            this._bindPointer();
+const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
+
+const PIECE_UNICODE = {
+  wK: '♔', wQ: '♕', wR: '♖', wB: '♗', wN: '♘', wP: '♙',
+  bK: '♚', bQ: '♛', bR: '♜', bB: '♝', bN: '♞', bP: '♟'
+};
+
+function squaresInOrder(orientation) {
+  const files = orientation === 'b' ? [...FILES].reverse() : FILES;
+  const ranks = orientation === 'b' ? [...RANKS].reverse() : RANKS;
+  const out = [];
+  for (const r of ranks) for (const f of files) out.push(f + r);
+  return out;
+}
+
+function colorOf(square, orientation) {
+  const f = FILES.indexOf(square[0]);
+  const r = RANKS.indexOf(square[1]);
+  const light = (f + r) % 2 === 0;
+  return light ? 'light' : 'dark';
+}
+
+export class BoardView {
+  constructor(options = {}) {
+    this.el = options.el;
+    if (!this.el) throw new Error('BoardView: el required');
+
+    this.onSquareClick = options.onSquareClick || (() => {});
+    this.orientation = options.orientation === 'b' ? 'b' : 'w';
+    this.showCoords = options.showCoords !== false;
+    this.interactive = options.interactive !== false;
+
+    this._pieces = {};       // square -> { color, type } | null
+    this._selected = null;
+    this._legalMoves = [];   // array of target squares
+    this._lastMove = null;   // { from, to }
+    this._checkSquare = null;
+    this._focusSquare = 'e2'; // for keyboard
+
+    this._build();
+  }
+
+  _build() {
+    this.el.innerHTML = '';
+    this.el.classList.add('board-wrapper');
+
+    const board = document.createElement('div');
+    board.className = 'board';
+    board.setAttribute('role', 'grid');
+    board.setAttribute('aria-label', window.I18n ? window.I18n.t('aria.board') : 'Chess board');
+    board.tabIndex = 0;
+
+    board.addEventListener('keydown', (e) => this._onKeyDown(e));
+    this._boardEl = board;
+    this.el.appendChild(board);
+
+    this._renderAll();
+  }
+
+  _renderAll() {
+    if (!this._boardEl) return;
+    const frag = document.createDocumentFragment();
+    const squares = squaresInOrder(this.orientation);
+
+    for (const sq of squares) {
+      const cell = document.createElement('div');
+      cell.className = `square ${colorOf(sq, this.orientation)}`;
+      cell.dataset.square = sq;
+      cell.setAttribute('role', 'gridcell');
+      cell.setAttribute('aria-label', this._ariaFor(sq));
+      cell.tabIndex = -1;
+
+      // Coordinates
+      const file = sq[0];
+      const rank = sq[1];
+      if (this.showCoords) {
+        const showFile = (this.orientation === 'w' && rank === '1') ||
+                         (this.orientation === 'b' && rank === '8');
+        const showRank = (this.orientation === 'w' && file === 'a') ||
+                         (this.orientation === 'b' && file === 'h');
+        if (showFile) {
+          const f = document.createElement('span');
+          f.className = 'coord coord-file';
+          f.textContent = file;
+          cell.appendChild(f);
         }
-
-        setState(engineState, marks) {
-            this.state = engineState;
-            if (marks) this.marks = marks;
-            this.render();
+        if (showRank) {
+          const r = document.createElement('span');
+          r.className = 'coord coord-rank';
+          r.textContent = rank;
+          cell.appendChild(r);
         }
-        setOrientation(o) { this.orientation = o; this.render(); }
-        setCoords(v) { this.showCoords = v; this.render(); }
-        setMarks(marks) { this.marks = marks || {}; this.render(); }
-        setInteractive(v) {
-            this.interactive = v;
-            this.el.setAttribute('tabindex', v ? '0' : '-1');
-        }
-        destroy() { this.el.innerHTML = ''; this.state = null; }
+      }
 
-        squareEl(row, col) {
-            return this.el.querySelector(`.square[data-row="${row}"][data-col="${col}"]`);
-        }
+      // Piece
+      const piece = this._pieces[sq];
+      if (piece) {
+        const p = document.createElement('span');
+        p.className = `piece piece-${piece.color}${piece.type}`;
+        p.textContent = PIECE_UNICODE[piece.color + piece.type] || '';
+        p.setAttribute('aria-hidden', 'true');
+        cell.appendChild(p);
+      }
 
-        render() {
-            if (!this.el) return;
-            this.el.innerHTML = '';
-            if (!this.state) return;
-            const flipped = this.orientation === 'black';
-            const m = this.marks;
+      // Highlights
+      if (this._lastMove && (sq === this._lastMove.from || sq === this._lastMove.to)) {
+        cell.classList.add('last-move');
+      }
+      if (sq === this._checkSquare) cell.classList.add('in-check');
+      if (sq === this._selected) cell.classList.add('selected');
+      if (this._legalMoves.includes(sq)) cell.classList.add('legal-target');
 
-            for (let dr = 0; dr < 8; dr++) {
-                for (let dc = 0; dc < 8; dc++) {
-                    const ar = flipped ? 7 - dr : dr;
-                    const ac = flipped ? 7 - dc : dc;
-                    const sq = document.createElement('div');
-                    sq.className = 'square ' + ((ar + ac) % 2 === 0 ? 'light' : 'dark');
-                    sq.dataset.row = ar;
-                    sq.dataset.col = ac;
-                    sq.setAttribute('role', 'gridcell');
-                    sq.setAttribute('aria-label', Chess.sqName(ar, ac));
-
-                    if (m.selected && m.selected.row === ar && m.selected.col === ac) sq.classList.add('selected');
-                    if (m.lastMove && ((m.lastMove.fromRow === ar && m.lastMove.fromCol === ac) ||
-                                       (m.lastMove.toRow === ar && m.lastMove.toCol === ac))) sq.classList.add('last-move');
-                    if (m.checkSquare && m.checkSquare.row === ar && m.checkSquare.col === ac) sq.classList.add('in-check');
-                    if (m.hintFrom && m.hintFrom.row === ar && m.hintFrom.col === ac) sq.classList.add('hint-from');
-                    if (m.hintTo && m.hintTo.row === ar && m.hintTo.col === ac) sq.classList.add('hint-to');
-                    if (m.wrongSquare && m.wrongSquare.row === ar && m.wrongSquare.col === ac) sq.classList.add('wrong-move');
-                    if (m.goodSquare && m.goodSquare.row === ar && m.goodSquare.col === ac) sq.classList.add('good-move');
-                    if (this.kbFocus && this.kbFocus.row === ar && this.kbFocus.col === ac) sq.classList.add('kb-focus');
-
-                    const legal = m.legalMoves && m.legalMoves.find(mm => mm.toRow === ar && mm.toCol === ac);
-                    if (legal) sq.classList.add((legal.captured || legal.special === 'en-passant') ? 'capture-move' : 'legal-move');
-
-                    if (this.showCoords) {
-                        if (ac === (flipped ? 7 : 0)) {
-                            const rl = document.createElement('span');
-                            rl.className = 'coord-label coord-rank';
-                            rl.textContent = 8 - ar;
-                            sq.appendChild(rl);
-                        }
-                        if (ar === (flipped ? 0 : 7)) {
-                            const fl = document.createElement('span');
-                            fl.className = 'coord-label coord-file';
-                            fl.textContent = Chess.FILES[ac];
-                            sq.appendChild(fl);
-                        }
-                    }
-
-                    const piece = this.state.board[ar][ac];
-                    if (piece) {
-                        const img = document.createElement('img');
-                        img.className = 'piece-img';
-                        img.src = window.ChessPieces[piece.color][piece.type];
-                        img.alt = window.I18n
-                            ? window.I18n.t('pieces.' + piece.color) + ' ' + window.I18n.t('pieces.' + piece.type)
-                            : piece.color + ' ' + piece.type;
-                        img.draggable = false;
-                        sq.appendChild(img);
-                    }
-
-                    sq.addEventListener('click', () => this._onClick(ar, ac));
-                    this.el.appendChild(sq);
-                }
-            }
-        }
-
-        _onClick(row, col) {
-            if (!this.interactive || this._suppressClick) return;
-            this.kbFocus = { row, col };
-            if (this.onSquareClick) this.onSquareClick(row, col);
-        }
-
-        /* Keyboard: arrows move a focus cursor, Enter/Space "clicks" it. */
-        _onKeyDown(e) {
-            if (!this.interactive || !this.state) return;
-            const step = {
-                ArrowUp: [-1, 0], ArrowDown: [1, 0],
-                ArrowLeft: [0, -1], ArrowRight: [0, 1]
-            }[e.key];
-            if (step) {
-                e.preventDefault();
-                if (!this.kbFocus) {
-                    this.kbFocus = this.orientation === 'white' ? { row: 7, col: 4 } : { row: 0, col: 3 };
-                } else {
-                    // move in visual space, then map back to board coords
-                    const flipped = this.orientation === 'black';
-                    let vr = (flipped ? 7 - this.kbFocus.row : this.kbFocus.row) + step[0];
-                    let vc = (flipped ? 7 - this.kbFocus.col : this.kbFocus.col) + step[1];
-                    vr = Math.max(0, Math.min(7, vr));
-                    vc = Math.max(0, Math.min(7, vc));
-                    this.kbFocus = { row: flipped ? 7 - vr : vr, col: flipped ? 7 - vc : vc };
-                }
-                this.render();
-                return;
-            }
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                if (this.kbFocus && this.onSquareClick) this.onSquareClick(this.kbFocus.row, this.kbFocus.col);
-            }
-        }
-
-        _bindPointer() {
-            if (!this.el) return;
-            this.el.addEventListener('pointerdown', (e) => {
-                if (!this.interactive || !this.onDrop || !this.state) return;
-                const sq = e.target.closest('.square');
-                if (!sq) return;
-                this._drag = {
-                    row: +sq.dataset.row, col: +sq.dataset.col,
-                    moved: false, captured: false,
-                    startX: e.clientX, startY: e.clientY
-                };
-            });
-            this.el.addEventListener('pointermove', (e) => {
-                const d = this._drag;
-                if (!d || d.moved) return;
-                const dx = e.clientX - d.startX, dy = e.clientY - d.startY;
-                if (Math.sqrt(dx * dx + dy * dy) < 6) return; // treat as tap until 6px
-                d.moved = true;
-                // begin real drag: capture pointer so pointerup fires on container
-                try { this.el.setPointerCapture(e.pointerId); d.captured = true; } catch (err) { /* noop */ }
-                if (this.onSquareClick) this.onSquareClick(d.row, d.col);
-            });
-            this.el.addEventListener('pointerup', (e) => {
-                const d = this._drag;
-                this._drag = null;
-                if (!d) return;
-                // suppress the compatibility click event in both paths
-                this._suppressClick = true;
-                setTimeout(() => { this._suppressClick = false; }, 120);
-                if (d.moved) {
-                    const el = document.elementFromPoint(e.clientX, e.clientY);
-                    const sq = el && el.closest('.square');
-                    if (sq && this.onDrop) this.onDrop(d.row, d.col, +sq.dataset.row, +sq.dataset.col);
-                } else {
-                    // plain tap: handle directly (click event is suppressed above)
-                    this.kbFocus = { row: d.row, col: d.col };
-                    if (this.onSquareClick) this.onSquareClick(d.row, d.col);
-                }
-            });
-            this.el.addEventListener('pointercancel', () => { this._drag = null; });
-        }
+      cell.addEventListener('click', () => this._onClick(sq));
+      frag.appendChild(cell);
     }
 
-    window.BoardView = BoardView;
-})();
+    this._boardEl.replaceChildren(frag);
+  }
+
+  _ariaFor(sq) {
+    const piece = this._pieces[sq];
+    const label = window.I18n ? window.I18n.t('aria.boardSquare', { square: sq }) : sq;
+    if (!piece) return label;
+    const colorName = piece.color === 'w' ? 'white' : 'black';
+    const typeNames = { K: 'king', Q: 'queen', R: 'rook', B: 'bishop', N: 'knight', P: 'pawn' };
+    return `${label} ${colorName} ${typeNames[piece.type] || ''}`.trim();
+  }
+
+  _onClick(sq) {
+    if (!this.interactive) return;
+    this._focusSquare = sq;
+    this.onSquareClick(sq);
+  }
+
+  _onKeyDown(e) {
+    if (!this.interactive) return;
+    const files = this.orientation === 'b' ? [...FILES].reverse() : FILES;
+    const ranks = this.orientation === 'b' ? [...RANKS].reverse() : RANKS;
+    const cur = this._focusSquare || (this.orientation === 'w' ? 'e2' : 'd7');
+    let f = files.indexOf(cur[0]);
+    let r = ranks.indexOf(cur[1]);
+
+    switch (e.key) {
+      case 'ArrowLeft':  f = Math.max(0, f - 1); break;
+      case 'ArrowRight': f = Math.min(7, f + 1); break;
+      case 'ArrowUp':    r = Math.max(0, r - 1); break;
+      case 'ArrowDown':  r = Math.min(7, r + 1); break;
+      case 'Home':       f = 0; r = 0; break;
+      case 'End':        f = 7; r = 7; break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        this.onSquareClick(cur);
+        return;
+      default:
+        return;
+    }
+    e.preventDefault();
+    const next = files[f] + ranks[r];
+    this._focusSquare = next;
+    const cell = this._boardEl.querySelector(`[data-square="${next}"]`);
+    if (cell) cell.focus();
+  }
+
+  setPosition(fenOrBoard) {
+    this._pieces = this._parsePosition(fenOrBoard);
+    this._renderAll();
+  }
+
+  _parsePosition(fenOrBoard) {
+    // Accept FEN string or plain object map.
+    if (fenOrBoard && typeof fenOrBoard === 'object' && !Array.isArray(fenOrBoard)) {
+      return { ...fenOrBoard };
+    }
+    const fen = typeof fenOrBoard === 'string' ? fenOrBoard : '';
+    const out = {};
+    const rows = fen.split(' ')[0]?.split('/') || [];
+    for (let r = 0; r < 8 && r < rows.length; r++) {
+      let fileIdx = 0;
+      for (const ch of rows[r]) {
+        if (/\d/.test(ch)) { fileIdx += parseInt(ch, 10); continue; }
+        const color = ch === ch.toUpperCase() ? 'w' : 'b';
+        const type = ch.toUpperCase();
+        const sq = FILES[fileIdx] + RANKS[r];
+        out[sq] = { color, type };
+        fileIdx++;
+      }
+    }
+    return out;
+  }
+
+  setOrientation(o) {
+    this.orientation = o === 'b' ? 'b' : 'w';
+    this._renderAll();
+  }
+
+  setSelected(square) {
+    this._selected = square || null;
+    this._renderAll();
+  }
+
+  setLegalMoves(squares) {
+    this._legalMoves = Array.isArray(squares) ? squares.slice() : [];
+    this._renderAll();
+  }
+
+  setLastMove(move) {
+    this._lastMove = move ? { from: move.from, to: move.to } : null;
+    this._renderAll();
+  }
+
+  setCheck(square) {
+    this._checkSquare = square || null;
+    this._renderAll();
+  }
+
+  clearHighlights() {
+    this._selected = null;
+    this._legalMoves = [];
+    this._lastMove = null;
+    this._checkSquare = null;
+    this._renderAll();
+  }
+
+  destroy() {
+    if (this._boardEl) {
+      this._boardEl.replaceChildren();
+      this._boardEl.remove();
+    }
+    this.el.classList.remove('board-wrapper');
+    this._boardEl = null;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.BoardView = BoardView;
+}
