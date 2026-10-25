@@ -1,19 +1,14 @@
 /* ==========================================================================
-   Hajir Chess — Unified Design System v8.1
-   Merge: v8.0 core + legacy compat layer from the previous "simple" CSS.
-   Keputusan:
-   - v8.0 tetap utuh sebagai basis.
-   - Lapisan kompatibilitas (§27) menambah: bare <button> styles,
-     .actions-grid, ellipsis pada .app-bottomnav span, alias --app-muted,
-     defensive .square [class*="piece-"] sizing, .btn-row--split.
-   - Semua patch anti-bug v7.3 dipertahankan.
-   - Tema papan digabung (classic/wood/marble/neon/emerald/ocean/midnight/rose/bw).
-   - Breakpoint desktop 1024px; layout game 2-kolom ≥1100px.
+   Hajir Chess — Unified Design System v8.2
+   v8.2 changes vs v8.1:
+   - §11 rewritten: #board IS the 8x8 grid (flat), no nesting.
+   - Safety: `.board > .board` uses display:contents — boards rendered by
+     cached old board-view.js still display correctly.
+   - §27 compat layer retains bare <button>, .actions-grid, ellipsis, etc.
    ========================================================================== */
 
 /* ---------- 1. TOKENS ---------- */
 :root {
-  /* Colors — base */
   --bg: #0f1115;
   --bg-soft: #14171f;
   --surface: #171a21;
@@ -24,16 +19,14 @@
   --text: #e8ecf3;
   --text-muted: #9aa3b2;
   --text-subtle: #6b7383;
-  --app-muted: var(--text-muted);      /* alias: dipakai inline di #learn-progress */
+  --app-muted: var(--text-muted);
 
-  /* Accent */
   --accent: #7aa2ff;
   --accent-hover: #94b4ff;
   --accent-fg: #0b1226;
   --accent-soft: rgba(122, 162, 255, .14);
   --accent-contrast: var(--accent-fg);
 
-  /* Semantic */
   --success: #4ade80;
   --warning: #fbbf24;
   --danger: #f87171;
@@ -41,7 +34,6 @@
   --danger-soft: rgba(248, 113, 113, .12);
   --success-soft: rgba(74, 222, 128, .12);
 
-  /* Board colors */
   --sq-light: #ebecd0;
   --sq-dark: #779556;
   --sq-highlight: rgba(255, 213, 79, .55);
@@ -54,97 +46,58 @@
   --board-light: var(--sq-light);
   --board-dark: var(--sq-dark);
 
-  /* Spacing */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
   --space-12: 48px;
 
-  /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
-  --radius-pill: 999px;
+  --radius-sm: 6px;  --radius-md: 10px; --radius-lg: 16px;
+  --radius-xl: 22px; --radius-pill: 999px;
   --radius: var(--radius-md);
   --radius2: var(--radius-sm);
   --radius3: 4px;
 
-  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0,0,0,.25);
   --shadow-md: 0 4px 14px rgba(0,0,0,.35);
   --shadow-lg: 0 12px 32px rgba(0,0,0,.45);
   --shadow: var(--shadow-md);
 
-  /* Typography */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font: var(--font-sans);
-  --fs-xs: 12px;
-  --fs-sm: 13px;
-  --fs-base: 15px;
-  --fs-md: 17px;
-  --fs-lg: 20px;
-  --fs-xl: 24px;
-  --fs-2xl: 30px;
-  --lh-tight: 1.25;
-  --lh-base: 1.55;
-  --lh-loose: 1.7;
+  --fs-xs: 12px; --fs-sm: 13px; --fs-base: 15px;
+  --fs-md: 17px; --fs-lg: 20px; --fs-xl: 24px; --fs-2xl: 30px;
+  --lh-tight: 1.25; --lh-base: 1.55; --lh-loose: 1.7;
 
-  /* Layout */
-  --header-h: 56px;
-  --bottomnav-h: 60px;
+  --header-h: 56px;  --bottomnav-h: 60px;
   --sidebar-w: 240px;
   --nav-w: var(--sidebar-w);
   --content-max: 1120px;
   --board-max: 560px;
 
-  /* Safe area */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
 
-  /* Z-index */
-  --z-header: 100;
-  --z-bottomnav: 100;
-  --z-toast: 200;
-  --z-modal: 300;
+  --z-header: 100; --z-bottomnav: 100; --z-toast: 200; --z-modal: 300;
 
-  /* Motion */
-  --dur-fast: 120ms;
-  --dur-base: 200ms;
+  --dur-fast: 120ms; --dur-base: 200ms;
   --t-fast: var(--dur-fast) cubic-bezier(.4,0,.2,1);
   --t-base: var(--dur-base) cubic-bezier(.4,0,.2,1);
   --ease: cubic-bezier(.2,.7,.2,1);
   --transition: var(--t-base);
-
   --focus: var(--accent);
 }
 
-/* Light theme */
 [data-theme="light"] {
-  --bg: #f5f6f8;
-  --bg-soft: #eceef3;
-  --surface: #ffffff;
-  --surface-2: #f0f2f6;
-  --surface-hover: #e8ebf1;
-  --border: #dfe3ea;
-  --border-strong: #c5ccd6;
-  --text: #1a1f2a;
-  --text-muted: #5c6472;
-  --text-subtle: #8a92a0;
+  --bg: #f5f6f8; --bg-soft: #eceef3; --surface: #ffffff;
+  --surface-2: #f0f2f6; --surface-hover: #e8ebf1;
+  --border: #dfe3ea; --border-strong: #c5ccd6;
+  --text: #1a1f2a; --text-muted: #5c6472; --text-subtle: #8a92a0;
   --app-muted: var(--text-muted);
-  --accent: #3355cc;
-  --accent-hover: #2244bb;
-  --accent-fg: #ffffff;
-  --accent-soft: rgba(51, 85, 204, .10);
+  --accent: #3355cc; --accent-hover: #2244bb;
+  --accent-fg: #ffffff; --accent-soft: rgba(51, 85, 204, .10);
   --danger-soft: rgba(220, 38, 38, .10);
   --success-soft: rgba(22, 163, 74, .10);
   --shadow-sm: 0 1px 3px rgba(20,30,60,.08);
@@ -152,7 +105,6 @@
   --shadow-lg: 0 12px 32px rgba(20,30,60,.14);
 }
 
-/* Board themes — gabungan kedua file */
 [data-board-theme="classic"]  { --sq-light: #ebecd0; --sq-dark: #779556; }
 [data-board-theme="wood"]     { --sq-light: #f0d9b5; --sq-dark: #b58863; }
 [data-board-theme="marble"]   { --sq-light: #e8e8e8; --sq-dark: #8a8a8a; }
@@ -178,11 +130,7 @@ body, body.app-body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
-body.app-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-}
+body.app-body { display: flex; flex-direction: column; min-height: 100dvh; }
 
 img, svg { display: block; max-width: 100%; }
 button { font: inherit; color: inherit; }
@@ -197,11 +145,9 @@ p { margin: 0 0 var(--space-3); }
 
 ::selection { background: var(--accent-soft); }
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: 2px solid var(--accent); outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
-
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
@@ -210,35 +156,27 @@ p { margin: 0 0 var(--space-3); }
 /* ---------- 3. UTILITIES ---------- */
 .hidden { display: none !important; }
 .visually-hidden {
-  position: absolute;
-  width: 1px; height: 1px;
-  margin: -1px; padding: 0; border: 0;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  overflow: hidden;
-  white-space: nowrap;
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0; clip: rect(0 0 0 0);
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
 }
 .text-center { text-align: center; }
-.text-bold   { font-weight: 700; }
-.text-sub    { color: var(--text-muted); font-size: var(--fs-sm); }
-.flex-gap-4  { display: flex; gap: var(--space-1); }
+.text-bold { font-weight: 700; }
+.text-sub { color: var(--text-muted); font-size: var(--fs-sm); }
+.flex-gap-4 { display: flex; gap: var(--space-1); }
 
 .app-skip, .skip-link {
   position: absolute; left: -9999px; top: 0; z-index: 1000;
   background: var(--accent); color: var(--accent-fg);
-  padding: 10px 16px; border-radius: var(--radius-sm); font-weight: 600;
-  text-decoration: none;
+  padding: 10px 16px; border-radius: var(--radius-sm);
+  font-weight: 600; text-decoration: none;
 }
 .app-skip:focus, .skip-link:focus { left: 8px; top: 8px; }
 
 /* ---------- 4. HEADER ---------- */
 .app-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-header);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: sticky; top: 0; z-index: var(--z-header);
+  display: flex; align-items: center; justify-content: space-between;
   gap: var(--space-3);
   min-height: calc(var(--header-h) + var(--safe-top));
   padding: calc(10px + var(--safe-top)) var(--space-4) 10px;
@@ -247,22 +185,15 @@ p { margin: 0 0 var(--space-3); }
   -webkit-backdrop-filter: saturate(140%) blur(8px);
   border-bottom: 1px solid var(--border);
 }
-.app-brand, .app-header__brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: .2px;
-  color: var(--text);
-  text-decoration: none;
-  min-width: 0;
+.app-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 1.05rem;
+  letter-spacing: .2px; color: var(--text);
+  text-decoration: none; min-width: 0;
 }
-.app-brand:hover, .app-header__brand:hover { text-decoration: none; }
-.app-brand svg, .app-header__brand svg { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
-.app-header-actions, .app-header__actions {
-  display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0;
-}
+.app-brand:hover { text-decoration: none; }
+.app-brand svg { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
+.app-header-actions { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
 
 .icon-btn {
   background: transparent;
@@ -281,31 +212,17 @@ p { margin: 0 0 var(--space-3); }
 .app-layout {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
-  flex: 1;
-  min-height: 0;
+  flex: 1; min-height: 0;
 }
 
-.app-shell {
-  display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: var(--content-max);
-  margin: 0 auto;
-}
-
-/* ---------- 6. SIDEBAR NAV ---------- */
-.app-nav, .app-sidebar {
-  width: var(--sidebar-w);
-  flex-shrink: 0;
+/* ---------- 6. SIDEBAR ---------- */
+.app-nav {
+  width: var(--sidebar-w); flex-shrink: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
   padding: var(--space-6) var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  display: flex; flex-direction: column; gap: var(--space-1);
 }
-.app-sidebar { display: none; }
-
 .app-nav a {
   display: flex; align-items: center; gap: var(--space-3);
   padding: 10px var(--space-3);
@@ -324,22 +241,16 @@ p { margin: 0 0 var(--space-3); }
   width: 3px; border-radius: 3px; background: var(--accent);
 }
 
-/* ============================================================
-   7. MAIN & PAGES — KUNCI ANTI "KOTAK HITAM RAKSASA"
-   ============================================================ */
+/* ---------- 7. MAIN & PAGES ---------- */
 .app-main {
-  display: block;
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-  max-width: 760px;
-  margin: 0 auto;
+  display: block; flex: 1; min-width: 0; width: 100%;
+  max-width: 760px; margin: 0 auto;
   padding: var(--space-4);
   padding-bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-8));
 }
 
-.app-page, .page { display: none; }
-.app-page.is-active, .page[aria-hidden="false"] {
+.app-page { display: none; }
+.app-page.is-active {
   display: block;
   animation: page-in var(--t-base);
 }
@@ -347,63 +258,42 @@ p { margin: 0 0 var(--space-3); }
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 .app-page.is-active > * + * { margin-top: var(--space-4); }
 .app-page.is-active > :first-child { margin-top: 0; }
 
-.app-page-title, .page-header h1 { font-size: 1.45rem; font-weight: 800; margin: 0; }
-.app-page-subtitle, .page-header p { color: var(--text-muted); margin: 0; }
+.app-page-title { font-size: 1.45rem; font-weight: 800; margin: 0; }
+.app-page-subtitle { color: var(--text-muted); margin: 0; }
 .page-header { margin-bottom: var(--space-5); }
-.app-page.is-active > .app-page-title + .app-page-subtitle { margin-top: var(--space-1); }
+.app-page.is-active > .app-page-title + .app-page-subtitle,
+.app-page.is-active > .page-header { margin-top: var(--space-1); }
 
 /* ---------- 8. CARDS ---------- */
 .app-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  display: flex; flex-direction: column; gap: var(--space-3);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
+  width: 100%; min-width: 0; box-sizing: border-box;
   box-shadow: var(--shadow-sm);
-  flex: none;
-  height: auto;
+  flex: none; height: auto;
   transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 .app-card:hover { border-color: var(--border-strong); }
-.app-card-title, .app-card__title { font-size: var(--fs-md); font-weight: 700; margin: 0; }
+.app-card-title { font-size: var(--fs-md); font-weight: 700; margin: 0; }
 .app-card label { font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); }
-.app-card__meta { color: var(--text-muted); font-size: var(--fs-sm); }
-
-.panel-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-md); padding: var(--space-3) var(--space-4);
-  display: flex; flex-direction: column; gap: var(--space-2);
-  box-shadow: var(--shadow-sm);
-}
-.panel-history { max-height: 220px; }
-.panel-actions { flex-direction: row; flex-wrap: wrap; }
 
 /* ---------- 9. BUTTONS ---------- */
-.btn, .btn-row button, .compat-actions button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.btn, .btn-row button {
+  display: inline-flex; align-items: center; justify-content: center;
   gap: var(--space-2);
-  padding: 9px 14px;
-  min-height: 40px;
+  padding: 9px 14px; min-height: 40px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface-2);
   color: var(--text);
-  font-size: var(--fs-base);
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
+  font-size: var(--fs-base); font-weight: 600;
+  cursor: pointer; text-decoration: none; white-space: nowrap;
   user-select: none;
   transition: background var(--t-fast), border-color var(--t-fast),
               transform var(--t-fast), filter var(--t-fast);
@@ -411,122 +301,121 @@ p { margin: 0 0 var(--space-3); }
 .btn:hover:not(:disabled), .btn-row button:hover:not(:disabled) {
   background: var(--surface-hover); border-color: var(--border-strong);
 }
-.btn:active:not(:disabled), .btn-row button:active:not(:disabled) { transform: translateY(1px); }
-.btn:disabled, .btn-row button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn:active:not(:disabled), .btn-row button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.btn:disabled, .btn-row button:disabled {
+  opacity: .45; cursor: not-allowed; transform: none;
+}
 .btn svg { flex: 0 0 auto; }
 
 .btn.accent, .btn--primary, .btn-row button.accent {
   background: var(--accent); color: var(--accent-fg); border-color: transparent;
 }
-.btn.accent:hover:not(:disabled), .btn--primary:hover:not(:disabled) { background: var(--accent-hover); }
-
-.btn.danger, .btn--danger, .btn-row button.danger {
+.btn.accent:hover:not(:disabled), .btn--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.btn.danger, .btn--danger {
   color: var(--danger);
   border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
 }
 .btn.danger:hover:not(:disabled), .btn--danger:hover:not(:disabled) {
   background: var(--danger-soft); border-color: var(--danger);
 }
-
 .btn--ghost { background: transparent; border-color: transparent; }
 .btn--ghost:hover:not(:disabled) { background: var(--surface-hover); }
-
 .btn.small, .btn--sm { padding: 6px 10px; font-size: var(--fs-sm); min-height: 32px; }
-.btn--lg { min-height: 48px; padding: var(--space-3) var(--space-5); font-size: var(--fs-md); }
-.btn--block { width: 100%; }
-.btn.icon-btn { padding: var(--space-2); min-width: 40px; }
-.btn.active { border-color: var(--accent); color: var(--accent); }
 
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.btn-row.btns-spread,
-.btn-row--split { justify-content: space-between; }
+.btn-row--split, .btn-row.btns-spread { justify-content: space-between; }
 
 /* ---------- 10. FORM ---------- */
 .app-select, select {
   padding: 9px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text);
+  background: var(--surface-2); color: var(--text);
   font-size: var(--fs-sm); min-height: 40px;
   cursor: pointer;
   transition: border-color var(--t-fast);
 }
 .app-select:hover, select:hover { border-color: var(--accent); }
 
-.settings-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-.settings-grid label { font-size: var(--fs-sm); font-weight: 600; color: var(--text-muted); }
-.settings-grid select {
-  padding: 9px 10px; width: 100%;
-  border-radius: var(--radius-sm); border: 1px solid var(--border);
-  background: var(--surface-2); color: var(--text);
-  font-size: var(--fs-sm); min-height: 40px;
-}
-@media (min-width: 900px) {
-  .settings-grid { grid-template-columns: 180px 1fr; align-items: center; }
-}
+/* ==========================================================================
+   11. BOARD — FLAT 8x8 GRID (v8.2)
+   Prinsip: #board IS the grid. board-view.js fills it with 64 direct
+   .square children. Tidak ada .board bersarang.
+   ========================================================================== */
 
-/* ---------- 11. BOARD — PAPAN CATUR MATI 8×8 ---------- */
+/* 11.1 Container — hanya pembungkus + max-width. Frame disediakan .app-card */
 #board-container,
 #puzzle-board-container,
 #lesson-board-container,
-#lessonBoardWrap,
-.board-wrapper {
+#lessonBoardWrap {
   width: 100%;
   max-width: var(--board-max);
-  display: block;
   margin: 0 auto;
   padding: 0;
-  flex: none;
-}
-.board-wrapper--with-frame {
-  padding: var(--space-2);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  display: block;
+  box-sizing: border-box;
 }
 
-.board,
-.chess-board,
+/* 11.2 Board grid — flat, 8x8 */
 #board,
 #puzzle-board,
 #puzzleBoard,
 #lesson-board,
 #lessonBoard,
-#lessonBoardWrap .board {
-  width: 100%;
-  max-width: min(100%, var(--board-max));
-  aspect-ratio: 1 / 1 !important;
-  height: auto !important;
+.board,
+.chess-board {
   display: grid !important;
   grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
   grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
+  width: 100% !important;
+  max-width: min(100%, var(--board-max));
+  aspect-ratio: 1 / 1 !important;
+  height: auto !important;
   margin: 0 auto;
+  padding: 0;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-sizing: border-box;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
   background: var(--sq-light);
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
   position: relative;
+  box-shadow: var(--shadow-md);
 }
 
-.board > *, .square {
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  height: 100%;
-  display: flex; align-items: center; justify-content: center;
-  min-width: 0; min-height: 0;
+/* 11.3 SAFETY untuk board-view.js versi lama yang membuat <div class="board">
+       bersarang di dalam #board. display:contents membuat 64 .square di
+       dalamnya menjadi grid-item langsung dari #board induk — visual tetap
+       benar walau cache belum ter-refresh. */
+#board > .board,
+#puzzle-board > .board,
+#puzzle-board-container > .board > .board {
+  display: contents !important;
+  aspect-ratio: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
+/* 11.4 Square — grid item */
 .square {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
   position: relative;
   cursor: pointer;
   background: var(--sq-light);
+  box-sizing: border-box;
   transition: filter var(--t-fast);
 }
 .square.light { background: var(--sq-light); }
@@ -536,39 +425,48 @@ p { margin: 0 0 var(--space-3); }
   .square.dark:hover { filter: brightness(1.12); }
 }
 
-.square.last-move::before { content: ''; position: absolute; inset: 0; background: var(--sq-lastmove); }
-.square.selected::before  { content: ''; position: absolute; inset: 0; background: var(--sq-selected); }
-.square.in-check::before   { content: ''; position: absolute; inset: 0; background: var(--sq-check); }
-.square.kb-focus { outline: 3px solid var(--accent); outline-offset: -3px; z-index: 2; }
+/* 11.5 Highlights (overlay ::before, di belakang piece) */
+.square.last-move::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--sq-lastmove); pointer-events: none;
+}
+.square.selected::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--sq-selected); pointer-events: none;
+}
+.square.in-check::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--sq-check); pointer-events: none;
+}
+.square.kb-focus { outline: 3px solid var(--accent); outline-offset: -3px; z-index: 3; }
 
-.square.legal-move::after, .square.legal-target::after {
+/* 11.6 Legal target dot / capture ring */
+.square.legal-move::after,
+.square.legal-target::after {
   content: ''; position: absolute;
   width: 26%; height: 26%; border-radius: 50%;
-  background: var(--sq-legal); z-index: 1; pointer-events: none;
+  background: var(--sq-legal);
+  z-index: 1; pointer-events: none;
 }
 .square.capture-move::after {
   content: ''; position: absolute;
   width: 86%; height: 86%; border-radius: 50%;
-  border: calc(2px + .35vw) solid var(--sq-capture); z-index: 1; pointer-events: none;
+  border: calc(2px + .35vw) solid var(--sq-capture);
+  z-index: 1; pointer-events: none;
 }
 
+/* 11.7 Pieces — unicode (board-view.js) dan gambar (bridge) */
 .piece-img {
-  width: 88%; height: 88%;
-  object-fit: contain;
-  position: relative; z-index: 2;
-  pointer-events: none;
+  width: 88%; height: 88%; object-fit: contain;
+  position: relative; z-index: 2; pointer-events: none;
 }
 .square .piece {
-  width: 88%;
-  height: 88%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 88%; height: 88%;
+  display: flex; align-items: center; justify-content: center;
   font-size: clamp(20px, 7vw, 44px);
   line-height: 1;
   position: relative; z-index: 2;
-  pointer-events: none;
-  user-select: none;
+  pointer-events: none; user-select: none;
 }
 .square .piece-wK, .square .piece-wQ, .square .piece-wR,
 .square .piece-wB, .square .piece-wN, .square .piece-wP {
@@ -582,7 +480,11 @@ p { margin: 0 0 var(--space-3); }
   filter: drop-shadow(0 1px 1px rgba(255,255,255,.35));
 }
 
-.coord, .coord-label {
+/* 11.8 Coordinates — dari board-view.js */
+.square .coord,
+.square .coord-label,
+.square .coord-file,
+.square .coord-rank {
   position: absolute;
   font-size: clamp(8px, 1.5vw, 12px);
   font-weight: 700;
@@ -590,34 +492,14 @@ p { margin: 0 0 var(--space-3); }
   pointer-events: none; z-index: 3;
   user-select: none;
 }
-.coord-rank { top: 2px; left: 4px; }
-.coord-file { bottom: 2px; right: 4px; }
-.square.light .coord, .square.light .coord-label { color: var(--sq-dark); }
-.square.dark  .coord, .square.dark  .coord-label { color: var(--sq-light); }
+.square .coord-rank { top: 2px; left: 4px; }
+.square .coord-file { bottom: 2px; right: 4px; }
+.square.light .coord-file, .square.light .coord-rank { color: var(--sq-dark); }
+.square.dark  .coord-file, .square.dark  .coord-rank { color: var(--sq-light); }
 
-/* ---------- 12. PUZZLE FEEDBACK ---------- */
-.pz-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; padding: 10px 12px; }
-.pz-status { font-weight: 600; font-size: .92rem; line-height: 1.4; }
-.pz-status.success { color: var(--success); }
-.pz-status.error   { color: var(--danger); }
-.pz-status.hint    { color: var(--accent); }
-.square.hint-from { box-shadow: inset 0 0 0 4px rgba(122,162,255,.75); }
-.square.hint-to::after {
-  content: ""; position: absolute;
-  width: 86%; height: 86%; border-radius: 50%;
-  border: 4px dashed rgba(122,162,255,.85);
-  pointer-events: none; z-index: 2;
-}
-.square.wrong-move {
-  box-shadow: inset 0 0 0 4px var(--danger);
-  animation: shake .3s ease;
-}
-.square.good-move { box-shadow: inset 0 0 0 4px var(--success); }
-@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} }
-
+/* ---------- 12. STATUS TEXT ---------- */
 .status-text {
-  font-size: var(--fs-md);
-  font-weight: 600;
+  font-size: var(--fs-md); font-weight: 600;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   background: var(--surface-2);
@@ -626,9 +508,15 @@ p { margin: 0 0 var(--space-3); }
   display: flex; align-items: center;
 }
 .status-text[data-state="solved"],
-.status-text[data-state="correct"] { color: var(--success); border-color: color-mix(in srgb, var(--success) 40%, var(--border)); }
+.status-text[data-state="correct"] {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 40%, var(--border));
+}
 .status-text[data-state="wrong"],
-.status-text[data-state="incorrect"] { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, var(--border)); }
+.status-text[data-state="incorrect"] {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
 
 /* ---------- 13. PLAYERS / HISTORY ---------- */
 .player-header { display: flex; align-items: center; gap: 10px; }
@@ -653,11 +541,15 @@ p { margin: 0 0 var(--space-3); }
 .captured-row { display: flex; flex-wrap: wrap; gap: 2px; min-height: 22px; }
 .captured-piece { width: 20px; height: 20px; object-fit: contain; }
 
-.history-header { display: flex; align-items: center; justify-content: space-between; font-size: .86rem; }
+.history-header {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: .86rem;
+}
 .move-history, #move-history {
   overflow-y: auto;
   display: flex; flex-direction: column; gap: 2px;
-  font-size: .84rem; max-height: 200px; padding-right: 4px; margin: 0;
+  font-size: .84rem; max-height: 200px;
+  padding-right: 4px; margin: 0;
 }
 .move-row {
   display: grid; grid-template-columns: 34px 1fr 1fr; gap: 6px;
@@ -670,8 +562,7 @@ p { margin: 0 0 var(--space-3); }
 /* ---------- 14. MODE LAYOUT (puzzle/lesson) ---------- */
 .mode-layout {
   display: grid; gap: var(--space-4);
-  grid-template-columns: 1fr;
-  min-width: 0;
+  grid-template-columns: 1fr; min-width: 0;
 }
 @media (min-width: 900px) {
   .mode-layout {
@@ -686,133 +577,67 @@ p { margin: 0 0 var(--space-3); }
 
 /* ---------- 15. BADGES & PROGRESS ---------- */
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  letter-spacing: .3px;
-  background: var(--surface-2);
-  color: var(--text-muted);
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  padding: 2px var(--space-2); border-radius: var(--radius-pill);
+  font-size: var(--fs-xs); font-weight: 600; letter-spacing: .3px;
+  background: var(--surface-2); color: var(--text-muted);
   border: 1px solid var(--border);
 }
-.badge--easy   { color: var(--success); border-color: color-mix(in srgb, var(--success) 40%, var(--border)); }
-.badge--medium { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 40%, var(--border)); }
-.badge--hard   { color: var(--danger);  border-color: color-mix(in srgb, var(--danger)  40%, var(--border)); }
-.badge--expert { color: var(--accent);  border-color: color-mix(in srgb, var(--accent)  40%, var(--border)); }
-
 .progress {
-  width: 100%;
-  height: 6px;
+  width: 100%; height: 6px;
   border-radius: var(--radius-pill);
-  background: var(--surface-2);
-  overflow: hidden;
+  background: var(--surface-2); overflow: hidden;
 }
 .progress__bar {
-  height: 100%;
-  background: var(--accent);
-  width: 0%;
+  height: 100%; background: var(--accent); width: 0%;
   transition: width var(--dur-base) var(--ease);
 }
 
-/* ============================================================
-   16. LIST: PUZZLE (.item-*) & LESSON (.lesson-*)
-   ============================================================ */
+/* ---------- 16. LIST: PUZZLE & LESSON ---------- */
 .learn-container, .settings-page {
   width: 100%; max-width: 680px; margin: 0 auto;
   display: flex; flex-direction: column; gap: var(--space-4);
 }
-
 .item-list, .lesson-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
+  display: flex; flex-direction: column; gap: 10px; width: 100%;
 }
-
 .item-row, .lesson-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  width: 100%;
-  padding: 12px 16px;
-  background: var(--surface-2);
-  color: var(--text);
+  display: flex; flex-direction: row; align-items: center;
+  justify-content: space-between; gap: var(--space-3);
+  width: 100%; padding: 12px 16px;
+  background: var(--surface-2); color: var(--text);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  box-sizing: border-box;
+  cursor: pointer; box-sizing: border-box;
   text-align: left;
   transition: border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
 }
 .item-row:hover, .lesson-card:hover {
   border-color: var(--accent);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px); box-shadow: var(--shadow-sm);
 }
-.item-row.active { border-color: var(--accent); }
-.lesson-card.done { border-color: var(--success); }
-
 .item-body, .lesson-card-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-width: 0;
-  gap: 4px;
+  display: flex; flex-direction: column;
+  flex: 1 1 auto; min-width: 0; gap: 4px;
 }
 .item-body strong, .lesson-card-body strong {
-  font-size: .95rem;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
+  font-size: .95rem; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;
 }
 .item-body small, .lesson-card-body small {
-  font-size: .8rem;
-  color: var(--text-subtle);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
+  font-size: .8rem; color: var(--text-subtle);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;
 }
-
 .lesson-badge {
-  flex: 0 0 auto;
-  font-size: .62rem; font-weight: 700;
+  flex: 0 0 auto; font-size: .62rem; font-weight: 700;
   padding: 3px 8px; border-radius: 99px;
   background: var(--accent-soft); color: var(--accent);
   text-transform: uppercase; letter-spacing: .4px;
   white-space: nowrap;
 }
 .lesson-card.done .lesson-badge { background: var(--success-soft); color: var(--success); }
-
-.lesson-state, .fav-btn {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  margin-left: 10px;
-}
-.lesson-state { font-size: .78rem; color: var(--text-subtle); font-weight: 600; }
+.lesson-state { flex: 0 0 auto; white-space: nowrap; margin-left: 10px; font-size: .78rem; color: var(--text-subtle); font-weight: 600; }
 .lesson-card.done .lesson-state { color: var(--success); }
-
-.fav-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  color: var(--text-subtle); font-size: 1rem;
-  cursor: pointer;
-  transition: color var(--t-fast), background var(--t-fast);
-}
-.fav-btn:hover, .fav-btn:focus-visible { color: var(--warning); background: var(--surface); }
-.fav-btn.on { color: var(--warning); }
-
-#lessonDetail { display: flex; flex-direction: column; gap: var(--space-3); }
-#lessonStepText { white-space: pre-line; color: var(--text-muted); }
 
 /* ---------- 17. MODAL ---------- */
 .modal-overlay, .modal-backdrop {
@@ -822,6 +647,7 @@ p { margin: 0 0 var(--space-3); }
   z-index: var(--z-modal);
   padding: var(--space-4);
 }
+.modal-overlay.hidden { display: none !important; }
 .modal {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -832,9 +658,6 @@ p { margin: 0 0 var(--space-3); }
   display: flex; flex-direction: column; gap: var(--space-4);
   animation: page-in var(--t-base);
 }
-.modal.max-w-500 { max-width: 500px; }
-.modal__title, .modal-header h2 { font-size: 1.15rem; margin: 0; }
-.modal__body { color: var(--text-muted); margin-bottom: var(--space-4); }
 .modal-header { display: flex; align-items: center; justify-content: space-between; }
 .modal-buttons, .modal__actions {
   display: flex; gap: var(--space-2); justify-content: flex-end; flex-wrap: wrap;
@@ -854,18 +677,17 @@ body.modal-open { overflow: hidden; }
 .promotion-btn img { width: 82%; height: 82%; }
 
 /* ---------- 18. TOAST ---------- */
-.toast-container {
+#toastContainer, .toast-container {
   position: fixed;
-  bottom: calc(18px + var(--safe-bottom));
+  bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-3));
   left: 50%; transform: translateX(-50%);
   display: flex; flex-direction: column; gap: var(--space-2);
   z-index: var(--z-toast); pointer-events: none;
   width: max-content; max-width: calc(100vw - 32px);
 }
-.toast, .toast-container .toast {
-  position: static;
-  transform: none;
-  background: var(--surface-2); border: 1px solid var(--border-strong);
+.toast {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
   border-left: 4px solid var(--accent);
   color: var(--text);
   padding: 10px var(--space-4);
@@ -877,13 +699,7 @@ body.modal-open { overflow: hidden; }
   animation: toast-in .25s ease;
 }
 .toast.success { border-left-color: var(--success); }
-.toast.error   { border-left-color: var(--danger); }
-.toast:not(.toast-container .toast) {
-  position: fixed;
-  left: 50%;
-  bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-3));
-  transform: translateX(-50%);
-}
+.toast.error { border-left-color: var(--danger); }
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -900,11 +716,12 @@ body.modal-open { overflow: hidden; }
   min-height: 34px; cursor: pointer;
   transition: border-color var(--t-fast);
 }
-.lang-switcher select:hover, .lang-switcher__select:hover { border-color: var(--accent); }
+.lang-switcher select:hover { border-color: var(--accent); }
 
 /* ---------- 20. BOTTOM NAV (MOBILE) ---------- */
 .app-bottomnav {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: var(--z-bottomnav);
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: var(--z-bottomnav);
   background: color-mix(in srgb, var(--surface) 94%, transparent);
   backdrop-filter: saturate(140%) blur(8px);
   -webkit-backdrop-filter: saturate(140%) blur(8px);
@@ -916,7 +733,7 @@ body.modal-open { overflow: hidden; }
   display: flex; justify-content: space-around;
   height: var(--bottomnav-h);
 }
-.app-bottomnav a, .app-bottomnav__item {
+.app-bottomnav a {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 2px; min-width: 56px; flex: 1;
   padding: var(--space-2) var(--space-1);
@@ -925,61 +742,41 @@ body.modal-open { overflow: hidden; }
   position: relative;
   transition: color var(--t-fast);
 }
-.app-bottomnav a svg, .app-bottomnav__item svg { width: 22px; height: 22px; }
-.app-bottomnav a:hover, .app-bottomnav__item:hover { color: var(--text-muted); }
-.app-bottomnav a[aria-current="page"], .app-bottomnav__item[aria-current="page"] { color: var(--accent); }
-.app-bottomnav a[aria-current="page"]::before, .app-bottomnav__item[aria-current="page"]::before {
-  content: "";
-  position: absolute; top: 0; left: 20%; right: 20%;
-  height: 2px;
-  background: var(--accent);
+.app-bottomnav a svg { width: 22px; height: 22px; flex-shrink: 0; }
+.app-bottomnav a span {
+  display: block; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.app-bottomnav a:hover { color: var(--text-muted); }
+.app-bottomnav a[aria-current="page"] { color: var(--accent); }
+.app-bottomnav a[aria-current="page"]::before {
+  content: ""; position: absolute; top: 0; left: 20%; right: 20%;
+  height: 2px; background: var(--accent);
   border-radius: 0 0 2px 2px;
 }
 
-/* ---------- 21. TOOLTIP ---------- */
-[data-tooltip] { position: relative; }
-[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--surface-2);
-  color: var(--text);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1) var(--space-2);
-  font-size: var(--fs-xs);
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--t-fast);
-  z-index: var(--z-toast);
-}
-[data-tooltip]:hover::after, [data-tooltip]:focus-visible::after { opacity: 1; }
-
-/* ---------- 22. RESPONSIVE ---------- */
+/* ---------- 21. RESPONSIVE ---------- */
 @media (max-width: 1023px) {
   .app-layout { grid-template-columns: 1fr; }
   .app-nav { display: none; }
-  .app-sidebar { display: none; }
   .app-bottomnav { display: block; }
   .app-main {
     max-width: 100%;
     padding: var(--space-4);
     padding-bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + var(--space-5));
   }
-  .toast-container { bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + 12px); }
-  .modal-overlay, .modal-backdrop { padding: var(--space-3); align-items: flex-end; }
+  .modal-overlay { padding: var(--space-3); align-items: flex-end; }
   .modal {
     max-width: 100%;
     border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-sm);
     max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 24px);
   }
+  .app-header .lang-switcher { display: none !important; }
+  #lang-slot-settings .lang-switcher { display: flex !important; width: 100%; }
+  #lang-slot-settings .lang-switcher select { width: 100%; font-size: 1rem; padding: 10px; }
 }
 
 @media (min-width: 1024px) {
-  .app-sidebar { display: block; }
   .app-bottomnav { display: none; }
   .app-main { padding: var(--space-6); padding-bottom: var(--space-8); }
 }
@@ -990,13 +787,12 @@ body.modal-open { overflow: hidden; }
   .app-card { padding: var(--space-3); }
   .btn-row { gap: 6px; }
   .btn-row button, .btn { flex: 1 1 auto; padding: 9px 10px; }
-  .coord, .coord-label { font-size: 8px; }
+  .square .coord-file, .square .coord-rank { font-size: 8px; }
 }
 
 @media (min-width: 1100px) {
   .app-layout { grid-template-columns: minmax(280px, 28%) 1fr; }
   .app-main { max-width: none; }
-
   #page-game.is-active {
     display: grid;
     grid-template-columns: minmax(340px, 560px) minmax(280px, 1fr);
@@ -1004,32 +800,24 @@ body.modal-open { overflow: hidden; }
     align-items: start;
   }
   #page-game.is-active > * { margin-top: 0 !important; }
-
-  #page-game .app-page-title,
-  #page-game .app-page-subtitle { grid-column: 1 / -1; margin-bottom: 0; }
-
+  #page-game .page-header { grid-column: 1 / -1; }
   #page-game .app-card:nth-of-type(1) {
     grid-row: 2 / span 2;
     position: sticky;
     top: calc(var(--header-h) + var(--space-4));
   }
-
-  #page-game .app-card:nth-of-type(3) #move-history,
-  #page-game .app-card:nth-of-type(3) .move-history { max-height: none; }
-
-  .board { max-width: min(560px, calc(100dvh - 200px)); }
-}
-
-@media (min-width: 1024px) and (max-width: 1099px) {
-  .board { max-width: min(560px, calc(100dvh - 200px)); }
+  #page-game .app-card:nth-of-type(3) #move-history { max-height: none; }
+  .board, #board, #puzzle-board {
+    max-width: min(560px, calc(100dvh - 200px));
+  }
 }
 
 @media (orientation: landscape) and (max-height: 620px) {
-  .board { max-width: calc(100dvh - 100px); }
+  .board, #board, #puzzle-board { max-width: calc(100dvh - 100px); }
   .app-page-title { font-size: 1.2rem; }
 }
 
-/* ---------- 23. REDUCED MOTION ---------- */
+/* ---------- 22. REDUCED MOTION ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
@@ -1037,10 +825,9 @@ body.modal-open { overflow: hidden; }
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
-  .skeleton { animation: none; }
 }
 
-/* ---------- 24. SKELETON & STATES ---------- */
+/* ---------- 23. SKELETON & STATES ---------- */
 .skeleton {
   background: linear-gradient(90deg, var(--surface-2), var(--surface-hover), var(--surface-2));
   background-size: 200% 100%;
@@ -1052,10 +839,9 @@ body.modal-open { overflow: hidden; }
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-.skeleton--text  { height: 1em; margin: .35em 0; }
-.skeleton--line  { height: 14px; margin: 8px 0; }
-.skeleton--title { height: 1.6em; width: 60%; }
-.skeleton--block, .skeleton--card { height: 120px; border-radius: var(--radius-md); margin: 10px 0; }
+.skeleton--line { height: 14px; margin: 8px 0; }
+.skeleton--title { height: 1.6em; width: 60%; margin: 8px 0; }
+.skeleton--card { height: 120px; border-radius: var(--radius-md); margin: 10px 0; }
 .skeleton--board { width: 100%; aspect-ratio: 1/1; }
 
 .state-box, .empty-state, .error-state {
@@ -1066,32 +852,14 @@ body.modal-open { overflow: hidden; }
   border-radius: var(--radius-lg);
   background: var(--surface);
 }
-.state-box svg { width: 36px; height: 36px; color: var(--text-subtle); }
-.state-box .btn { margin-top: 4px; }
 .error-state { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, var(--border)); }
-.empty-state__title, .error-state__title {
-  font-size: var(--fs-md); font-weight: 600;
-  color: var(--text); margin-bottom: var(--space-2);
-}
+.error-state strong { font-size: var(--fs-md); font-weight: 600; color: var(--text); }
 
-/* ---------- 25. LANG SWITCHER MOBILE ---------- */
-@media (max-width: 1023px) {
-  .app-header .lang-switcher { display: none !important; }
-  #lang-slot-settings .lang-switcher { display: flex !important; width: 100%; }
-  #lang-slot-settings .lang-switcher select,
-  #lang-slot-settings .lang-switcher__select {
-    width: 100%; max-width: 100%; padding: 10px; font-size: 1rem;
-  }
-}
-
-/* ---------- 26. SMALL SCREENS (320–360) ---------- */
+/* ---------- 24. SMALL SCREENS ---------- */
 @media (max-width: 360px) {
   :root {
-    --space-4: 12px;
-    --space-6: 18px;
-    --fs-base: 14px;
-    --fs-md: 16px;
-    --fs-lg: 18px;
+    --space-4: 12px; --space-6: 18px;
+    --fs-base: 14px; --fs-md: 16px; --fs-lg: 18px;
   }
   .app-header { padding-inline: var(--space-3); }
   .btn { padding: var(--space-2) var(--space-3); }
@@ -1100,17 +868,10 @@ body.modal-open { overflow: hidden; }
 }
 
 /* ==========================================================================
-   27. COMPATIBILITY LAYER
-   Bagian ini menggabungkan sisa-sisa "simple CSS" agar HTML lama dan
-   bridge yang masih memakai elemen/kelas berikut tetap tampil benar.
-   Semua selector di sini ber-specificity rendah sehingga v8.0 tetap
-   menang bila ada aturan yang lebih spesifik.
+   25. COMPATIBILITY LAYER — bare <button>, .actions-grid, safety
    ========================================================================== */
 
-/* 27.1 Bare <button> — hanya styling dasar; .btn / .btn-row button /
-       .icon-btn / .lesson-card / .promotion-btn tetap menang karena
-       specificity lebih tinggi. Menjamin #btn-reset-all dan tombol
-       modal (tanpa .btn) tetap konsisten secara visual. */
+/* 25.1 Bare <button> — untuk tombol modal & bridge tanpa .btn */
 button {
   background: var(--surface-2);
   color: var(--text);
@@ -1120,15 +881,13 @@ button {
   font-size: var(--fs-base);
   font-weight: 600;
   cursor: pointer;
-  transition: background var(--t-fast), border-color var(--t-fast),
-              transform var(--t-fast);
+  transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
 }
 button:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--border-strong); }
 button:active:not(:disabled) { transform: translateY(1px); }
 button:disabled { opacity: .45; cursor: not-allowed; }
 
-/* 27.2 .actions-grid — grid 3 kolom dari "simple CSS" untuk panel aksi
-       yang dikelola bridge (kompatibel dengan HTML lama & fragment). */
+/* 25.2 Grid aksi 3 kolom (legacy) */
 .actions-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1136,36 +895,29 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   margin-bottom: var(--space-4);
 }
 
-/* 27.3 Ellipsis pada label bottom-nav. "Pembelajaran" / "Pengaturan"
-       dapat terpotong rapi di 320-360px tanpa membuat nav melar. */
-.app-bottomnav a span, .app-bottomnav__item span {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* 27.4 Defensive sizing — kalau bridge membuat elemen piece tanpa
-       kelas .piece (mis. <div class="piece-wK">) di dalam .square,
-       aturan ini memberi base layout yang sama dengan .square .piece.
-       Aturan .square .piece (0-2-0) tetap menang bila kelas .piece
-       juga ada. */
-.square [class*="piece-"] {
-  width: 88%;
-  height: 88%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(20px, 7vw, 44px);
-  line-height: 1;
-  position: relative;
-  z-index: 2;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* 27.5 Fallback warna piece di luar .square (mis. preview/promotion
-       yang tidak dibungkus .square) — dipertahankan dari "simple CSS". */
+/* 25.3 Fallback warna piece di luar .square (promotion, preview) */
 .piece-wK, .piece-wQ, .piece-wR, .piece-wB, .piece-wN, .piece-wP { color: #fafafa; }
-.piece-bK, .piece-bQ, .piece-bR, .piece-bB, .piece-bN, .piece-bP { color: #111; } 
+.piece-bK, .piece-bQ, .piece-bR, .piece-bB, .piece-bN, .piece-bP { color: #111; }
+
+/* 25.4 Defensive sizing untuk piece tanpa kelas .piece */
+.square [class*="piece-"] {
+  width: 88%; height: 88%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(20px, 7vw, 44px);
+  line-height: 1; position: relative; z-index: 2;
+  pointer-events: none; user-select: none;
+}
+
+/* 25.5 Failsafe: kompat dengan board-view.js lama yang menambahkan
+       .board-wrapper ke #board. Jangan sampai #board jadi 1 kotak. */
+#board.board-wrapper,
+#puzzle-board.board-wrapper {
+  display: grid !important;
+  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(8, minmax(0, 1fr)) !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 0 !important;
+  background: var(--sq-light) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+                        }
