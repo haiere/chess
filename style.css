@@ -921,3 +921,22 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   border-radius: var(--radius-md) !important;
   box-shadow: var(--shadow-md) !important;
                         }
+
+/* ==========================================================================
+   26. SVG PIECES — sizing untuk <svg> di dalam .piece
+   ========================================================================== */
+.square .piece svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Piece div sekarang berisi SVG — flexbox centering dari §11.7 tetap berlaku. */
+.square .piece {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
