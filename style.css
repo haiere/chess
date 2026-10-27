@@ -933,3 +933,39 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   user-select: none;
   -webkit-user-drag: none;
 }
+
+/* ==========================================================================
+   27. PUZZLE / LESSON UI HELPERS
+   ========================================================================== */
+.badge-row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.puzzle-stats {
+  display: flex;
+  gap: var(--space-4);
+  font-size: .85rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+.puzzle-stats strong {
+  color: var(--text);
+  font-weight: 700;
+}
+#lesson-step-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text);
+  margin: var(--space-2) 0 var(--space-1) 0;
+}
+#lesson-step-body {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-2) 0;
+  white-space: pre-line;
+}
+#lesson-progress {
+  font-variant-numeric: tabular-nums;
+   }
