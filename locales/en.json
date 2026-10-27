@@ -74,5 +74,11 @@
   "a11y": {
     "boardLabel": "Chess board, {turn} to move",
     "mainNavigation": "Main navigation", "languageSwitcher": "Choose language"
+  "settings": {
+       "title": "Settings", subtitle: "Adjust appearance and preferences.",
+       "language": "Language", theme: "Theme", boardTheme: "Board Theme",
+       "languageDescription": "Choose interface language. Changes apply immediately.",
+       "light": "Light", dark: "Dark", system: "System",
+    }, 
   }
 }
