@@ -923,7 +923,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
                         }
 
 /* ==========================================================================
-   26. SVG PIECES — sizing untuk <svg> di dalam .piece
+   26. SVG PIECE — sizing
    ========================================================================== */
 .square .piece svg {
   width: 100%;
@@ -932,11 +932,4 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
-}
-
-/* Piece div sekarang berisi SVG — flexbox centering dari §11.7 tetap berlaku. */
-.square .piece {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
