@@ -74,5 +74,11 @@
   "a11y": {
     "boardLabel": "Papan catur, {turn} melangkah",
     "mainNavigation": "Navigasi utama", "languageSwitcher": "Pilih bahasa"
+  "settings": {
+       "title": "Pengaturan", subtitle: "Sesuaikan tampilan dan preferensi.",
+       "language": "Bahasa", theme: "Tema", boardTheme: "Tema Papan",
+       "languageDescription": "Pilih bahasa antarmuka. Perubahan langsung diterapkan.",
+       "light": "Terang", dark: "Gelap", system: "Sistem", 
+     }, 
   }
 }
