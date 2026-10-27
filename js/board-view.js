@@ -1,7 +1,6 @@
-const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'];
+const FILES = ['a','b','c','d','e','f','g','h'];
+const RANKS = ['8','7','6','5','4','3','2','1'];
 
-/* SVG bidak — Wikimedia Commons (public domain). */
 const SVG_PIECES = {
   wK: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45"><g fill="none" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22.5 11.63V6M20 8h5" stroke-linejoin="miter"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#fff" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10V37z" fill="#fff"/><path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" stroke="#000"/></g></svg>`,
   wQ: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45"><g fill="#fff" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM24.5 7.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM41 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM16 8.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM33 9a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-3-15-3 15-5.5-14V25L7 14l2 12z" stroke-linecap="butt"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" stroke-linecap="butt"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none"/></g></svg>`,
@@ -20,19 +19,31 @@ const SVG_PIECES = {
 function normalizeType(t) {
   if (!t) return '';
   const s = String(t).toLowerCase();
-  const map = { king: 'K', queen: 'Q', rook: 'R', bishop: 'B', knight: 'N', pawn: 'P' };
+  const map = { king:'K', queen:'Q', rook:'R', bishop:'B', knight:'N', pawn:'P' };
   return map[s] || s[0].toUpperCase();
 }
 
-class BoardView {
-  constructor(el, options = {}) {
+export class BoardView {
+  /* Dual signature:
+     - new BoardView(el, options)      → game.js style, onSquareClick(row, col)
+     - new BoardView({ el, ...opts })  → puzzle.js / lessons.js style, onSquareClick(sq) */
+  constructor(elOrOpts, maybeOpts) {
+    const isObjectForm = elOrOpts
+      && typeof elOrOpts === 'object'
+      && !elOrOpts.nodeType
+      && 'el' in elOrOpts;
+
+    let el, options;
+    if (isObjectForm) { options = elOrOpts; el = options.el; }
+    else              { el = elOrOpts;    options = maybeOpts || {}; }
+
     this.el = typeof el === 'string' ? document.getElementById(el) : el;
     if (!this.el) { console.error('[BoardView] container not found'); return; }
 
     this.orientation   = options.orientation === 'black' || options.orientation === 'b' ? 'b' : 'w';
     this.showCoords    = options.showCoords !== false;
     this.onSquareClick = options.onSquareClick || (() => {});
-    this.onDrop        = null;
+    this.clickStyle    = isObjectForm ? 'square' : 'coords';
 
     this._pieces      = {};
     this._selected    = null;
@@ -44,67 +55,65 @@ class BoardView {
     this._build();
   }
 
-  /* FLAT: #board sendiri grid 8x8 — tidak ada .board bersarang. */
   _build() {
     this.el.innerHTML = '';
-    this.el.classList.remove('board-wrapper');
-    this.el.classList.add('board');
-    this.el.setAttribute('role', 'grid');
+    // #board / #puzzle-board / #lesson-board → direkt grid.
+    // #*-container → wrap inner .board.
+    const direct = this.el.classList.contains('board')
+                || /^(board|puzzle-board|lesson-board|puzzleBoard|lessonBoard)$/.test(this.el.id);
+    if (direct) {
+      this.el.classList.add('board');
+      this._gridEl = this.el;
+    } else {
+      this._gridEl = document.createElement('div');
+      this._gridEl.className = 'board';
+      this.el.appendChild(this._gridEl);
+    }
+    this.el.__boardView = this;
     this._renderAll();
   }
 
+  _sq(row, col) { return FILES[col] + RANKS[row]; }
+
+  /* game.js API — state lengkap */
   setState(engineState, opts = {}) {
     if (this._destroyed || !engineState) return;
-
     this._pieces = {};
     if (engineState.board) {
-      for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-          const p = engineState.board[r][c];
-          if (p) {
-            this._pieces[FILES[c] + RANKS[r]] = {
-              color: p.color === 'white' ? 'w' : 'b',
-              type:  normalizeType(p.type)
-            };
-          }
-        }
+      for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+        const p = engineState.board[r][c];
+        if (p) this._pieces[this._sq(r, c)] = {
+          color: p.color === 'white' ? 'w' : 'b',
+          type: normalizeType(p.type)
+        };
       }
     }
-
-    this._selected = opts.selected
-      ? FILES[opts.selected.col] + RANKS[opts.selected.row] : null;
-
-    this._legalMoves = opts.legalMoves
-      ? opts.legalMoves.map(m => FILES[m.toCol] + RANKS[m.toRow]) : [];
-
-    this._lastMove = opts.lastMove ? {
-      from: FILES[opts.lastMove.fromCol] + RANKS[opts.lastMove.fromRow],
-      to:   FILES[opts.lastMove.toCol]   + RANKS[opts.lastMove.toRow]
+    this._selected    = opts.selected ? this._sq(opts.selected.row, opts.selected.col) : null;
+    this._legalMoves  = opts.legalMoves ? opts.legalMoves.map(m => this._sq(m.toRow, m.toCol)) : [];
+    this._lastMove    = opts.lastMove ? {
+      from: this._sq(opts.lastMove.fromRow, opts.lastMove.fromCol),
+      to:   this._sq(opts.lastMove.toRow, opts.lastMove.toCol)
     } : null;
-
-    this._checkSquare = opts.checkSquare
-      ? FILES[opts.checkSquare.col] + RANKS[opts.checkSquare.row] : null;
-
+    this._checkSquare = opts.checkSquare ? this._sq(opts.checkSquare.row, opts.checkSquare.col) : null;
     this._renderAll();
   }
 
+  /* puzzle.js / lessons.js API */
   setPosition(fenOrBoard) {
     if (this._destroyed) return;
     this._pieces = {};
-    let fen = '';
-    if (typeof fenOrBoard === 'string') fen = fenOrBoard;
-    else if (fenOrBoard && typeof fenOrBoard.fen === 'string') fen = fenOrBoard.fen;
-
-    const rows = (fen.split(' ')[0] || '').split('/');
-    rows.forEach((row, r) => {
+    const fen = typeof fenOrBoard === 'string' ? fenOrBoard
+              : (fenOrBoard && typeof fenOrBoard.fen === 'string') ? fenOrBoard.fen
+              : '';
+    (fen.split(' ')[0] || '').split('/').forEach((row, r) => {
       if (r >= 8) return;
       let c = 0;
       for (const ch of row) {
         if (/\d/.test(ch)) { c += parseInt(ch, 10); continue; }
         if (c >= 8) break;
-        this._pieces[FILES[c] + RANKS[r]] = {
+        this._pieces[this._sq(r, c)] = {
           color: ch === ch.toUpperCase() ? 'w' : 'b',
-          type:  ch.toUpperCase()
+          type: ch.toUpperCase()
         };
         c++;
       }
@@ -112,28 +121,45 @@ class BoardView {
     this._renderAll();
   }
 
+  setSelected(sq)   { this._selected = sq || null; this._renderAll(); }
+  setLegalMoves(a)  { this._legalMoves = Array.isArray(a) ? a.slice() : []; this._renderAll(); }
+  setLastMove(mv) {
+    if (!mv) { this._lastMove = null; this._renderAll(); return; }
+    this._lastMove = {
+      from: mv.from && typeof mv.from === 'object' ? this._sq(mv.from.row, mv.from.col) : mv.from,
+      to:   mv.to   && typeof mv.to   === 'object' ? this._sq(mv.to.row,   mv.to.col)   : mv.to
+    };
+    this._renderAll();
+  }
+  clearHighlights() {
+    this._selected = null;
+    this._legalMoves = [];
+    this._lastMove = null;
+    this._checkSquare = null;
+    this._renderAll();
+  }
+
   _renderAll() {
-    if (this._destroyed || !this.el) return;
+    if (this._destroyed || !this._gridEl) return;
     const frag  = document.createDocumentFragment();
     const files = this.orientation === 'b' ? [...FILES].reverse() : FILES;
     const ranks = this.orientation === 'b' ? [...RANKS].reverse() : RANKS;
 
     for (const r of ranks) {
       for (const f of files) {
-        const sq  = f + r;
+        const sq = f + r;
+        const row = RANKS.indexOf(r);
+        const col = FILES.indexOf(f);
         const cell = document.createElement('div');
-        const isLight = (FILES.indexOf(f) + RANKS.indexOf(r)) % 2 === 0;
-
-        cell.className = `square ${isLight ? 'light' : 'dark'}`;
+        cell.className = `square ${(col + row) % 2 === 0 ? 'light' : 'dark'}`;
         cell.dataset.square = sq;
         cell.setAttribute('role', 'gridcell');
         cell.setAttribute('aria-label', sq);
 
-        if (this._lastMove && (sq === this._lastMove.from || sq === this._lastMove.to))
-          cell.classList.add('last-move');
-        if (sq === this._checkSquare) cell.classList.add('in-check');
-        if (sq === this._selected) cell.classList.add('selected');
-        if (this._legalMoves.includes(sq)) cell.classList.add('legal-target');
+        if (this._lastMove && (sq === this._lastMove.from || sq === this._lastMove.to)) cell.classList.add('last-move');
+        if (sq === this._checkSquare)              cell.classList.add('in-check');
+        if (sq === this._selected)                 cell.classList.add('selected');
+        if (this._legalMoves.includes(sq))         cell.classList.add('legal-target');
 
         const p = this._pieces[sq];
         if (p) {
@@ -158,34 +184,29 @@ class BoardView {
 
         cell.addEventListener('click', () => {
           if (this._destroyed) return;
-          this.onSquareClick(RANKS.indexOf(r), FILES.indexOf(f));
+          if (this.clickStyle === 'square') this.onSquareClick(sq, row, col);
+          else                              this.onSquareClick(row, col);
         });
 
         frag.appendChild(cell);
       }
     }
-    this.el.replaceChildren(frag);
+    this._gridEl.replaceChildren(frag);
   }
 
-  setOrientation(o) {
-    this.orientation = (o === 'black' || o === 'b') ? 'b' : 'w';
-    this._renderAll();
-  }
-  setCoords(show) { this.showCoords = show; this._renderAll(); }
+  setOrientation(o) { this.orientation = (o === 'black' || o === 'b') ? 'b' : 'w'; this._renderAll(); }
+  setCoords(show)   { this.showCoords = show; this._renderAll(); }
 
-  /* Bersihkan DOM + tanda destroyed. Aman dipanggil berkali-kali. */
   destroy() {
     if (this._destroyed) return;
     this._destroyed = true;
     if (this.el) {
       this.el.innerHTML = '';
-      this.el.classList.remove('board');
       if (this.el.__boardView === this) delete this.el.__boardView;
     }
-    this._pieces = {};
-    this._legalMoves = [];
-    this._selected = null;
+    this._pieces = []; this._legalMoves = []; this._selected = null;
+    this._lastMove = null; this._checkSquare = null; this._gridEl = null;
   }
 }
 
-window.BoardView = BoardView;
+if (typeof window !== 'undefined') window.BoardView = BoardView;
