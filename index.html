@@ -230,66 +230,84 @@
                 </div>
             </section>
 
-            <!-- ============ PAGE: PUZZLE ============ -->
-            <section class="app-page" id="page-puzzle" data-page="puzzle" aria-labelledby="page-puzzle-title">
-                <header class="page-header">
-                    <h1 class="app-page-title" id="page-puzzle-title" data-i18n="puzzle.title">Puzzle Catur</h1>
-                    <p class="app-page-subtitle" data-i18n="puzzle.subtitle">Latih taktik dan penglihatan papan.</p>
-                </header>
+<!-- ============ PAGE: PUZZLE ============ -->
+<section class="app-page" id="page-puzzle" data-page="puzzle" aria-labelledby="puzzle-title">
+    <header class="page-header">
+        <h1 class="app-page-title" id="puzzle-title" data-i18n="puzzle.title">Puzzle Catur</h1>
+        <p class="app-page-subtitle" id="puzzle-subtitle" data-i18n="puzzle.subtitle">Latih taktik dan penglihatan papan.</p>
+    </header>
 
-                <div class="app-card">
-                    <label for="puzzle-difficulty" data-i18n="puzzle.difficulty">Kesulitan</label>
-                    <select id="puzzle-difficulty" class="app-select">
-                        <option value="easy"   data-i18n="puzzle.easy">Mudah</option>
-                        <option value="medium" data-i18n="puzzle.medium">Sedang</option>
-                        <option value="hard"   data-i18n="puzzle.hard">Sulit</option>
-                        <option value="expert" data-i18n="puzzle.expert">Ahli</option>
-                    </select>
+    <div class="mode-layout">
+        <div class="board-panel">
+            <div class="app-card">
+                <div id="puzzle-board-container"></div>
+            </div>
+        </div>
+
+        <div class="status-panel">
+            <div class="app-card">
+                <div class="badge-row">
+                    <span id="puzzle-difficulty" class="badge"></span>
+                    <span id="puzzle-level" class="badge"></span>
                 </div>
-
-                <div class="mode-layout">
-                    <div class="board-panel">
-                        <div class="app-card">
-                            <div id="puzzle-board-container">
-                                <div id="puzzle-board" class="board"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="status-panel">
-                        <div class="app-card">
-                            <div id="puzzle-status" aria-live="polite"
-                                 style="margin-bottom:12px;font-weight:500;"></div>
-                            <div class="btn-row action-row" role="group" aria-label="Kontrol puzzle">
-                                <button type="button" id="btn-puzzle-hint"     data-i18n="puzzle.hint">Petunjuk</button>
-                                <button type="button" id="btn-puzzle-retry"    data-i18n="puzzle.retry">Ulangi</button>
-                                <button type="button" id="btn-puzzle-next"     data-i18n="puzzle.next">Puzzle Berikutnya</button>
-                                <button type="button" id="btn-puzzle-solution" data-i18n="puzzle.showSolution">Lihat Solusi</button>
-                            </div>
-                        </div>
-                    </div>
+                <div id="puzzle-status" class="status-text" aria-live="polite"></div>
+                <div class="puzzle-stats">
+                    <span>Streak: <strong id="puzzle-streak">0</strong></span>
+                    <span>Solved: <strong id="puzzle-solved">0</strong></span>
+                    <span>Best: <strong id="puzzle-best">0</strong></span>
                 </div>
-            </section>
+            </div>
 
-            <!-- ============ PAGE: LEARN ============ -->
-            <section class="app-page" id="page-learn" data-page="learning" aria-labelledby="page-learn-title">
-                <header class="page-header">
-                    <h1 class="app-page-title" id="page-learn-title" data-i18n="learning.title">Belajar Catur</h1>
-                    <p class="app-page-subtitle" data-i18n="learning.subtitle">Kuasai dasar hingga strategi lanjutan.</p>
-                </header>
-
-                <div class="app-card">
-                    <div id="learn-progress" aria-live="polite" style="margin-bottom:12px;color:var(--app-muted);"></div>
-                    <div id="learn-content"></div>
+            <div class="app-card">
+                <div class="btn-row action-row" role="group" aria-label="Kontrol puzzle">
+                    <button type="button" id="puzzle-prev">Sebelumnya</button>
+                    <button type="button" id="puzzle-next">Berikutnya</button>
+                    <button type="button" id="puzzle-random">Acak</button>
+                    <button type="button" id="puzzle-try-again">Coba Lagi</button>
+                    <button type="button" id="puzzle-hint">Petunjuk</button>
+                    <button type="button" id="puzzle-solution">Solusi</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-                <div class="app-card">
-                    <div class="btn-row btn-row--split action-row" role="group" aria-label="Navigasi pelajaran">
-                        <button type="button" id="btn-learn-prev" data-i18n="learning.previous">Sebelumnya</button>
-                        <button type="button" id="btn-learn-next" data-i18n="learning.next">Berikutnya</button>
-                    </div>
+<!-- ============ PAGE: LEARNING ============ -->
+<section class="app-page" id="page-learning" data-page="learning" aria-labelledby="lesson-title">
+    <header class="page-header">
+        <h1 class="app-page-title" id="lesson-title" data-i18n="learning.title">Belajar Catur</h1>
+        <p class="app-page-subtitle" id="lesson-subtitle" data-i18n="learning.subtitle">Kuasai dasar hingga strategi lanjutan.</p>
+    </header>
+
+    <div class="mode-layout">
+        <div class="board-panel">
+            <div class="app-card">
+                <div id="lesson-board-container"></div>
+            </div>
+        </div>
+
+        <div class="status-panel">
+            <div class="app-card">
+                <div class="badge-row">
+                    <span id="lesson-level" class="badge"></span>
+                    <span id="lesson-progress" class="badge"></span>
                 </div>
-            </section>
+                <div id="lesson-status" class="status-text" aria-live="polite"></div>
+                <h3 id="lesson-step-title"></h3>
+                <p id="lesson-step-body"></p>
+            </div>
+
+            <div class="app-card">
+                <div class="btn-row action-row" role="group" aria-label="Navigasi pelajaran">
+                    <button type="button" id="lesson-prev">Sebelumnya</button>
+                    <button type="button" id="lesson-next">Berikutnya</button>
+                    <button type="button" id="lesson-try-again" hidden>Coba Lagi</button>
+                    <button type="button" id="lesson-complete">Tandai Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
             <!-- ============ PAGE: SETTINGS ============ -->
             <section class="app-page" id="page-settings" data-page="settings" aria-labelledby="page-settings-title">
