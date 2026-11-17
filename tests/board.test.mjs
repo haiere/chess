@@ -11,10 +11,12 @@ const css = readFileSync(join(ROOT, 'style.css'), 'utf8');
 const boardSrc = readFileSync(join(ROOT, 'js/board-view.js'), 'utf8');
 
 function extractRule(selector) {
-  // Find first { ... } block for selector at top level
-  const re = new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`);
+  // Top-level rule whose selector list starts with `selector`, e.g. ".board,\n.chess-board {".
+  // Nested rules such as "#x > .board > .board {" are skipped on purpose.
+  const esc = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(^|\\n)' + esc + '[^{}]*\\{([^}]*)\\}');
   const m = css.match(re);
-  return m ? m[1] : '';
+  return m ? m[2] : '';
 }
 
 test('style.css: .board is 8x8 grid', () => {
@@ -51,7 +53,7 @@ test('style.css: safe-area-inset used for header and bottom nav', () => {
 
 test('board-view.js: builds exactly 8*8=64 squares per render', () => {
   // Static check: squaresInOrder iterates 8x8
-  assert.match(boardSrc, /for\s*\(const\s+r\s+of\s+ranks\)\s+for\s*\(const\s+f\s+of\s+files\)/);
+  assert.match(boardSrc, /for\s*\(const\s+r\s+of\s+ranks\)\s*\{?\s*for\s*\(const\s+f\s+of\s+files\)/);
 });
 
 test('board-view.js: uses replaceChildren (no innerHTML wipe)', () => {

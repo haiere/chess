@@ -7,10 +7,11 @@ import { dirname, join, resolve } from 'node:path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 
-// Import LOCALES from i18n.js by reading the source (avoids DOM deps).
-const i18nSource = readFileSync(join(ROOT, 'js/i18n.js'), 'utf8');
-const match = i18nSource.match(/export const LOCALES\s*=\s*({[\s\S]*?});\s*\n\s*\/\/ -{2,}/);
-assert.ok(match, 'LOCALES not found in js/i18n.js');
+// LOCALES kini berada di js/i18n-data.js (digenerate dari locales/*.json) dan diimpor oleh i18n.js.
+const i18nSource = readFileSync(join(ROOT, 'js/i18n-data.js'), 'utf8');
+const match = i18nSource.match(/export const LOCALES\s*=\s*({[\s\S]*});\s*$/);
+assert.ok(match, 'LOCALES not found in js/i18n-data.js');
+assert.ok(/from '\.\/i18n-data\.js'/.test(readFileSync(join(ROOT, 'js/i18n.js'), 'utf8')), 'i18n.js harus mengimpor i18n-data.js');
 
 // Evaluate LOCALES safely
 const LOCALES = (new Function(`return (${match[1]});`))();

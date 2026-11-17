@@ -1,23 +1,29 @@
+// Pemeriksaan aksesibilitas statis pada index.html (tanpa DOM/jsdom).
+// Tes overflow & layout nyata ada di tests/e2e/smoke.py (Playwright).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
-// Karena environment Node tidak punya DOM, test ini menggunakan jsdom
-// Install: npm i -D jsdom
-import { JSDOM } from 'jsdom';
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const html = readFileSync(join(root, 'index.html'), 'utf8');
 
-test('semua tombol ikon memiliki aria-label', async () => {
-  const html = await import('node:fs').then(fs =>
-    fs.promises.readFile('index.html', 'utf8'));
-  const dom = new JSDOM(html);
-  const buttons = dom.window.document.querySelectorAll('button.icon-btn, button[aria-label]');
-  buttons.forEach(btn => {
-    assert.ok(btn.getAttribute('aria-label') || btn.textContent.trim(),
-      `Tombol tanpa label: ${btn.outerHTML}`);
-  });
+test('setiap tombol punya nama aksesibel (teks atau aria-label)', () => {
+  const buttons = [...html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)];
+  assert.ok(buttons.length > 0);
+  const unlabeled = buttons
+    .filter(([, attrs, inner]) => !/aria-label\s*=|data-i18n-aria\s*=/.test(attrs) && !inner.replace(/<[^>]+>/g, '').trim())
+    .map(([m]) => m.slice(0, 80));
+  assert.deepEqual(unlabeled, []);
 });
 
-test('tidak ada horizontal overflow pada viewport 320px', () => {
-  // Test manual / dengan Playwright. Di Node murni tidak bisa.
-  // Ini placeholder untuk integrasi Playwright.
-  assert.ok(true);
-}); 
+test('setiap tombol teks wajib punya data-i18n (tidak ada teks hardcoded)', () => {
+  const buttons = [...html.matchAll(/<button\b([^>]*)>([^<]+)<\/button>/g)];
+  const hardcoded = buttons.filter(([, attrs]) => !/data-i18n\s*=/.test(attrs)).map(([, , t]) => t.trim());
+  assert.deepEqual(hardcoded, []);
+});
+
+test('skip link dan landmark utama ada', () => {
+  assert.match(html, /href="#main|href="#content|skip/i);
+});

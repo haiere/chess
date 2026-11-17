@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 globalThis.window = globalThis;
-for (const f of ['engine.js', 'puzzle-data.js', 'lessons-data.js']) {
+for (const f of ['chess/engine.js', 'puzzle-data.js', 'lessons-data.js']) {
     try { eval(readFileSync(join(root, 'js', f), 'utf8')); } catch (e) { if (f !== 'lessons-data.js') throw e; }
 }
 
@@ -84,7 +84,7 @@ section('castling');
     const s2b = Chess.parseFEN('r3k2r/8/8/8/8/8/5ppp/R3K2R w KQkq - 0 1');
     ok(Chess.isInCheck(s2b, 'white'), 'pawn check on e1');
     ok(!Chess.findMove(s2b, 'e1g1'), 'no castle out of pawn check');
-    const s4 = Chess.parseFEN('4r3/8/8/8/8/8/4R3/4K3 w - - 0 1');
+    const s4 = Chess.parseFEN('4r2k/8/8/8/8/8/4R3/4K3 w - - 0 1');
     ok(!Chess.findMove(s4, 'e2d2'), 'pinned rook cannot move off file');
 }
 
@@ -223,7 +223,7 @@ section('DOM static consistency');
     const idRe = /id=["']([^"']+)["']/g;
     let m;
     while ((m = idRe.exec(html)) !== null) idSet.add(m[1]);
-    const jsFiles = ['storage.js','audio.js','pieces.js','engine.js','board-view.js','game.js','puzzle-data.js','puzzle.js','lessons-data.js','lessons.js','main.js','dashboard.js','favorites.js','bridge/puzzle-bridge.js','bridge/learn-bridge.js','bridge/game-bridge.js'];
+    const jsFiles = ['storage.js','audio.js','pieces.js','chess/engine.js','board-view.js','game.js','puzzle-data.js','puzzle.js','lessons-data.js','lessons.js','main.js','dashboard.js','favorites.js','bridge/puzzle-bridge.js','bridge/learn-bridge.js','bridge/game-bridge.js'];
     const missing = [];
     for (const f of jsFiles) {
         const code = readFileSync(join(root, 'js', f), 'utf8');
