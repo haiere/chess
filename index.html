@@ -91,7 +91,7 @@
 </head>
 
 <body class="app-body">
-  <div id="app-loading" role="status" aria-label="Memuat aplikasi">
+  <div id="app-loading" role="status" data-i18n-aria="a11y.loadingApp" aria-label="Loading app">
     <div class="sk sk-board" aria-hidden="true"></div>
     <div class="sk-lines" aria-hidden="true">
       <div class="sk t"></div>
@@ -100,13 +100,13 @@
     </div>
   </div>
 
-    <a class="app-skip" href="#main-content">Lewati ke konten</a>
+    <a class="app-skip" href="#main-content" data-i18n="a11y.skipToContent">Skip to content</a>
 
     <!-- ============================================================
          HEADER
          ============================================================ -->
     <header class="app-header">
-        <a class="app-brand" href="#/game" data-route="game" aria-label="Chess — Hajir Studio">
+        <a class="app-brand" href="#/game" data-route="game" data-i18n-aria="a11y.appLabel" aria-label="Chess — Hajir Studio">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M9 3h6v3l-1 2 2 2v2H8V10l2-2-1-2z"/>
@@ -114,13 +114,13 @@
                 <path d="M7 15h10v3H7z"/>
                 <path d="M6 18h12v3H6z"/>
             </svg>
-            <span>Chess</span>
+            <span data-i18n="app.name">Chess</span>
         </a>
 
         <div class="app-header-actions">
             <div id="lang-slot"></div>
             <button id="btn-theme" type="button" class="icon-btn"
-                    aria-label="Toggle theme">
+                    data-i18n-aria="a11y.toggleTheme" aria-label="Toggle theme">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <circle cx="12" cy="12" r="4"/>
@@ -136,7 +136,7 @@
     <div class="app-layout">
 
         <!-- SIDEBAR NAV -->
-        <nav class="app-nav" aria-label="Navigasi utama">
+        <nav class="app-nav" data-i18n-aria="a11y.mainNavigation" aria-label="Main navigation">
             <a href="#/game" data-route="game">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -195,7 +195,7 @@
             <section class="app-page" id="page-game" data-page="game" aria-labelledby="page-game-title">
                 <header class="page-header">
                     <h1 class="app-page-title" id="page-game-title" data-i18n="game.title">Permainan</h1>
-                    <p class="app-page-subtitle" id="game-status" aria-live="polite">Giliran Anda</p>
+                    <p class="app-page-subtitle" id="game-status" aria-live="polite" data-i18n="game.yourTurn">Your turn</p>
                 </header>
 
                 <div class="mode-layout">
@@ -204,7 +204,7 @@
                             <div id="board-container">
                                 <div id="board" class="board"
                                      role="grid"
-                                     aria-label="Papan catur"
+                                     data-i18n-aria="a11y.chessBoard" aria-label="Chess board"
                                      data-i18n-attr="aria-label:aria.board"></div>
                             </div>
                         </div>
@@ -212,12 +212,12 @@
 
                     <div class="status-panel">
                         <div class="app-card">
-                            <div class="btn-row action-row" role="group" aria-label="Kontrol permainan">
+                            <div class="btn-row action-row" role="group" data-i18n-aria="a11y.gameControls" aria-label="Game controls">
                                 <button type="button" id="btn-new-game"  data-i18n="game.newGame">Permainan Baru</button>
                                 <button type="button" id="btn-undo"      data-i18n="game.undo">Undo</button>
                                 <button type="button" id="btn-redo"      data-i18n="game.redo">Redo</button>
                                 <button type="button" id="btn-flip"      data-i18n="game.flip">Putar Papan</button>
-                                <button type="button" id="btn-copy-fen">Salin FEN</button>
+                                <button type="button" id="btn-copy-fen" data-i18n="game.copyFen">Copy FEN</button>
                                 <button type="button" id="btn-resign"    data-i18n="game.resign">Menyerah</button>
                             </div>
                         </div>
@@ -259,13 +259,13 @@
             </div>
 
             <div class="app-card">
-                <div class="btn-row action-row" role="group" aria-label="Kontrol puzzle">
-                    <button type="button" id="puzzle-prev">Sebelumnya</button>
-                    <button type="button" id="puzzle-next">Berikutnya</button>
-                    <button type="button" id="puzzle-random">Acak</button>
-                    <button type="button" id="puzzle-try-again">Coba Lagi</button>
-                    <button type="button" id="puzzle-hint">Petunjuk</button>
-                    <button type="button" id="puzzle-solution">Solusi</button>
+                <div class="btn-row action-row" role="group" data-i18n-aria="a11y.puzzleControls" aria-label="Puzzle controls">
+                    <button type="button" id="puzzle-prev" data-i18n="common.previous">Previous</button>
+                    <button type="button" id="puzzle-next" data-i18n="common.next">Next</button>
+                    <button type="button" id="puzzle-random" data-i18n="puzzle.random">Random</button>
+                    <button type="button" id="puzzle-try-again" data-i18n="common.tryAgain">Try again</button>
+                    <button type="button" id="puzzle-hint" data-i18n="puzzle.hintBtn">Hint</button>
+                    <button type="button" id="puzzle-solution" data-i18n="puzzle.solutionBtn">Solution</button>
                 </div>
             </div>
         </div>
@@ -298,11 +298,11 @@
             </div>
 
             <div class="app-card">
-                <div class="btn-row action-row" role="group" aria-label="Navigasi pelajaran">
-                    <button type="button" id="lesson-prev">Sebelumnya</button>
-                    <button type="button" id="lesson-next">Berikutnya</button>
-                    <button type="button" id="lesson-try-again" hidden>Coba Lagi</button>
-                    <button type="button" id="lesson-complete">Tandai Selesai</button>
+                <div class="btn-row action-row" role="group" data-i18n-aria="a11y.lessonNavigation" aria-label="Lesson navigation">
+                    <button type="button" id="lesson-prev" data-i18n="common.previous">Previous</button>
+                    <button type="button" id="lesson-next" data-i18n="common.next">Next</button>
+                    <button type="button" id="lesson-try-again" hidden data-i18n="common.tryAgain">Try again</button>
+                    <button type="button" id="lesson-complete" data-i18n="lessons.markComplete">Mark complete</button>
                 </div>
             </div>
         </div>
@@ -370,7 +370,7 @@
     <!-- ============================================================
          BOTTOM NAV (MOBILE)
          ============================================================ -->
-    <nav class="app-bottomnav" aria-label="Navigasi utama">
+    <nav class="app-bottomnav" data-i18n-aria="a11y.mainNavigation" aria-label="Main navigation">
         <div class="app-bottomnav-inner">
             <a href="#/game" data-route="game">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
