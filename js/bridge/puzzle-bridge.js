@@ -172,6 +172,15 @@ export const PuzzleBridge = {
 
     prepareContainer();
 
+    // PuzzleMode native sudah punya DOM sendiri: langsung init tanpa IDShim
+    // (IDShim membuat #puzzleBoard tiruan di dalam kontainer → papan ganda).
+    if (PM.__native) {
+      try { PM.init(); }
+      catch (e) { console.warn("[PuzzleBridge] PuzzleMode.init() threw:", e); }
+      instance = PM;
+      return instance;
+    }
+
     const result = IDShim.runWithShim(function () {
       try { PM.init(); }
       catch (e) {
