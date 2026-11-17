@@ -1,3 +1,5 @@
+import "./lessons-data.js";
+import { createLessonProvider } from './lessons/provider.js';
 import { BoardView } from './board-view.js';
 import { i18n } from './i18n.js';
 
@@ -217,12 +219,19 @@ class LessonsMode {
   }
 }
 
-export function initLessonsMode(provider) {
-  if (typeof window !== 'undefined' && window.LessonsMode) return window.LessonsMode;
+/* Membuat window.LessonsMode (kontrak: init(), openLesson(id)). Idempotent. */
+export function ensureLessonsMode(provider) {
+  if (typeof window === 'undefined') return null;
+  if (window.LessonsMode && typeof window.LessonsMode.init === 'function') return window.LessonsMode;
   const root = document.getElementById('page-learning');
   if (!root) return null;
-  const mode = new LessonsMode({ provider, root });
-  mode.mount();
-  if (typeof window !== 'undefined') window.LessonsMode = mode;
+  const mode = new LessonsMode({ provider: provider || createLessonProvider(), root });
+  let mounted = false;
+  mode.init = function () { if (!mounted) { mounted = true; this.mount(); } return this; };
+  window.LessonsMode = mode;
   return mode;
-  }
+}
+
+export const initLessonsMode = ensureLessonsMode;
+
+ensureLessonsMode();

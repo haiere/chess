@@ -12,7 +12,6 @@
 const BRIDGE_IMPORTS = [
   "./i18n.js",
   "./components/LanguageSwitcher.js",
-  "./bridge/i18n-extend.js",       // ← TAMBAH (sebelumnya hilang)
   "./bridge/visual-polish.js",
   "./bridge/id-shim.js",
   "./bridge/game-bridge.js",
@@ -27,7 +26,6 @@ const USER_MODULES = [
   { path: "./audio.js",             globals: ["SFX", "Audio", "Sound"] },
   { path: "./pieces.js",            globals: ["ChessPieces", "Pieces"] },
   { path: "./icons/svg.js",         globals: ["Icons", "SvgIcons"] },
-  { path: "./engine.js",            globals: ["Chess", "Engine", "ChessEngine"] },
   { path: "./chess/engine.js",      globals: ["Chess", "Engine", "ChessEngine"] },
   { path: "./chess/constants.js",   globals: ["ChessConstants", "Constants"] },
   { path: "./board-view.js",        globals: ["BoardView", "View", "Board"] },
@@ -138,13 +136,14 @@ function initBridgeForRoute(route, param) {
     }
   }
   if (route === "learning") {
-    if (window.LearnBridge && window.LearnBridge.init) {
-      try {
-        if (!bridgeInit.learn) { bridgeInit.learn = true; window.LearnBridge.init(); }
-        if (param && window.LessonsMode && window.LessonsMode.openLesson) window.LessonsMode.openLesson(param);
+    // LessonsMode dipasang langsung ke #page-learning (LearnBridge hanya untuk #learn-content lama).
+    try {
+      if (!bridgeInit.learn && window.LessonsMode && typeof window.LessonsMode.init === "function") {
+        bridgeInit.learn = true;
+        window.LessonsMode.init();
       }
-      catch (e) { console.error("[main-v6] LearnBridge.init() throw:", e); }
-    }
+      if (param && window.LessonsMode && window.LessonsMode.openLesson) window.LessonsMode.openLesson(param);
+    } catch (e) { console.error("[main-v6] LessonsMode.init() throw:", e); }
   }
   if (route === "settings" && !bridgeInit.settings) {
     // v6.1: flag flips only once the bridge actually initialises.

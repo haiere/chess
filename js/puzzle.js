@@ -1,3 +1,5 @@
+import "./puzzle-data.js";
+import { createPuzzleProvider } from './puzzle/provider.js';
 import { BoardView } from './board-view.js';
 import { i18n } from './i18n.js';
 
@@ -5,6 +7,23 @@ const T = (key, params, defaultValue) =>
   i18n.t(key, params, defaultValue ? { defaultValue } : undefined);
 
 const STORAGE_KEY = 'chess:puzzle-progress';
+
+/* Data puzzle menyimpan solusi sebagai UCI ("h1h8", "e7e8q").
+   Ubah ke { from, to, promo } yang dipakai board. Data rusak → null (fallback aman). */
+function normalizePuzzle(p) {
+  if (!p || typeof p !== 'object' || !Array.isArray(p.solution) || !p.solution.length) return null;
+  const solution = [];
+  for (const s of p.solution) {
+    if (typeof s === 'string') {
+      if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(s)) return null;
+      solution.push({ from: s.slice(0, 2), to: s.slice(2, 4), promo: s.slice(4) || undefined, uci: s });
+    } else if (s && typeof s.from === 'string' && typeof s.to === 'string') {
+      solution.push({ from: s.from, to: s.to, promo: s.promo, uci: s.from + s.to + (s.promo || '') });
+    } else return null;
+  }
+  if (typeof p.fen !== 'string') return null;
+  return { ...p, solution };
+}
 
 function loadProgress() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || { solved:[], streak:0, best:0 }; }
@@ -24,6 +43,8 @@ class PuzzleMode {
     this.board = null;
     this.attemptedMoves = [];
     this._pendingFrom = null;
+    this.busy = false;
+    this._replyTimer = null;
 
     this._cacheEls();
     this._bindEvents();
@@ -82,7 +103,15 @@ class PuzzleMode {
     this._loadPuzzle(puzzle);
   }
 
-  _loadPuzzle(puzzle) {
+  _loadPuzzle(raw) {
+    this._cancelOpponent();
+    const puzzle = normalizePuzzle(raw);
+    if (!puzzle) {
+      this.currentPuzzle = null;
+      this.state = 'error';
+      this._renderStatus();
+      return;
+    }
     this.currentPuzzle = puzzle;
     this.state = 'playing';
     this.attemptedMoves = [];
@@ -102,7 +131,8 @@ class PuzzleMode {
   }
 
   _onSquareClick(sq) {
-    if (this.state !== 'playing' || !this.currentPuzzle || !this.board) return;
+    const canPlay = this.state === 'playing' || this.state === 'wrong';
+    if (this.busy || !canPlay || !this.currentPuzzle || !this.board) return;
     const p = this.currentPuzzle;
     const step = this.attemptedMoves.length;
     const expected = p.solution[step];
@@ -121,10 +151,12 @@ class PuzzleMode {
     this.board.clearHighlights();
 
     if (expected.from === from && expected.to === to) {
+      this.state = 'playing';
       this.attemptedMoves.push({ from, to, promo: expected.promo });
       this.board.setPosition(this._fenAfterMoves(p.fen, this.attemptedMoves));
       this.board.setLastMove({ from, to });
       if (this.attemptedMoves.length >= p.solution.length) this._onSolved();
+      else if (this.attemptedMoves.length % 2 === 1) this._scheduleOpponent();
       else this._renderStatus();
     } else {
       this._onWrong();
@@ -134,18 +166,42 @@ class PuzzleMode {
   _fenAfterMoves(fen, moves) {
     try {
       const C = window.Chess;
-      if (C && typeof C.parseFEN === 'function'
-            && typeof C.applyMove === 'function'
-            && typeof C.toFEN === 'function') {
-        let state = C.parseFEN(fen);
-        for (const m of moves) {
-          const r = C.applyMove(state, m);
-          state = r && r.state ? r.state : r;
-        }
-        return C.toFEN(state);
+      let state = C.parseFEN(fen);
+      for (const m of moves) {
+        const uci = m.uci || (m.from + m.to + (m.promo || ''));
+        const mv = C.findMove(state, uci);
+        if (!mv) return fen;
+        state = C.applyMove(state, mv).state;
       }
-    } catch (_) {}
-    return fen;
+      return C.toFEN(state);
+    } catch (_) {
+      return fen;
+    }
+  }
+
+  /* Langkah lawan dimainkan otomatis setelah langkah user benar; input dikunci selama itu. */
+  _scheduleOpponent() {
+    this.busy = true;
+    this._renderStatus();
+    this._cancelOpponent();
+    this.busy = true;
+    this._replyTimer = setTimeout(() => {
+      this._replyTimer = null;
+      const p = this.currentPuzzle;
+      const m = p && p.solution[this.attemptedMoves.length];
+      if (!m || this.state !== 'playing') { this.busy = false; return; }
+      this.attemptedMoves.push({ from: m.from, to: m.to, promo: m.promo, uci: m.uci });
+      this.board.setPosition(this._fenAfterMoves(p.fen, this.attemptedMoves));
+      this.board.setLastMove({ from: m.from, to: m.to });
+      this.busy = false;
+      if (this.attemptedMoves.length >= p.solution.length) this._onSolved();
+      else this._renderStatus();
+    }, 400);
+  }
+
+  _cancelOpponent() {
+    if (this._replyTimer) { clearTimeout(this._replyTimer); this._replyTimer = null; }
+    this.busy = false;
   }
 
   _onSolved() {
@@ -159,13 +215,20 @@ class PuzzleMode {
     this._renderStats();
   }
 
+  /* Langkah salah: tampilkan feedback, lalu kembalikan posisi ke langkah benar terakhir.
+     User bisa langsung mencoba lagi (tidak terkunci). */
   _onWrong() {
     this.state = 'wrong';
+    this._pendingFrom = null;
+    this.board.clearHighlights();
     this._renderStatus();
-    if (this.currentPuzzle && this.board) this.board.setPosition(this.currentPuzzle.fen);
+    if (this.currentPuzzle && this.board) {
+      this.board.setPosition(this._fenAfterMoves(this.currentPuzzle.fen, this.attemptedMoves));
+    }
   }
 
   _reset() {
+    this._cancelOpponent();
     if (!this.currentPuzzle || !this.board) return;
     this.state = 'playing';
     this.attemptedMoves = [];
@@ -190,9 +253,11 @@ class PuzzleMode {
 
   _reveal() {
     if (!this.currentPuzzle || !this.board) return;
+    this._cancelOpponent();
     this.state = 'solved';
-    this.board.setPosition(this.currentPuzzle.fen);
-    this.board.setLastMove(this.currentPuzzle.solution[0] || null);
+    const sol = this.currentPuzzle.solution;
+    this.board.setPosition(this._fenAfterMoves(this.currentPuzzle.fen, sol));
+    this.board.setLastMove(sol[sol.length - 1] || null);
     this._renderStatus();
   }
 
@@ -223,10 +288,11 @@ class PuzzleMode {
 
   _renderStatus() {
     if (!this.els.status) return;
-    const map = { idle:'puzzle.statusReady', playing:'puzzle.statusPlaying', solved:'puzzle.solved', wrong:'puzzle.wrong' };
-    const defaults = { solved:'Solved!', wrong:'Not quite.', playing:'In progress', idle:'Ready' };
-    this.els.status.textContent = T(map[this.state] || 'puzzle.statusReady', null, defaults[this.state] || '');
-    this.els.status.dataset.state = this.state;
+    const map = { idle:'puzzle.statusReady', playing:'puzzle.statusPlaying', solved:'puzzle.solved', wrong:'puzzle.wrong', error:'puzzle.loadError' };
+    const defaults = { solved:'Solved!', wrong:'Not quite.', playing:'In progress', idle:'Ready', error:'This puzzle could not be loaded.' };
+    const key = this.busy ? 'puzzle.opponentTurn' : (map[this.state] || 'puzzle.statusReady');
+    this.els.status.textContent = T(key, null, this.busy ? 'Opponent is replying…' : (defaults[this.state] || ''));
+    this.els.status.dataset.state = this.busy ? 'opponent' : this.state;
     this.els.status.setAttribute('aria-live', 'polite');
   }
 
@@ -243,12 +309,21 @@ class PuzzleMode {
   }
 }
 
-export function initPuzzleMode(provider) {
-  if (typeof window !== 'undefined' && window.PuzzleMode) return window.PuzzleMode;
+/* Membuat window.PuzzleMode (kontrak yang dipakai main.js dan bridge/puzzle-bridge.js:
+   init(), selectPuzzle(id)). Idempotent: aman dipanggil berkali-kali. */
+export function ensurePuzzleMode(provider) {
+  if (typeof window === 'undefined') return null;
+  if (window.PuzzleMode && typeof window.PuzzleMode.init === 'function') return window.PuzzleMode;
   const root = document.getElementById('page-puzzle');
   if (!root) return null;
-  const mode = new PuzzleMode({ provider, root });
-  mode.mount();
-  if (typeof window !== 'undefined') window.PuzzleMode = mode;
+  const mode = new PuzzleMode({ provider: provider || createPuzzleProvider(), root });
+  let mounted = false;
+  mode.init = function () { if (!mounted) { mounted = true; this.mount(); } return this; };
+  mode.__native = true; // bridge/puzzle-bridge.js: lewati IDShim (tidak butuh id legacy)
+  window.PuzzleMode = mode;
   return mode;
-  }
+}
+
+export const initPuzzleMode = ensurePuzzleMode;
+
+ensurePuzzleMode();

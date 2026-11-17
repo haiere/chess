@@ -41,7 +41,7 @@
             window.PuzzleMode.refreshCoords();
         });
         $('btnResetAll').addEventListener('click', () => {
-            if (!confirm('Reset SEMUA data aplikasi (preferensi, progres puzzle, progres lesson)?')) return;
+            if (!confirm(window.I18n.t('settings.resetConfirm'))) return;
             window.AppStorage.clearAll();
             window.GameMode.toast(window.I18n.t('settings.resetToast'), 'success');
             setTimeout(() => location.reload(), 800);

@@ -23,14 +23,8 @@
     select.value = window.I18n.lang;
 
     select.addEventListener('change', (e) => {
+      // setLang menerjemahkan ulang seluruh [data-i18n] tanpa reload
       window.I18n.setLang(e.target.value);
-      // Terjemahkan ulang seluruh halaman tanpa reload
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        el.textContent = window.I18n.t(key);
-      });
-      // Update atribut lang
-      document.documentElement.lang = e.target.value;
     });
   }
 

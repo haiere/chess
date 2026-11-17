@@ -241,7 +241,58 @@
         }
         return best;
     }
-    function chooseAIMove() {
+    /* ---- Worker AI (js/ai/ai-worker.js). Fallback lokal bila worker gagal/timeout. ---- */
+    let aiWorker = null;            // null = belum dibuat, false = tidak tersedia
+    let aiReqId = 0;
+    const aiWaiters = new Map();
+    function getAIWorker() {
+        if (aiWorker !== null) return aiWorker || null;
+        try {
+            const w = new Worker('js/ai/ai-worker.js');
+            w.onmessage = (e) => {
+                const waiter = aiWaiters.get(e.data && e.data.id);
+                if (!waiter) return;
+                aiWaiters.delete(e.data.id);
+                clearTimeout(waiter.timer);
+                if (e.data.error) waiter.reject(new Error(e.data.error));
+                else waiter.resolve(e.data.move);
+            };
+            w.onerror = () => {
+                w.terminate();
+                aiWorker = false;
+                for (const waiter of aiWaiters.values()) { clearTimeout(waiter.timer); waiter.reject(new Error('worker error')); }
+                aiWaiters.clear();
+            };
+            aiWorker = w;
+        } catch (_) { aiWorker = false; }
+        return aiWorker || null;
+    }
+    function askWorker(state, difficulty) {
+        return new Promise((resolve, reject) => {
+            const w = getAIWorker();
+            if (!w) { reject(new Error('no worker')); return; }
+            const id = ++aiReqId;
+            const timer = setTimeout(() => { aiWaiters.delete(id); reject(new Error('timeout')); }, 8000);
+            aiWaiters.set(id, { resolve, reject, timer });
+            w.postMessage({ id, state, difficulty });
+        });
+    }
+    async function chooseAIMove() {
+        const moves = window.Chess.allLegalMoves(current, current.currentPlayer);
+        if (!moves.length) return null;
+        if (aiDifficulty === 'easy') return moves[Math.floor(Math.random() * moves.length)];
+        try {
+            const want = await askWorker(current, aiDifficulty);
+            if (!want) return null;
+            const found = moves.find(m =>
+                m.fromRow === want.fromRow && m.fromCol === want.fromCol &&
+                m.toRow === want.toRow && m.toCol === want.toCol &&
+                (m.promotion || null) === (want.promotion || null));
+            if (found) return found;
+        } catch (_) { /* jatuh ke fallback lokal */ }
+        return chooseAIMoveLocal();
+    }
+    function chooseAIMoveLocal() {
         const color = current.currentPlayer;
         const moves = window.Chess.allLegalMoves(current, color);
         if (!moves.length) return null;
@@ -264,11 +315,13 @@
         aiThinking = true;
         updatePlayersUI();
         if (aiTimeoutId) clearTimeout(aiTimeoutId);
-        aiTimeoutId = setTimeout(() => {
+        aiTimeoutId = setTimeout(async () => {
             aiTimeoutId = null;
             if (statusInfo.over) { aiThinking = false; updatePlayersUI(); return; }
-            const mv = chooseAIMove();
+            const requestState = current;
+            const mv = await chooseAIMove();
             aiThinking = false;
+            if (current !== requestState) { updatePlayersUI(); return; }   // posisi berubah saat berpikir: buang hasil
             if (mv) playMove(mv);
             else { refreshStatus(); render(); }
         }, 350);
@@ -572,7 +625,9 @@
                 console.error("Game Init Error:", err);
                 const errDiv = document.createElement('div');
                 errDiv.className = 'error-state';
-                errDiv.innerHTML = `<strong>Gagal memuat papan:</strong> ${err.message}`;
+                const strong = document.createElement('strong');
+                strong.textContent = (window.I18n ? window.I18n.t('game.boardLoadError') : 'Failed to load board:') + ' ';
+                errDiv.append(strong, document.createTextNode(String((err && err.message) || '')));
                 const main = document.querySelector('.app-main') || document.body;
                 main.prepend(errDiv);
             }

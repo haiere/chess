@@ -239,7 +239,7 @@ window.LESSON_DATA = [
           "en": "No escape exists — the game ends.",
           "id": "Tidak ada jalan keluar — permainan berakhir."
         },
-        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 w - - 0 1"
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 b - - 0 1"
       },
       {
         "title": {
@@ -568,7 +568,7 @@ window.LESSON_DATA = [
           "en": "Pawns protect each other diagonally; attack the base of the chain.",
           "id": "Pion saling melindungi diagonal; serang pangkal rantai."
         },
-        "board": "1N1k4/4p3/2N5/8/8/2N5/3P4/1N1K4 w - - 0 1"
+        "board": "1N1k4/4p3/2N5/8/8/2N5/3P4/1N1K4 b - - 0 1"
       },
       {
         "title": {
@@ -1796,7 +1796,7 @@ window.LESSON_DATA = [
           "en": "More attackers than defenders, open lines, and a lead in development.",
           "id": "Lebih banyak penyerang dari penjaga, jalur terbuka, dan unggul pengembangan."
         },
-        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 w - - 0 1"
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 b - - 0 1"
       },
       {
         "title": {
@@ -2094,7 +2094,7 @@ window.LESSON_DATA = [
           "en": "In casual and online play, blunders happen — keep playing.",
           "id": "Di permainan santai dan daring, blunder terjadi — terus mainkan."
         },
-        "board": "1N1k4/4p3/2N5/8/8/2N5/3P4/1N1K4 w - - 0 1"
+        "board": "1N1k4/4p3/2N5/8/8/2N5/3P4/1N1K4 b - - 0 1"
       },
       {
         "title": {
@@ -3318,7 +3318,7 @@ window.LESSON_DATA = [
           "en": "Wrong moves teach — check why the right move works.",
           "id": "Langkah salah mengajarkan — pelajari mengapa langkah benar bekerja."
         },
-        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 w - - 0 1"
+        "board": "4k1N1/3p4/5N2/8/8/5N2/4P3/4K1N1 b - - 0 1"
       },
       {
         "title": {

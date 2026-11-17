@@ -56,7 +56,7 @@ export class BoardView {
   }
 
   _build() {
-    this.el.innerHTML = '';
+    this.el.replaceChildren();
     // #board / #puzzle-board / #lesson-board → direkt grid.
     // #*-container → wrap inner .board.
     const direct = this.el.classList.contains('board')
@@ -70,7 +70,76 @@ export class BoardView {
       this.el.appendChild(this._gridEl);
     }
     this.el.__boardView = this;
+    this._bindDrag();
     this._renderAll();
+  }
+
+  /* Dispatch satu kotak ke onSquareClick (sama persis dengan klik).
+     Drag & drop memakai ini, sehingga logika legalitas di pemanggil tetap satu sumber. */
+  _fire(sq) {
+    const row = RANKS.indexOf(sq[1]);
+    const col = FILES.indexOf(sq[0]);
+    if (this.clickStyle === 'square') this.onSquareClick(sq, row, col);
+    else                              this.onSquareClick(row, col);
+  }
+
+  /* Drag & drop via pointer events (mouse, pen, touch). Gerakan < 6px dianggap tap biasa. */
+  _bindDrag() {
+    const grid = this._gridEl;
+    if (!grid || typeof grid.addEventListener !== 'function') return;
+    grid.style.touchAction = 'none';
+    let drag = null;
+    const THRESHOLD = 6;
+
+    grid.addEventListener('pointerdown', (e) => {
+      if (this._destroyed || e.button > 0) return;
+      const cell = e.target && e.target.closest ? e.target.closest('[data-square]') : null;
+      if (!cell || !this._pieces[cell.dataset.square]) return;
+      drag = { sq: cell.dataset.square, x: e.clientX, y: e.clientY, id: e.pointerId, active: false, ghost: null, cell };
+    });
+
+    grid.addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (!drag.active) {
+        if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < THRESHOLD) return;
+        drag.active = true;
+        const piece = drag.cell.querySelector('.piece');
+        if (!piece) { drag = null; return; }
+        const r = drag.cell.getBoundingClientRect();
+        const ghost = piece.cloneNode(true);
+        ghost.classList.add('drag-ghost');
+        Object.assign(ghost.style, {
+          position: 'fixed', left: '0px', top: '0px', width: r.width + 'px', height: r.height + 'px',
+          pointerEvents: 'none', zIndex: '9999', margin: '0'
+        });
+        document.body.appendChild(ghost);
+        drag.ghost = ghost;
+        try { grid.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+      if (drag.ghost) {
+        const w = drag.ghost.offsetWidth / 2, h = drag.ghost.offsetHeight / 2;
+        drag.ghost.style.transform = `translate(${e.clientX - w}px, ${e.clientY - h}px)`;
+      }
+    });
+
+    const end = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag;
+      drag = null;
+      if (d.ghost) d.ghost.remove();
+      if (!d.active) return; // tap biasa: biarkan event click berjalan
+      this._suppressClick = true;
+      const under = document.elementFromPoint(e.clientX, e.clientY);
+      const target = under && under.closest ? under.closest('[data-square]') : null;
+      const to = target && target.dataset.square;
+      if (!this._destroyed && to && to !== d.sq && grid.contains(target)) {
+        this._fire(d.sq);
+        this._fire(to);
+      }
+      setTimeout(() => { this._suppressClick = false; }, 0);
+    };
+    grid.addEventListener('pointerup', end);
+    grid.addEventListener('pointercancel', end);
   }
 
   _sq(row, col) { return FILES[col] + RANKS[row]; }
@@ -183,9 +252,8 @@ export class BoardView {
         }
 
         cell.addEventListener('click', () => {
-          if (this._destroyed) return;
-          if (this.clickStyle === 'square') this.onSquareClick(sq, row, col);
-          else                              this.onSquareClick(row, col);
+          if (this._destroyed || this._suppressClick) return;
+          this._fire(sq);
         });
 
         frag.appendChild(cell);
@@ -201,7 +269,8 @@ export class BoardView {
     if (this._destroyed) return;
     this._destroyed = true;
     if (this.el) {
-      this.el.innerHTML = '';
+      this.el.replaceChildren();
+      this._gridEl?.remove();
       if (this.el.__boardView === this) delete this.el.__boardView;
     }
     this._pieces = []; this._legalMoves = []; this._selected = null;
